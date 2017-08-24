@@ -32,7 +32,6 @@ define('__TPLUS_FILE__', __FILE__);
 if(function_exists('dr_get_my_dir')) {
 	$filepath = dr_get_my_dir() . '/includes/debug/dr-debug.php';
 	include_once($filepath);
-// 	include_once('/nas/content/live/dmitryrudakov/wp-content/themes/drfoto/includes/debug/dr-debug.php');
 // _dbug_change_log_location(plugin_dir_path(__FILE__));
 }
 
