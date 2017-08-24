@@ -4,7 +4,7 @@ Plugin Name: Translate+
 Plugin URI: https://dmitryrudakov.ru/plugins/
 GitHub Plugin URI: https://github.com/picasso/translate-plus
 Description: Extension for qTranslate-X
-Version: 0.7.5
+Version: 0.7.6
 Author: Dmitry Rudakov
 Author URI: https://dmitryrudakov.ru/about/
 Text Domain: tplus-plugin
@@ -22,7 +22,7 @@ Domain Path: /lang/
 
 // Prohibit direct script loading
 defined('ABSPATH') || die('No direct script access allowed!');
-define('TPLUS_VERSION', '0.7.5');
+define('TPLUS_VERSION', '0.7.6');
 define('TPLUS_NAME', 'Translate+');
 define('__TPLUS_ROOT__', plugin_dir_path(__FILE__)); 
 define('__TPLUS_FILE__', __FILE__); 
@@ -30,8 +30,7 @@ define('__TPLUS_FILE__', __FILE__);
 // set SCRIPT_DEBUG to true in wp-config.php to debug qTranslate-X scripts
 
 if(function_exists('dr_get_my_dir')) {
-	$filepath = dr_get_my_dir() . '/includes/debug/dr-debug.php';
-	include_once($filepath);
+	include_once(dr_get_my_dir() . '/includes/debug/dr-debug.php');
 // _dbug_change_log_location(plugin_dir_path(__FILE__));
 }
 
