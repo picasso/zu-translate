@@ -1,0 +1,153 @@
+<?php
+// qTranslate-X admin support & utils
+// Author: Dmitry Rudakov
+//
+
+class tplus_QTX {
+
+	private $qtx_seo = null;
+	private $options; 
+	
+	function __construct($options) {
+
+		$this->options = empty($options) ? [] : $options;
+		add_action('admin_enqueue_scripts', [$this, 'post_admin_style']);
+		add_filter('i18n_admin_config',[$this, 'admin_page_config']);
+		
+		if($this->option('qtxseo')) $qtx_seo = new tplus_QTX_SEO();
+		if(!$this->option('flags')) tplus_add_admin_body_class('qtx-flags-disabled');
+	}
+	
+	private function option($key, $check = true) {
+		
+		if(!isset($this->options[$key])) return false;
+		
+		if(is_bool($check)) $value = filter_var($this->options[$key], FILTER_VALIDATE_BOOLEAN);
+		else if(is_int($check)) $value = intval($this->options[$key]);
+		else $value = strval($this->options[$key]);
+		
+		return $value === $check ? true : false;
+	}
+
+	// Adds some JS & CSS for qTranslateX ----------------------------------------]
+	
+	public function post_admin_style($hook) {
+		
+		$font_families = array();
+		$font_families[] = 'Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800';
+		$protocol = is_ssl() ? 'https' : 'http';
+		$query_args = array(
+			'family' => implode( '%7C', $font_families ),
+			'subset' =>  'cyrillic',
+		);
+		$fonts_url = add_query_arg($query_args, "$protocol://fonts.googleapis.com/css");
+
+		wp_enqueue_style('open-sans-cyr', esc_url_raw($fonts_url), [], TPLUS_VERSION);
+		wp_enqueue_style('tplus-admin-qtx', tplus_get_my_url() .'/css/tplus-admin-qtx.css', ['qtranslate-admin-style'], TPLUS_VERSION);
+	}
+	
+	public function admin_page_config($page_configs) {
+
+	
+		$filename = tplus_get_my_dir() . '/i18n-config.json';
+		if(!file_exists($filename)) return $page_configs;
+		if(isset($page_configs['translate-plus'])) return $page_configs;
+		
+		$config_json = file_get_contents($filename);
+		if($config_json) {
+			$config = json_decode($config_json, true);
+			if(!empty($config) && is_array($config) && isset($config['admin-config'])) {
+				$page_configs = qtranxf_merge_config($page_configs, $config['admin-config']);
+			}
+		}
+
+// 	_dbug_log('json_encode($page_configs)=', json_encode($page_configs));
+		
+		return $page_configs;
+	}
+	
+	public function get_lang() {
+		global $_default_lang;
+		return function_exists('qtranxf_getLanguage') ? qtranxf_getLanguage() : (empty($_default_lang) ? 'en' : $_default_lang);	
+	}
+}
+
+// QTX + WPSEO support --------------------------------------------------------]
+
+class tplus_QTX_SEO {
+
+	private $seo_post_types;
+
+	function __construct($post_types) {
+		
+		$seo_post_types = empty($post_types) ? array_values(array_diff(get_post_types(['public' => true], 'names'), ['attachment', 'project'])) : $post_types;
+		add_action( 'admin_init',  [$this, 'setup_column_hooks']);
+		add_action('save_post', [$this, 'save_meta_box'], 10, 3);
+		tplus_add_admin_body_class('qtx-seo-enabled');
+	}
+	
+	public function add_meta_box() {
+	
+		add_meta_box(
+		    'qtx_seo_value',
+		    'qtx SEO',
+		    [$this, 'display_meta_box'],
+		    $this->seo_post_types,
+		    'normal'
+		);
+	}
+	
+	public function display_meta_box($post) {
+	
+	    wp_nonce_field(basename(__FILE__), 'qtx_seo_nonce');
+	
+		printf('
+	    	<input type="hidden" id="qtx_seo_score" name="qtx_seo_score" value="%1$s">
+	    	<input type="hidden" id="qtx_seo_content_score" name="qtx_seo_content_score" value="%2$s">',
+			get_post_meta($post->ID, 'qtx_seo_score', true),
+			get_post_meta($post->ID, 'qtx_seo_content_score', true)
+		);
+	}
+	
+	public function save_meta_box($post_id, $post, $update) {
+		
+	    if(!isset($_POST['qtx_seo_nonce']) || !wp_verify_nonce($_POST['qtx_seo_nonce'], basename(__FILE__))) return $post_id;
+	    if(defined("DOING_AUTOSAVE") && DOING_AUTOSAVE) return $post_id;
+		if(!in_array($post->post_type, $this->seo_post_types)) return $post_id;
+	
+	    $qtx_seo_score = $qtx_seo_content_score = '';
+	    if(isset($_POST['qtx_seo_score'])) $qtx_seo_score = $_POST['qtx_seo_score'];
+	    if(isset($_POST['qtx_seo_content_score'])) $qtx_seo_content_score = $_POST['qtx_seo_content_score'];
+	  
+	    update_post_meta($post_id, 'qtx_seo_score', $qtx_seo_score);
+	    update_post_meta($post_id, 'qtx_seo_content_score', $qtx_seo_content_score);
+	}
+	
+	public function setup_column_hooks() {
+		
+		add_action('add_meta_boxes',  [$this, 'add_meta_box']);
+		
+		foreach($this->seo_post_types as $pt) {
+				add_filter('manage_' . $pt . '_posts_columns', [$this, 'column_heading'], 10, 1);
+				add_action('manage_' . $pt . '_posts_custom_column', [$this, 'column_content'], 10, 2);
+		}
+	}
+	
+	public function column_heading($columns) {
+		return array_merge($columns, ['qtx_seo' => 'qtx_SEO']);
+	}
+	
+	public function column_content($column_name, $post_id) {
+	
+		if($column_name === 'qtx_seo') {
+			$qtx_seo_score = get_post_meta($post_id, 'qtx_seo_score', true);
+			$qtx_seo_content_score = get_post_meta($post_id, 'qtx_seo_content_score', true);
+			printf(
+				'<span class="qtx_seo_score" aria-hidden="true">%1$s</span>
+				<span class="qtx_seo_content_score" aria-hidden="true">%2$s</span>', 
+				$qtx_seo_score, 
+				$qtx_seo_content_score
+			);
+		}
+	}
+}
