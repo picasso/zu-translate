@@ -2,6 +2,7 @@
 /*
 Plugin Name: Translate+
 Plugin URI: https://dmitryrudakov.ru/plugins/
+GitHub Plugin URI: https://github.com/picasso/translate-plus
 Description: Extension for qTranslate-X
 Version: 0.7.4
 Author: Dmitry Rudakov
