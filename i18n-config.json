@@ -1,0 +1,134 @@
+{
+"vendor":{"plugins/translate-plus":"1.0"},
+
+"admin-config":{
+"post":{
+	"pages":{
+		"post.php":"", 
+		"post-new.php":"", 
+		"term.php":"", 
+		"edit-tags.php":"action=edit"
+	},
+	"anchors":{"post-body-content":{"where":"first"}},
+
+	"forms":{
+		"post":{
+			"fields":{
+				"wpcf-start-point":{ "jquery": "#wpcf-group-event-attributes input[data-wpt-id='wpcf-start-point']"}
+			}
+		}
+	},
+	
+	"js-exec": {
+		"tplus-post-exec" : {
+		    "src": "plugins/translate-plus/js/tplus-admin-posteditor.min.js"
+	 }
+	}
+}
+,
+
+"edit":{
+ 	"pages":{
+		"edit.php": ""
+	},
+    "anchors": {
+        "posts-filter": {
+            "where": "first"
+        }
+    },
+
+	"forms":{		
+		"posts-filter":{
+			"fields":{
+				"column-title":{ 
+					"jquery": ".column-title.page-title .hidden .post_title",
+					"encode": "display"
+				},
+				"tags":{ 
+					"jquery": ".tags.column-tags a",
+					"encode": "display"
+				},
+				"focuskw":{ 
+					"jquery": ".wpseo-focuskw.column-wpseo-focuskw",
+					"encode": "display"
+				},
+				"metadesc":{ 
+					"jquery": ".wpseo-metadesc.column-wpseo-metadesc",
+					"encode": "display"
+				},
+				"qtx-seo":{ 
+					"jquery": ".column-qtx_seo span",
+					"encode": "display"
+				},
+				"comments-view":{ 
+					"jquery": ".comments-view-item-link",
+					"encode": "display"
+				},
+				"notice-b":{ 
+					"jquery": ".notice b",
+					"encode": "display"
+				}
+			}
+		}
+	},
+
+	"js-exec": {
+		"tplus-edit-exec" : {
+		    "src": "plugins/translate-plus/js/tplus-admin-edit.min.js"
+	 }
+	}
+}
+
+,
+
+"widgets": {
+    "pages": {
+        "widgets.php": ""
+    },
+    "forms": {
+        "widgets-right": {
+            "fields": {
+                "widget-text_title": {
+                    "jquery": ".text-widget-fields input.title"
+                },
+                "widget-text_text": {
+                    "jquery": ".text-widget-fields textarea.text"
+                },
+                "widget-custom_html-content": {
+                    "jquery": "textarea[id^='widget-custom_html-'][id$='-content']"
+                }
+            }
+        }
+    },
+    
+	"js-exec": {
+		"tplus-widgets-exec" : {
+		    "src": "plugins/translate-plus/js/tplus-admin-widgets.min.js"
+	 }
+	}
+}
+
+,
+
+"all-pages":{
+	"filters":{
+		"text":{ 
+			"tplus_translate":"20"
+		}
+	}
+}
+}
+
+,
+
+"front-config":{
+	"all-pages":{
+		"filters":{
+			"text":{
+				"tplus_translate":"20"
+			}
+		}
+	}
+}
+
+}
