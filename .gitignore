@@ -1,0 +1,6 @@
+# Mac OS X Finder, Unused files and other noise 
+.DS_Store
+config.codekit3
+sources/
+scripts/
+sass/
