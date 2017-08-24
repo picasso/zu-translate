@@ -5,6 +5,7 @@
 //
 /* global tplus_custom */
 (function($) {
+	
 	'use strict';
 
 	$(window).on('load', function() { 	
