@@ -1,0 +1,562 @@
+// 	How adapt for a new plugin:
+//
+// 		- replace 'tplus_' for 'your_'
+//			- replace 'tplus-' for 'your-'
+//
+@mixin breakpoint-width($point) {
+	@media all and (max-width: $point)  { @content; }  
+}
+
+$some-orange: #fcbf00;
+$some-green: #83b19a;
+$some-blue: #00aced;
+$some-violet: #bc2a8d;
+$some-red: #ff4136;
+
+$admin-grey-color: #e5e5e5;
+
+$admin-magenta-color: #e01765;
+$admin-error-color: #cc2027;
+
+$admin-green-color: #1a937d;
+$admin-blue-color: $some-blue; 
+$admin-gold-color: #e8a723;
+$admin-red-color: $some-red;
+$hover-darken: 10;
+$hover-shadow: 20;
+
+$loading-url: '../images/loading.gif';
+$primary-font-family: 'Open Sans', Arial, sans-serif;
+
+.tplus_red { color: $admin-red-color;}
+.tplus_green { color: $admin-green-color;}
+.tplus_magenta { color: $admin-magenta-color;}
+.tplus_gold { color: $admin-gold-color;}
+
+._bold { font-weight: 600; letter-spacing: 0.5pt;}
+._uppercase { text-transform: uppercase; font-size: 0.8em;}
+
+.notice {
+	a { 
+		text-decoration: none; 
+		border-bottom: 1px dotted;
+	}
+	&.notice-error a {
+		font-weight: 600; 
+		color: $admin-error-color; 
+	}
+}
+
+.tplus_mobile_only {
+	padding: 15px;
+	display: none;  
+	@include breakpoint-width(850px) { display: block; }
+}
+
+#wpbody-content {
+	opacity: 0;
+	transition: opacity 0.4s ease-in-out 0.1s;
+	.ready & {
+		font-family: $primary-font-family;
+		opacity: 1;
+	}
+}
+
+.metabox-holder .postbox-container .empty-container {
+	border: 1px dashed #b4b9be;
+	height: 250px;
+	position: relative;
+	top: 2px;
+}
+
+
+.tplus-dashicons {
+
+    .dashicons {
+        line-height: 0.9;
+        margin: 0 2px 0 0;
+    }
+
+}
+
+.tplus-icons-link {
+    text-decoration: none;
+
+    .tplus-link-text {
+        text-decoration: underline;
+    }
+}
+
+.wp-core-ui {
+	
+	svg {
+		width: 100%;
+		height: 100%;
+		display: inline-block;
+		text-align: center;
+		line-height: 1em;
+	}
+	
+	.plugin-logo {
+		padding: 10px;
+    }
+
+    .tplus-button {
+        background-color: $admin-blue-color;
+        color: #fff !important;
+        width: auto;
+        height: auto;
+        font-size: 14px;
+        line-height: 18px;
+        font-weight: bold;
+        padding: 10px;
+        margin: 0 0 15px 0;
+        border: 0;
+		box-shadow: none;
+        text-align: center;
+        text-shadow: none;
+        cursor: pointer;
+        border-radius: 3px;
+
+        .dashicons {
+            vertical-align: middle;
+        }
+        &.tplus-button-block {
+            display: block;
+        }
+        &.tplus-button-right {
+            float: right;
+            margin-right: 20px;
+            padding: 10px 50px;
+        }
+        &:hover {
+            background-color: darken($admin-blue-color, $hover-darken);
+            color: #fff !important;
+            box-shadow: 0 1px 0 darken($admin-blue-color, $hover-shadow) !important;
+            border-color: darken($admin-blue-color, $hover-shadow) !important;
+        }
+
+        &.tplus-button-green {
+            background-color: $admin-green-color;
+            &:hover {
+                background-color: darken($admin-green-color, $hover-darken);
+	            box-shadow: 0 1px 0 darken($admin-green-color, $hover-shadow) !important;
+	            border-color: darken($admin-green-color, $hover-shadow) !important;
+            }
+        }
+        &.tplus-button-gold {
+            background-color: $admin-gold-color;
+            &:hover {
+                background-color: darken($admin-gold-color, $hover-darken);
+	            box-shadow: 0 1px 0 darken($admin-gold-color, $hover-shadow) !important;
+	            border-color: darken($admin-gold-color, $hover-shadow) !important;
+            }
+        }
+        &.tplus-button-red {
+            background-color: $admin-red-color;
+            &:hover {
+                background-color: darken($admin-red-color, $hover-darken);
+	            box-shadow: 0 1px 0 darken($admin-red-color, $hover-shadow) !important;
+	            border-color: darken($admin-red-color, $hover-shadow) !important;
+            }
+        }
+    }
+
+    .tplus-side-button {
+        width: 100%;
+    }
+}
+
+#tplus-side-mb {
+	.form_desc { 
+		background-color: white; padding: 0;
+	}
+	p {
+		padding: 0 10px;
+	}
+}
+
+#tplus-debug-mb {
+	.hndle {
+		background-color: $admin-gold-color;
+		color: white;
+		margin-bottom: 20px;
+	}
+	.toggle-indicator {
+		color: white;
+	}
+}
+
+// Inside area of meta boxes
+
+.plugin-mb {
+    .inside {
+        margin: 0 !important;
+        padding: 0;
+        
+        .form_desc {
+			padding: 15px;
+			background-color: lighten($admin-blue-color, 50);
+			color: darken($admin-blue-color, 25);
+			border-bottom: 1px solid darken($admin-grey-color, 5);
+			border-top: 1px solid rgba(darken($admin-blue-color, 5), 0.4);
+		}
+		.field_desc {
+            clear: both;
+            padding: 0 0 0 10px;
+            font-style: italic;
+            color: darken($admin-blue-color, 20);
+        }
+        .field_label {
+	        padding-left: 20px;
+        }
+    }
+}
+
+table {
+
+    // Base for all tables
+    &.tplus-plugin {
+        background: #fff;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        text-align: left;
+
+        td {
+            width: auto;
+            padding: 0;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    }
+
+    // Manage webhooks table
+    &.tplus-plugin-list {
+
+        th {
+            width: auto;
+            background: darken($admin-blue-color, 30%);
+            color: #fff;
+            font-weight: bold;
+            padding: 5px 10px 5px 0;
+        }
+
+        td {
+            padding: 12px 10px 12px 0;
+
+            &.name {
+                font-weight: bold;
+                font-size: 1.1em;
+                line-height: 1.4em;
+            }
+
+          &.function {
+                color: $admin-blue-color;
+            }
+
+          &.time {
+                color: $admin-gold-color;
+                font-weight: 600;
+            }
+
+          &.time b {
+                opacity: 0.5;
+                font-weight: 400;
+            }            
+        }
+
+        .index {
+            width: 40px;
+            padding-left: 0;
+            padding-right: 0;
+            text-align: center;
+        }
+
+        .time {
+            width: 140px;
+            padding-left: 0;
+            padding-right: 0;
+            text-align: center;
+        }
+
+        .function {
+            width: 250px;
+            padding-left: 20px;
+            padding-right: 0;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .status {
+            width: 35px;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .status-circle {
+            display: block;
+            background: #cc2027;
+            width: 15px;
+            height: 15px;
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            border-radius: 50%;
+
+            &.active {
+                background: #3eb890;
+            }
+
+        }
+
+        tr:nth-child(even) > td {
+            background: #eaf7fa;
+        }
+
+    }
+
+    // General/Add/Edit webhook table
+    &.tplus-plugin-general { // &.tplus-plugin-edit-outgoing-webhook, 
+
+        td {
+            padding: 10px 15px;
+            border-top: 1px solid #eee;
+            vertical-align: top;
+
+            &.tplus-label {
+                background: #f9f9f9;
+                width: 150px;
+                font-weight: bold;
+                padding-left: 12px;
+                border-right: 1px solid #eee;
+                
+                .tplus-label-desc {
+                    display: block;
+                    font-style: italic;
+                    font-weight: normal;
+                    margin: 2px 0 0 0;
+                }
+                
+            }
+
+            &.tplus-field {
+
+                &.lighter {
+                    opacity: 0.7;
+                }
+
+                &.tplus-events,
+                &.tplus-event-section {
+                    padding: 0;
+                }
+
+                &.tplus-events {
+                    border-top:0;
+                }
+
+                .tplus-field-required-message,
+                .tplus-field-invalid-message {
+                    display: none;
+                    clear: both;
+                    color: #900;
+                    font-weight: bold;
+                    margin: 5px 0 0 0;
+                    font-style: italic;
+                }
+
+                // When there's an error
+                &.tplus-field-error {
+                    .tplus-input {
+                        border-color: #900;
+                    }
+                }
+
+                // When the field is blank...
+                &.tplus-field-is-blank {
+
+                    // Show the required message
+                    .tplus-field-required-message {
+                        display: block;
+                    }
+
+                }
+
+                // When the field is invalid...
+                &.tplus-field-is-invalid {
+
+                    // Show the invalid message
+                    .tplus-field-invalid-message {
+                        display: block;
+                    }
+
+                }
+
+                .tplus-network-post-types {
+                    margin: 10px -15px 0 -15px;
+                    padding: 10px 15px;
+                    border-top: 1px solid #eee;
+
+                    input {
+                        margin: 5px 0 0 0;
+                    }
+
+                }
+
+            }
+
+            .wordpress-icon-emoji {
+                width: 64px;
+                height: auto;
+            }
+
+            $tplus-input-has-button-width: 150px;
+            $tplus-input-has-button-height: 28px;
+            .tplus-input-button-combo {
+                position: relative;
+
+                .tplus-input {
+                    height: $tplus-input-has-button-height;
+                    line-height: $tplus-input-has-button-height;
+                    padding: 0 5px;
+                    margin: 0;
+                }
+
+                // Hidden by default
+                .tplus-input-button {
+                    display: none;
+                    width: $tplus-input-has-button-width;
+                    background: #444;
+                    position: absolute;
+                    right: 0;
+                    top: 0;
+                    height: $tplus-input-has-button-height;
+                    line-height: $tplus-input-has-button-height;
+                    padding: 0 10px;
+                    box-shadow: none;
+                    border: 0;
+                    border-radius: 0;
+                    color: #fff;
+                    text-align: center;
+
+                    &:hover {
+                        background: #23282d;
+                    }
+
+                }
+
+                &.show-button {
+
+                    .tplus-input {
+                        padding-right: $tplus-input-has-button-width + 5px;
+                    }
+
+                    .tplus-input-button {
+                        display: block;
+                    }
+
+                }
+
+            }
+
+ 
+            .tplus-choice {
+                display: block;
+                float: left;
+                width: 50%;
+                margin: 0 0 4px 0;
+
+                & + .tplus-field-desc {
+                    padding-top: 5px;
+                }
+
+            }
+
+            .tplus-event-section {
+                vertical-align: middle;
+            }
+
+            .tplus-event-choice {
+                border-top: 1px solid #eee;
+
+                &:first-child {
+                    border-top: 0;
+                }
+
+                .tplus-event-choice-active {
+                    padding: 10px 15px;
+
+                    label {
+                        display: block;
+                    }
+
+                }
+
+                table.tplus-event-choice-details {
+                    display: none;
+
+                    td {
+                        vertical-align: middle;
+                    }
+
+                }
+
+                &.tplus-choice-is-active {
+
+                    table.tplus-event-choice-details {
+                        display: table;
+                    }
+
+                }
+
+            }
+
+        }
+
+         tr.buttons {
+
+            td {
+                padding: 10px;
+
+                .button {
+                    width: 100%;
+                    height: 35px;
+                    line-height: 35px;
+                    box-shadow: none;
+                    border: 0;
+                    border-radius: 0;
+                    font-weight: bold;
+                    padding: 0;
+                }
+
+                &.tplus-cancel {
+                    padding-right: 5px;
+
+                    .button {
+                        font-size: 12px;
+                    }
+
+                }
+
+                &.tplus-submit {
+                    padding-left: 5px;
+
+                    .button {
+                        width: 100%;
+                        padding-left: 0;
+                        padding-right: 0;
+                        font-size: 14px;
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+}
