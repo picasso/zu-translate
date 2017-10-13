@@ -3,36 +3,24 @@
 // Author: Dmitry Rudakov
 //
 
-class tplus_QTX {
+class tplus_QTX extends zuplus_Addon {
 
 	private $qtx_seo = null;
-	private $options; 
 	
-	function __construct($options) {
+	protected function construct_more() {
 
-		$this->options = empty($options) ? [] : $options;
 		add_action('admin_enqueue_scripts', [$this, 'post_admin_style']);
 		add_filter('i18n_admin_config',[$this, 'admin_page_config']);
-		
-		if($this->option('qtxseo')) $qtx_seo = new tplus_QTX_SEO();
-		if(!$this->option('flags')) tplus_add_admin_body_class('qtx-flags-disabled');
+
+// 		if($this->check_option('qtxseo')) $qtx_seo = new tplus_QTX_SEO();
+		if(!$this->check_option('flags')) zu()->add_admin_body_class('qtx-flags-disabled');
 	}
 	
-	private function option($key, $check = true) {
-		
-		if(!isset($this->options[$key])) return false;
-		
-		if(is_bool($check)) $value = filter_var($this->options[$key], FILTER_VALIDATE_BOOLEAN);
-		else if(is_int($check)) $value = intval($this->options[$key]);
-		else $value = strval($this->options[$key]);
-		
-		return $value === $check ? true : false;
-	}
-
 	// Adds some JS & CSS for qTranslateX ----------------------------------------]
 	
 	public function post_admin_style($hook) {
 		
+/*
 		$font_families = array();
 		$font_families[] = 'Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800';
 		$protocol = is_ssl() ? 'https' : 'http';
@@ -43,11 +31,12 @@ class tplus_QTX {
 		$fonts_url = add_query_arg($query_args, "$protocol://fonts.googleapis.com/css");
 
 		wp_enqueue_style('open-sans-cyr', esc_url_raw($fonts_url), [], TPLUS_VERSION);
-		wp_enqueue_style('tplus-admin-qtx', tplus_get_my_url() .'/css/tplus-admin-qtx.css', ['qtranslate-admin-style'], TPLUS_VERSION);
+*/
+
+		$this->enqueue_style('tplus-admin-qtx', ['qtranslate-admin-style']);
 	}
 	
 	public function admin_page_config($page_configs) {
-
 	
 		$filename = tplus_get_my_dir() . '/i18n-config.json';
 		if(!file_exists($filename)) return $page_configs;
@@ -83,7 +72,7 @@ class tplus_QTX_SEO {
 		$seo_post_types = empty($post_types) ? array_values(array_diff(get_post_types(['public' => true], 'names'), ['attachment', 'project'])) : $post_types;
 		add_action( 'admin_init',  [$this, 'setup_column_hooks']);
 		add_action('save_post', [$this, 'save_meta_box'], 10, 3);
-		tplus_add_admin_body_class('qtx-seo-enabled');
+		zu()->add_admin_body_class('qtx-seo-enabled');
 	}
 	
 	public function add_meta_box() {

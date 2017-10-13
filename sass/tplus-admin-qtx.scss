@@ -69,9 +69,6 @@ $lspacing: 0.4pt;
 				.subtitle {
 					margin-left: 200px;
 				}
-				#posts-filter {
-					position: relative;
-				}
 			}
 		}
 	}
@@ -86,7 +83,7 @@ $lspacing: 0.4pt;
 	#posts-filter & {
 	    width: auto;
 	    position: absolute;
-	    top: -34px;
+	    top: 18px;
 	    left: 170px;
 	}
 	#post-body-content & {
@@ -103,6 +100,13 @@ $lspacing: 0.4pt;
 	    }
 	    .post-php &, .post-new-php & {
 		    width: 100%;
+	    }
+	    .post-type-attachment & {
+	        width: auto;
+	        position: absolute;
+	        top: 17px;
+	        left: 300px;
+	        z-index: 3;
 	    }
 	}
 
@@ -250,16 +254,3 @@ $lspacing: 0.4pt;
 		border: 1px solid #666;
 	}
 }
-
-// Hide advertising -----------------------------------------------------------]
-
-#itsec-sidebar-widget-pro-upsell,
-#itsec-sidebar-widget-mail-list-signup,
-#itsec-sidebar-widget-form-backupbuddy-cross-promo,
-#itsec-sidebar-widget-form-malware-scan,
-#itsec-sidebar-widget-form-sync-cross-promo,
-#itsec-sidebar-widget-form-support,
-.itsec-module-pro-upsell,  
-#toplevel_page_itsec ul li:nth-child(5),
-a[title*="BBQ Pro"]
-{ display: none !important;}
