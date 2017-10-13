@@ -58,29 +58,11 @@ class TPLUS_Admin extends zuplus_Admin {
 
 		$this->form->checkbox('ls_frontend', 'Swither on Front-End?');
 		$this->form->checkbox('ls_menu', 'Swither in Menu?', 'The switcher should be added in menu to be displayed.');
+		$this->form->select('ls_display', 'Display in Menu', [	
+			'lang' 	=> 'Language Name', 
+			'code' 	=> 'Language Code', 
+		], 'How the language will be dispayed in menu');
 
 		echo $this->form->fields('Customization & settings for Language Switcher.');
 	}
 }
-
-/*
-	$items .= tplus_hidden($options, 'restart', 1);
-
-	$items .= tplus_text($options, 'lang', 'File to watch on Dropbox', 'File to check on Dropbox. <strong>Path should start with "/".</strong>');
-	
-	$items .= tplus_select($options, 'interval', 'Check your Dropbox folder:', [	
-		300 => 'Every five minutes', // 300
-		600 => 'Every ten minutes', 
-		1800 => 'Every thirty minutes', 
-		3600 => 'Every hour', 
-		7200 => 'Every two hours']
-	);
-
-	$users = get_users();
-	$select_users = array();
-	foreach($users as $user) $select_users[$user->ID] = $user->user_login;
-	$items .= tplus_select($options, 'author', 'Default Author', $select_users);
-
-*/
-
-	

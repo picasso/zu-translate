@@ -12,27 +12,13 @@ class tplus_QTX extends zuplus_Addon {
 		add_action('admin_enqueue_scripts', [$this, 'post_admin_style']);
 		add_filter('i18n_admin_config',[$this, 'admin_page_config']);
 
-// 		if($this->check_option('qtxseo')) $qtx_seo = new tplus_QTX_SEO();
+		if($this->check_option('qtxseo')) $qtx_seo = new tplus_QTX_SEO($this->config_addon());
 		if(!$this->check_option('flags')) zu()->add_admin_body_class('qtx-flags-disabled');
 	}
 	
 	// Adds some JS & CSS for qTranslateX ----------------------------------------]
 	
 	public function post_admin_style($hook) {
-		
-/*
-		$font_families = array();
-		$font_families[] = 'Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800';
-		$protocol = is_ssl() ? 'https' : 'http';
-		$query_args = array(
-			'family' => implode( '%7C', $font_families ),
-			'subset' =>  'cyrillic',
-		);
-		$fonts_url = add_query_arg($query_args, "$protocol://fonts.googleapis.com/css");
-
-		wp_enqueue_style('open-sans-cyr', esc_url_raw($fonts_url), [], TPLUS_VERSION);
-*/
-
 		$this->enqueue_style('tplus-admin-qtx', ['qtranslate-admin-style']);
 	}
 	
@@ -63,12 +49,13 @@ class tplus_QTX extends zuplus_Addon {
 
 // QTX + WPSEO support --------------------------------------------------------]
 
-class tplus_QTX_SEO {
+class tplus_QTX_SEO extends zuplus_Addon {
 
 	private $seo_post_types;
 
-	function __construct($post_types) {
+	protected function construct_more() {
 		
+		$post_types = $this->get_config('types');
 		$seo_post_types = empty($post_types) ? array_values(array_diff(get_post_types(['public' => true], 'names'), ['attachment', 'project'])) : $post_types;
 		add_action( 'admin_init',  [$this, 'setup_column_hooks']);
 		add_action('save_post', [$this, 'save_meta_box'], 10, 3);
@@ -88,7 +75,7 @@ class tplus_QTX_SEO {
 	
 	public function display_meta_box($post) {
 	
-	    wp_nonce_field(basename(__FILE__), 'qtx_seo_nonce');
+	    wp_nonce_field(basename(__TPLUS_FILE__), 'qtx_seo_nonce');
 	
 		printf('
 	    	<input type="hidden" id="qtx_seo_score" name="qtx_seo_score" value="%1$s">
@@ -100,7 +87,7 @@ class tplus_QTX_SEO {
 	
 	public function save_meta_box($post_id, $post, $update) {
 		
-	    if(!isset($_POST['qtx_seo_nonce']) || !wp_verify_nonce($_POST['qtx_seo_nonce'], basename(__FILE__))) return $post_id;
+	    if(!isset($_POST['qtx_seo_nonce']) || !wp_verify_nonce($_POST['qtx_seo_nonce'], basename(__TPLUS_FILE__))) return $post_id;
 	    if(defined("DOING_AUTOSAVE") && DOING_AUTOSAVE) return $post_id;
 		if(!in_array($post->post_type, $this->seo_post_types)) return $post_id;
 	

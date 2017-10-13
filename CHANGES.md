@@ -1,5 +1,6 @@
-#### 0.8.0 / 2017-10-13
+#### 0.8.1 / 2017-10-13
 * adaptation to ZU+
+* css optimization
 
 #### 0.7.6 / 2017-08-24
 * refactored `include_once('dr-debug.php')` to avoid reference to fixed path
