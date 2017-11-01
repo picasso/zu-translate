@@ -29,6 +29,10 @@ function tplus_instance() {
 	return Translate_Plus::instance(); 
 }
 
+function tplus_options() {
+	return tplus_instance()->options();
+}
+
 // Additional Classes & Functions ---------------------------------------------]
 
 require_once(__TPLUS_ROOT__ . 'includes/tplus-functions.php');
