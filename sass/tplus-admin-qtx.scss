@@ -65,9 +65,17 @@ $lspacing: 0.4pt;
 			#menu-name {
 				@include breakpoint-width-less(1100px) { width: 170px;}
 			}
+			&.post-php {
+				#post-body-content {
+					position: relative;
+				}
+			}
 			&.edit-php {
 				.subtitle {
 					margin-left: 200px;
+				}
+				#posts-filter {
+					position: relative;
 				}
 			}
 		}
@@ -83,7 +91,7 @@ $lspacing: 0.4pt;
 	#posts-filter & {
 	    width: auto;
 	    position: absolute;
-	    top: 18px;
+	    top: -34px;
 	    left: 170px;
 	}
 	#post-body-content & {
@@ -104,10 +112,12 @@ $lspacing: 0.4pt;
 	    .post-type-attachment & {
 	        width: auto;
 	        position: absolute;
-	        top: 17px;
 	        left: 300px;
 	        z-index: 3;
-	    }
+	        &:lang(ru) {
+	        	left: 450px;
+	        }
+	    }		
 	}
 
 	// Hide lang switcher
@@ -214,6 +224,11 @@ $lspacing: 0.4pt;
 	padding: 0 10px 2px;
 	margin: -2px 0 3px 10px;	
 	font-size: 13px !important;
+	
+	&.tplus_attachment {
+	    margin-top: -26px;
+	    left: 130px;
+	}
 }
 
 .tplus_admin_button {

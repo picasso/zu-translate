@@ -126,6 +126,11 @@ function tplus_indicateLanguage(name) {
 			}
 		});
 	});
+	
+	var $attachment_details = $('.wp_attachment_details.edit-form-section');
+	if($attachment_details.length) {
+		$attachment_details.before('<span class="tplus_lang tplus_attachment">' + name + '</span>');
+	}
 }
 
 function tplus_updateCopyContent(content) {

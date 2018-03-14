@@ -1,5 +1,10 @@
+#### 0.8.3 / 2017-03-14
+* updated `i18n-config.json` to work with `upload.php`
+* new script `tplus-admin-upload.js` to translate media attachement fields
+* css optimization
+
 #### 0.8.2 / 2017-11-01
-`tplus_options` bug fixed
+* `tplus_options` bug fixed
 
 #### 0.8.1 / 2017-10-13
 * adaptation to ZU+

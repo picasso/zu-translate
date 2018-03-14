@@ -1,5 +1,5 @@
 {
-"vendor":{"plugins/translate-plus":"0.7.4"},
+"vendor":{"plugins/translate-plus":"0.8.3"},
 
 "admin-config":{
 "post":{
@@ -22,7 +22,7 @@
 	"js-exec": {
 		"tplus-post-exec" : {
 		    "src": "plugins/translate-plus/js/tplus-admin-posteditor.min.js"
-	 }
+	 	}
 	}
 }
 ,
@@ -75,7 +75,7 @@
 	"js-exec": {
 		"tplus-edit-exec" : {
 		    "src": "plugins/translate-plus/js/tplus-admin-edit.min.js"
-	 }
+	 	}
 	}
 }
 
@@ -104,6 +104,20 @@
 	"js-exec": {
 		"tplus-widgets-exec" : {
 		    "src": "plugins/translate-plus/js/tplus-admin-widgets.min.js"
+	 	}
+	}
+}
+
+,
+
+"upload": {
+    "pages": {
+        "upload.php": ""
+    },
+    
+	"js-exec": {
+		"tplus-upload-exec" : {
+		    "src": "plugins/translate-plus/js/tplus-admin-upload.min.js"
 	 }
 	}
 }
