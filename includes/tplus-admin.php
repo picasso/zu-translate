@@ -13,6 +13,32 @@ class TPLUS_Admin extends zuplus_Admin {
 	// Should/Could be Redefined in Child Class ----------------------------------]
 	//
 
+	// 	To modify menu and submenu you should pass array with optional keys  ['reorder', 'rename', 'remove']
+	//		If presented key should array of array with the following keys
+	//		'menu'				- item-slug
+	//		'new_index'		- new item position
+	//		'after_index'		- item position will be after item with this slug
+	//		'before_index'	- item position will be before item with this slug
+	//		'new_name'		- new item name
+	//		'parent'				- parent menu slug (if absent then  'options-general.php' will be used)
+
+	protected function custom_admin_submenu() {
+		return [
+			'reorder'	=>	[
+				[
+					'menu'			=> 	'tplus-settings',
+					'after_index'	=>	'qtranslate-x',
+				],
+			],
+			'rename'	=>	[
+				[
+					'menu'			=> 	'qtranslate-x',
+					'new_name'	=>	'qTranslate-X',
+				],
+			],
+		];
+	}
+
 	protected function options_defaults() { 
 		return [
 			'qtxseo'				=> false,

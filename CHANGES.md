@@ -1,3 +1,7 @@
+#### 0.8.4 / 2017-03-19
+* renamed submenu for `qTranslate-X`
+* plugin settigns put below `qTranslate-X` submenu
+
 #### 0.8.3 / 2017-03-14
 * updated `i18n-config.json` to work with `upload.php`
 * new script `tplus-admin-upload.js` to translate media attachement fields
