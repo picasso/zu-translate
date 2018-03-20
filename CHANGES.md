@@ -1,6 +1,7 @@
-#### 0.8.4 / 2017-03-19
+#### 0.8.5 / 2017-03-20
 * renamed submenu for `qTranslate-X`
 * plugin settigns put below `qTranslate-X` submenu
+* added separator
 
 #### 0.8.3 / 2017-03-14
 * updated `i18n-config.json` to work with `upload.php`
