@@ -57,3 +57,64 @@ function tplus_get_urls_for_id($post_id = null) {
 	foreach(tplus_get_all_codes() as $code) $lang_urls[$code] = tplus_convert_url(get_permalink($post_id), $code);
 	return $lang_urls;
 }
+
+function  tplus_get_content($raw_content) {		// return array of content for all languages
+	global $q_config;
+
+	if(empty($q_config) || !function_exists('qtranxf_gettext')) return $raw_content;
+
+	$raw_contents = [];
+	
+	$c_lang = $q_config['language'];
+	foreach($q_config['enabled_languages'] as $lang) {
+		$q_config['language'] = $lang; 													// set language
+		$raw_contents[$lang] = qtranxf_gettext($raw_content);
+	}
+	$q_config['language'] = $c_lang; 													// restore saved language
+	
+	return $raw_content;
+}
+
+function  tplus_cut_content($raw_content, $amount = 150) { 		// return array of cut content for all languages
+	global $q_config;
+
+	if(empty($q_config) || !function_exists('qtranxf_gettext')) return zu()->cut_content($raw_content, $amount);
+	
+	$raw_contents = [];
+	$contents = [];
+	
+	$c_lang = $q_config['language'];
+	foreach($q_config['enabled_languages'] as $lang){
+		$q_config['language'] = $lang; 													// set language
+		$raw_contents[$lang] = qtranxf_gettext($raw_content);
+		$contents[$lang] = zu()->cut_content($raw_contents[$lang], $amount);
+	}
+	$q_config['language'] = $c_lang; 													// restore saved language
+	
+	foreach($contents as $lang => $cut_content) {
+		$raw_content = str_replace($raw_contents[$lang], $cut_content, $raw_content);
+	}
+	return $raw_content;
+}
+
+function  tplus_modify_content($raw_content, $prefix = '', $suffix = '', $replace = []) {		// return array of modified content for all languages
+	global $q_config;
+
+	if(empty($q_config) || !function_exists('qtranxf_gettext')) return zu()->modify_content($raw_content, $prefix, $suffix, $replace);
+	
+	$raw_contents = [];
+	$contents = [];
+	
+	$c_lang = $q_config['language'];
+	foreach($q_config['enabled_languages'] as $lang){
+		$q_config['language'] = $lang; 													// set language
+		$raw_contents[$lang] = qtranxf_gettext($raw_content);
+		$contents[$lang] = zu()->modify_content($raw_contents[$lang], $prefix, $suffix, $replace);
+	}
+	$q_config['language'] = $c_lang; 													// restore saved language
+	
+	foreach($contents as $lang => $mod_content) {
+		$raw_content = str_replace($raw_contents[$lang], $mod_content, $raw_content);
+	}
+	return $raw_content;
+}

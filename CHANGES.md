@@ -1,3 +1,7 @@
+#### 0.9.1 / 2017-03-25
+* css improved
+* added functions to work with multilingual content - `tplus_get_content()`, `tplus_cut_content()`, `tplus_modify_content()`
+
 #### 0.8.5 / 2017-03-20
 * renamed submenu for `qTranslate-X`
 * plugin settigns put below `qTranslate-X` submenu

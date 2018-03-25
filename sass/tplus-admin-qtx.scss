@@ -127,7 +127,10 @@ $lspacing: 0.4pt;
 		display: none;
 	}
 	
-	#message ~ #post & {
+	// Hide when message appears
+	#message ~ #post &,
+	#message ~ #posts-filter &,
+	#message ~ #post-body-content & {
 		opacity: 0;
 	}
 	
