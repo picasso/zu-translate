@@ -1,3 +1,6 @@
+#### 0.9.2 / 2017-03-25
+* css optimization
+
 #### 0.9.1 / 2017-03-25
 * css improved
 * added functions to work with multilingual content - `tplus_get_content()`, `tplus_cut_content()`, `tplus_modify_content()`
