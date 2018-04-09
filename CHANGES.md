@@ -1,3 +1,8 @@
+#### 0.9.4 / 2017-04-10
+* added `span` processing in attachment modal
+* added `location` field processing
+* css optimization
+
 #### 0.9.3 / 2017-04-09
 * added option `media_details` which activate JS for attachment details modal
 * script `tplus-admin-upload.js` was rewritten to keep translated attachment fields via AJAX update 

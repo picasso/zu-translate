@@ -102,14 +102,17 @@ input, textarea, div {
 			overflow: scroll;
 		}
 		&.input {
-			min-height: 28px;
+			min-height: 30px;
 		}
 		&.qtx_caption {
-			height: 28px;
+			height: 30px;
 		}
 		&.qtx_description {
 			font-size: 13px;
 			height: 150px;
+		}
+		&.qtx_location_alias {
+			width: 100%;
 		}
 		
 		border-left: $translatable-width solid $translatable-color !important;
