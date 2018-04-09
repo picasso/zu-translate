@@ -1,3 +1,9 @@
+#### 0.9.3 / 2017-04-09
+* added option `media_details` which activate JS for attachment details modal
+* script `tplus-admin-upload.js` was rewritten to keep translated attachment fields via AJAX update 
+* file `admin\qtx_admin_utils.php` was modified (line #20) to include TPLUS_VERSION in loaded JS
+* css optimization
+
 #### 0.9.2 / 2017-03-25
 * css optimization
 
@@ -12,7 +18,7 @@
 
 #### 0.8.3 / 2017-03-14
 * updated `i18n-config.json` to work with `upload.php`
-* new script `tplus-admin-upload.js` to translate media attachement fields
+* new script `tplus-admin-upload.js` to translate media attachment fields
 * css optimization
 
 #### 0.8.2 / 2017-11-01

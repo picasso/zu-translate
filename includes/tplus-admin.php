@@ -50,6 +50,7 @@ class TPLUS_Admin extends zuplus_Admin {
 		return [
 			'qtxseo'				=> false,
 			'flags'				=> false,
+			'media_details'	=> false,
 			'ls_frontend' 		=> true, 
 			'ls_menu' 			=> true, 
 			'ls_display' 		=> 'lang', 
@@ -81,6 +82,7 @@ class TPLUS_Admin extends zuplus_Admin {
 	public function print_options($post) {
 
 		$this->form->checkbox('flags', 'Show flags in buttons?');
+		$this->form->checkbox('media_details', 'Support for Language Switcher in Media Details?', 'You cannot edit the fields when viewing the modal dialog.');
 		$this->form->checkbox('qtxseo', 'Include support for Yoast SEO Plugin?', 'The Yoast SEO should be activated.');
 
 		echo $this->form->fields('The plugin extend functionality of qTranslate-X plugin.');

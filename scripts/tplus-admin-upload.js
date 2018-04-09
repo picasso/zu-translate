@@ -13,25 +13,82 @@
 		return $body.hasClass('post-type-attachment') || $body.hasClass('upload-php') ? false : true;
 	}
 
-	function update_lang_element($elem) { 
-		
-		if($elem.data('qtx') === undefined) {
-			var value = $elem.is('input') ? $elem.val() : $elem.html(); 
-			$elem.data('qtx', value);
-		}
+	function select_lang_data($elem, lang) {
 		
 		var blocks = qtranxj_split($elem.data('qtx'));
-		$elem[$elem.is('input') ? 'val' : 'html'](blocks[qTranslateConfig.activeLanguage]);
+		var html_string = blocks[lang];
+		$elem.html(html_string.replace(/(?:\r\n|\r|\n)/g, '<br />'));
+	}
+	
+	function update_lang_elements(lang) {
+		$('.qtx_alias').each(function() {
+			select_lang_data($(this), lang);
+		});
+	}
+	
+	function create_lang_buttons() { 
+		
+		var switch_html = '<div class="qtx-help">You should use <strong>"Edit more details"</strong> link to change values of Title, Caption, Description and others.</div>'+
+									'<ul id="qtx-details" class="qtranxs-lang-switch-wrap widefat">';
+		
+		for(var lang in qTranslateConfig.language_config) {
+			var li_class = 'qtranxs-lang-switch' + (qTranslateConfig.activeLanguage === lang ? ' active' : '');
+			switch_html += '<li lang="' + lang + '" class="'+li_class+'"><span>'+qTranslateConfig.language_config[lang].name+'</span></li>';
+		}
+		
+		switch_html += '</ul>';
+		
+		$('.attachment-details .details').append(switch_html);
+		
+		var $qtx_details = $('#qtx-details');
+		
+		$qtx_details.find('li').click(function(e) {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			
+			var $clicked = $(this);
+			$clicked.parent().find('li').removeClass('active');
+			$clicked.addClass('active');
+			update_lang_elements($clicked.attr('lang'));			
+		});
 	}
 
+	function fill_alias_lang(elem_class) { 
+		
+		var $elem = $('.'+elem_class);
+		if($elem.data('qtx') === undefined) return;
+		
+		select_lang_data($elem, qTranslateConfig.activeLanguage);
+	}
+
+	function create_alias_field($setting) {
+		
+		var names_to_process =  ['title', 'caption', 'description'];
+		var name = $setting.data('setting');
+
+		if(name === undefined || names_to_process.indexOf(name) === -1) return;
+		
+		var qtx_name = 'qtx_' + name;
+		var $input = $setting.find('input,textarea');
+		var class_name = $input.is('textarea') ? 'qtx_alias textarea ' : 'qtx_alias input ';
+		$setting.append('<div class="'+class_name+qtx_name+'" data-qtx="'+$input.val()+'"></div>');
+		fill_alias_lang(qtx_name);
+		$input.hide();
+	}
+	
 	function update_translation() {
+		
+		if(!$('body').hasClass('qtx-media-enabled')) return;
 		
 		if(is_not_attachment() && !is_modal()) return;
 		
 		$('.attachment-details .settings').children().each(function() {
-		
-			update_lang_element($(this));
+
+			create_alias_field($(this));	
 		});
+
+		create_lang_buttons();
+		$('.compat-field-post_tag input').focus().blur();
 	}
 
 	$(document).arrive('.attachment-details', update_translation);

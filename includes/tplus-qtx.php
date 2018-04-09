@@ -14,6 +14,7 @@ class tplus_QTX extends zuplus_Addon {
 
 		if($this->check_option('qtxseo')) $qtx_seo = new tplus_QTX_SEO($this->config_addon());
 		if(!$this->check_option('flags')) zu()->add_admin_body_class('qtx-flags-disabled');
+		if($this->check_option('media_details')) zu()->add_admin_body_class('qtx-media-enabled');
 	}
 	
 	// Adds some JS & CSS for qTranslateX ----------------------------------------]

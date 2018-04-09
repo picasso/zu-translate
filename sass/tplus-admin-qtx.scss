@@ -18,6 +18,7 @@ $admin-accent-color: $admin-red-color;
 $border-radius: 3px;
 
 $translatable-color: $admin-green-color;
+$translatable-color-bg: #f1ffff;
 $translatable-width: 3px;
 
 $admin-lighter-color: rgba(255,255,255, 0.8);
@@ -44,6 +45,75 @@ input, textarea, div {
  &.qtranxs-translatable {
         border-left: $translatable-width solid $translatable-color !important;
     }
+}
+
+.attachment-details {
+	
+	.details {
+		width: 100%;
+		top: -24px;
+		margin-bottom: 0 !important;
+	}
+	
+	.qtranxs-lang-switch-wrap {
+	    width: auto;
+	    position: absolute;
+	    bottom: 0;
+	    right: 0;
+	    @include breakpoint-width-less(1150px) { display: none;}
+	}
+	
+	.qtx-help {
+		position: absolute;
+		top: 0;
+		right: 5px;
+		width: 250px;
+		font-size: 13px;
+		padding: 5px 10px;
+		border: 1px solid rgba(255, 0, 0, 0.1);
+		border-radius: 3px;
+		text-align: right;
+		background-color: #fffff0;
+		strong {
+			color: #008675;
+		}
+		@include breakpoint-width-less(1500px) { display: none;}
+    }
+	
+	.qtx_alias {
+		cursor: default;
+	    font-family:inherit;
+	    font-size:14px;
+	    border-radius:0;
+	    border:1px solid #ddd;
+	    box-shadow:inset 0 1px 2px rgba(0,0,0,.07);
+	    background-color: $translatable-color-bg;
+	    color:#32373c;
+	    outline:0;
+	    transition:50ms border-color ease-in-out;
+	    padding:6px 8px;
+	    line-height:16px;
+		box-sizing:border-box;
+		margin:1px;
+		width:65%;
+		float:right;
+		&.textarea {
+			height: 62px;
+			overflow: scroll;
+		}
+		&.input {
+			min-height: 28px;
+		}
+		&.qtx_caption {
+			height: 28px;
+		}
+		&.qtx_description {
+			font-size: 13px;
+			height: 150px;
+		}
+		
+		border-left: $translatable-width solid $translatable-color !important;
+	}
 }
 
 // Buttons & Language ------------------------------------------------------]
