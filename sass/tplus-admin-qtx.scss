@@ -222,12 +222,12 @@ $lspacing: 0.4pt;
 	}
 
 	.qtranxs-lang-switch {
-		color: $admin-dark-color !important;
+		color: rgba($admin-dark-color, 0.4) !important;
 	    background-color: $inactive-color;
 	    background-image: none;
 	    font-size: 14px;
 	    font-weight: $admin-font-weight;
-	    border: 2px solid $active-color !important;
+	    border: 2px solid darken($inactive-color, 10) !important;
 	    border-radius: $border-radius;
 	    margin: 0 6px 6px 0;
 	    padding: 3px 6px 4px 10px;
@@ -237,11 +237,13 @@ $lspacing: 0.4pt;
 		transition: all $transition-time $transition-func;
 		transition-property: color, background-color, border-color;
 	    &.active {
+		 	color: $admin-dark-color !important;
 		 	background-color: $active-color;
 		 	border-color: darken($active-color, 5) !important;
 			cursor: default;
 		}
 		&:not(.active):hover {
+		 	color: $admin-dark-color !important;
 		 	border-color: darken($active-color, 5) !important;
 		 	background-color: lighten($active-color, 20);			
 		}

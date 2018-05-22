@@ -60,14 +60,18 @@ function tplus_updateCopyButtons(prev_lang) {
 
 function tplus_setContent(content) {
 	
+	$( '#content').val($.trim( content));
+	
+/*
 	if(typeof window.tinyMCE !== 'undefined' && window.tinyMCE.get('content')) {
 		
 		var editor = window.tinyMCE.get('content');
 		editor.setContent($.trim(content), { format : 'html' });
 	} else {
-		
+
 		$( '#content').val($.trim( content));
 	}
+*/
 }
 
 function tplus_copyFromLanguage(copy_lang, full_copy) {

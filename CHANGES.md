@@ -1,3 +1,8 @@
+#### 0.9.6 / 2017-05-22
+* css improved
+* fixed bug with `Copy Content Only` button
+* new implementation of language switcher for widgets (which now use CodeMirror editor)
+
 #### 0.9.4 / 2017-04-10
 * added `span` processing in attachment modal
 * added `location` field processing

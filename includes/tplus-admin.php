@@ -25,22 +25,27 @@ class TPLUS_Admin extends zuplus_Admin {
 	//		'parent'					- parent menu slug (if absent then  'options-general.php' will be used)
 
 	protected function custom_admin_submenu() {
+
 		return [
 			'reorder'	=>	[
 				[
-					'menu'			=> 	'tplus-settings',
-					'after_index'	=>	'qtranslate-x',
+					'menu'					=> 	'qtranslate-x',
+					'after_index2'		=>	'cplus-settings',
+				],
+				[
+					'menu'					=> 	'tplus-settings',
+					'after_index'			=>	'qtranslate-x',
 				],
 			],
 			'rename'	=>	[
 				[
-					'menu'			=> 	'qtranslate-x',
-					'new_name'	=>	'qTranslate-X',
+					'menu'					=> 	'qtranslate-x',
+					'new_name'			=>	'qTranslate-X',
 				],
 			],
 			'separator'	=>	[
 				[
-					'before_index'	=> 	'qtranslate-x',
+					'before_index'		=> 	'qtranslate-x',
 				],
 			],
 		];
