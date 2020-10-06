@@ -1,0 +1,248 @@
+@import "zukit-basic";
+
+// class prefixes -------------------------------------------------------------]
+
+$select-item-class: zukit-select-item;
+$table-component-class: zukit-table;
+$divider-component-class: zukit-divider;
+
+@import "components/select-item";
+@import "components/table";
+@import "components/divider";
+
+.zukit-settings {
+
+	#wpfooter {
+		display: none;
+	}
+
+	.block-editor-editor-skeleton {
+	    background-color: white;
+
+		// Settings Main Screen -----------------------------------------------]
+
+		.block-editor-editor-skeleton__content {
+			background-color: $page-basic-color;
+			.components-editor-notices__dismissible {
+				z-index: 29;
+				.components-notice__content div {
+					display: inline-block;
+				}
+				span {
+					color: darken($admin-blue-color, 20%);
+					font-weight: 600;
+				}
+				.zukit-data {
+					height: auto;
+					margin-left: 10px;
+					padding: 3px 6px;
+					border-width: 0;
+					background-color: $admin-light-brown;
+					color: $admin-error-color;
+					pointer-events: none;
+					cursor: default;
+				}
+			}
+
+			.block-editor-block-list__block {
+				background-color: $settings-color;
+				max-width: $settings-max-width;
+				border: 1px solid $settings-border-color;
+				border-top-width: 0;
+				border-bottom-width: 0;
+				box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+			}
+
+			.components-base-control, .components-button:not(.zukit-select-item__button) {
+				font-size: $basic-font-size;
+				color: $admin-grey-blue-color;
+			}
+
+			.components-base-control .components-toggle-control__label {
+				min-width: $settings-left-width;
+			}
+
+			.editor-post-title {
+				background-color: rgba($admin-grey-blue-color, 0.3);
+				box-shadow: 0 0 3px rgba($admin-grey-blue-color, 0.3) inset;
+				.editor-post-title__block {
+					padding: 15px 0;
+					margin: 0 auto;
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					max-width: none;
+					h1 {
+						font-size: $plugin-title-size;
+						font-family: "Noto Serif", serif;
+					}
+					.block-editor-block-icon {
+						width: $plugin-icon-width;
+						height: $plugin-icon-height;
+						svg {
+							max-width: $plugin-icon-width;
+							max-height: $plugin-icon-height;
+							height: $plugin-icon-height;
+						}
+					}
+				}
+			}
+
+			.__select_label {
+				display: block;
+				margin-bottom: 4px;
+			}
+			.__select_block {
+				display: flex;
+				justify-content: space-between;
+			}
+			.__select_control {
+				display: flex;
+				justify-content: flex-start;
+				align-items: center;
+				margin-bottom: 8px;
+				min-width: $settings-left-min-width;
+				.components-base-control__field {
+					margin-bottom: 0;
+				}
+				.__reset {
+					margin-left: 12px;
+					max-height: 30px;
+					min-width: 36px;
+				}
+			}
+			.components-base-control__help {
+				margin: 0 0 1em 1em;
+				color: $toggle-help-color;
+			}
+
+			.components-toggle-control {
+				display: flex;
+				align-items: flex-start;
+				justify-content: space-between;
+				.components-base-control__field {
+					margin: 0 0 1em;
+				}
+
+				& + .components-toggle-control {
+					margin-bottom: 0;
+				}
+			}
+
+			.components-range-control {
+				display: flex;
+				align-items: flex-start;
+				justify-content: space-between;
+				.components-base-control__field {
+					min-width: $settings-left-min-width;
+				}
+				.components-base-control__help {
+					margin-top: 27px;
+				}
+			}
+
+		}
+
+		// Settings Sidebar ---------------------------------------------------]
+
+		.block-editor-editor-skeleton__sidebar {
+			background-color: $sidebar-color;
+
+			.block-editor-block-card .block-editor-block-icon {
+				margin-top: 1em;
+			}
+
+			.components-panel__body.is-opened {
+				.components-panel__body-title + div {
+					margin-top: 12px;
+				}
+			}
+		}
+
+		// Settings Common Rules ----------------------------------------------]
+
+		.components-button:not(.zukit-select-item__button) {
+			&.__plugin_actions {
+				position: relative;
+			    width: 100%;
+			    color: white;
+				font-size: $basic-font-size;
+			    font-weight: 600;
+				transition: background-color $transition-time $transition-function;
+
+				background-color: $admin-blue-color;
+				border-color: darken($admin-blue-color, $hover-shadow) !important;
+				&:not(.is-loading):hover:enabled {
+					background-color: darken($admin-blue-color, $hover-darken);
+					color: #fff !important;
+				}
+				&:not(.is-loading):active:enabled {
+					background-color: darken($admin-blue-color, $hover-shadow);
+					color: #fff !important;
+				}
+				&.is-loading {
+					color: rgba(white, 0.5);
+					pointer-events: none;
+				}
+				.components-spinner {
+					position: absolute;
+					right: 0;
+					top: 50%;
+					transform: translate(0, -50%);
+					margin: 0 8px;
+					background-color: rgba(white, 0.5);
+				}
+
+				@each $color-name, $color-value in $admin-colors {
+					&.#{$color-name} {
+						background-color: $color-value;
+						border-color: darken($color-value, $hover-shadow) !important;
+			            &:hover:enabled {
+			                background-color: darken($color-value, $hover-darken);
+			            }
+						&:active:enabled {
+							background-color: darken($color-value, $hover-shadow);
+						}
+					}
+				}
+			}
+		}
+
+		.__help {
+			padding-top: 5px;
+			padding: 5px 10px;
+			border-radius: 0 0 $help-border-radius $help-border-radius;
+			margin-top: -1px;
+			@each $color-name, $color-value in $admin-colors {
+				&.#{$color-name}{
+		            background-color: rgba($color-value, $help-color-opacity);
+				}
+			}
+		}
+
+	} // end of skeleton ------------------------------------------------------]
+
+	// Components -------------------------------------------------------------]
+
+	.zukit-select-item {
+		.dashicons{
+			width: 100%;
+			height: 100%;
+			font-size: $select-item-size;
+		}
+	}
+}
+
+// NOTE: Не удалить ли???
+
+.zukit_red { color: $admin-red-color;}
+.zukit_green { color: $admin-green-color;}
+.zukit_magenta { color: $admin-magenta-color;}
+.zukit_gold { color: $admin-gold-color;}
+.zukit_blue { color: $admin-blue-color;}
+
+.zukit_bold { font-weight: 600; letter-spacing: 0.5pt;}
+.zukit_grand { font-weight: 600; font-size: 110%; letter-spacing: 1pt; text-transform: uppercase;}
+.zukit_uppercase { text-transform: uppercase; font-size: 0.8em;}
+.zukit_uppercase2 { font-weight: 500; text-transform: uppercase; letter-spacing: 0.5pt;}
+.zukit_shift { margin-left: 1.5em;}

@@ -1,0 +1,99 @@
+// Admin Table Component ------------------------------------------------------]
+
+$table-basic-color: $admin-grey-blue-color;
+$table-border-color: rgba($table-basic-color, 0.3);
+$table-header-color: rgba($table-basic-color, 0.1);
+$table-header-border-color: rgba($table-basic-color, 0.6);
+$table-row-color: rgba($table-basic-color, 0.01);
+$table-row-stripe-color: rgba($table-basic-color, 0.1);
+
+$table-basic-font-size: 14px;
+
+%row {
+	width: 100%;
+	display: flex;
+	flex-flow: row nowrap;
+}
+
+.#{$table-component-class} {
+	display: flex;
+	flex-flow: column nowrap;
+	font-size: $table-basic-font-size;
+	color: $table-basic-color;
+	margin: 0.5rem;
+	line-height: 1.5;
+	border: 1px solid $table-border-color;
+	flex: 1 1 auto;
+	transition: height $transition-time $transition-function;
+
+	&.is-loading {
+		border: 1px dashed rgba($table-border-color, 0.3);
+		.body {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 60px;
+		}
+		.head {
+			border-width: 0;
+		}
+	}
+
+	.head {
+		@extend %row;
+		font-weight: 700;
+		background-color: $table-header-color;
+		white-space: normal;
+		justify-content: center;
+		border-bottom: 1px solid $table-header-border-color;
+	}
+
+	.row {
+		@extend %row;
+		background-color: $table-row-color;
+		border-bottom: 1px solid $table-border-color;
+		&:nth-of-type(even) {  // :nth-of-type(odd)
+			background-color: $table-row-stripe-color;
+		}
+		&:last-child {
+			border-bottom-width: 0;
+		}
+	}
+
+	.cell {
+		display: flex;
+		flex-flow: row nowrap;
+		flex-grow: 1;
+		flex-basis: 0;
+		padding: 0.5em;
+		word-break: break-word;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		min-width: 0px;
+		white-space: nowrap;
+
+		// align direct SVG icon
+		.block-editor-block-icon {
+			div {
+				display: flex;
+				align-items: center;
+			}
+		}
+		&.has-text-align-left {
+			justify-content: flex-start;
+		}
+		&.has-text-align-center {
+			justify-content: center;
+		}
+		&.has-text-align-right {
+			justify-content: flex-end;
+		}
+
+		&.__zu_icon {
+			max-width: 60px;
+		}
+		&.__zu_strong {
+			font-weight: 700;
+		}
+	}
+}

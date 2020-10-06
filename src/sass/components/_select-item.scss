@@ -1,0 +1,155 @@
+// Admin Select Item Component ------------------------------------------------]
+
+$select-item-digits-height: 60px;
+$select-item-basic-border-color: rgb(25, 30, 35);
+
+.#{$select-item-class} {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	text-align: left;
+
+	.components-base-control__field {
+		width: 100%;
+		margin: 0;
+	}
+
+	.components-button-group {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		width: 100%;
+	}
+
+	.#{$select-item-class}__button-wrapper {
+		border-radius: 4px;
+		display: flex;
+		flex-direction: column;
+		flex-shrink: 0;
+		list-style: none;
+		margin: $admin-button-wrapper-margin 0;
+		padding: $admin-button-wrapper-padding;
+		width: calc(100% - #{twice($admin-button-wrapper-margin)});
+
+		&.is-selected {
+			box-shadow: 0 0 1px 2px $admin-control-selected-color;
+			@include in('<.__selector') {
+				box-shadow: none;
+			}
+		}
+
+        &.is-disabled {
+            .components-button {
+                pointer-events: none;
+            }
+        }
+
+        @include in('<.__2columns') { width: calc(50% - #{twice($admin-button-wrapper-margin)}); }
+        @include in('<.__3columns') { width: calc(33% - #{twice($admin-button-wrapper-margin)}); }
+		@include in('<.__4columns') { width: calc(25%); padding: 3px; }
+		@include in('<.__5columns') { width: calc(20%); padding: 3px; }
+
+		@include in('<.__box') {
+			padding: 0 !important;
+			&:first-child {
+				.components-button {
+					border-top-left-radius: $admin-control-border-radius !important;
+					border-bottom-left-radius: $admin-control-border-radius !important;
+				}
+			}
+			&:last-child {
+				.components-button {
+					border-right-width: $admin-control-border-box-size !important;
+					border-top-right-radius: $admin-control-border-radius !important;
+					border-bottom-right-radius: $admin-control-border-radius !important;
+				}
+			}
+		}
+
+		@include in('<.__digits') {
+			&.__2columns { width: calc(50%); }
+			&.__3columns { width: calc(33%); }
+			&.__4columns { width: calc(25%); }
+			&.__5columns { width: calc(20%); }
+			&.is-selected {
+				box-shadow: none;
+				// need here to add more CSS specificity
+				.components-button {
+					background-color: $admin-control-selected-color;
+					color: $admin-control-text-color;
+				}
+			}
+		}
+	}
+
+	.#{$select-item-class}__button.components-button {
+		align-items: center;
+		background-color: white;
+		border: 1px solid rgba($select-item-basic-border-color, 0.2);
+		border-radius: 3px !important;
+		height: auto;
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		transition-property: background-color, color;
+		transition-duration: $transition-time;
+		transition-timing-function: $transition-function;
+
+		&:hover {
+			border-color: rgba($select-item-basic-border-color, 0.1) !important;
+		}
+
+        @include in('^.is-disabled') {
+            border-color: $admin-disable-border-color;
+            background-color: $admin-disable-background-color;
+            color: $admin-disable-text-color;
+        }
+
+        svg {
+            fill: currentColor;
+        }
+
+		span {
+			width: 100%;
+			font-size: 1.5em;
+			font-weight: 700;
+			font-family: $admin-control-font-family;
+			@include in('<.is-large') {
+				font-size: 3em;
+			}
+		}
+
+		@include in('<.__selector') {
+			background-color: transparent;
+			&:hover {
+				background-color: $admin-control-hover-color !important;
+				color: $admin-control-hover-text-color !important;
+			}
+			@include in('^.is-selected') {
+				background-color: $admin-control-selected-color;
+				color: $admin-control-text-color;
+			}
+		}
+
+		@include in('<.__box') {
+			border: $admin-control-border-box-size solid $admin-control-border-color;
+			border-radius: 0 !important;
+			border-right-width: 0;
+		}
+
+		@include in('<.__digits') {
+			height: $select-item-digits-height;
+			background-color: rgba($wp-admin-blue-color, 0.1);
+			&:hover {
+				background-color: $admin-control-hover-color !important;
+				color: $admin-control-hover-text-color !important;
+			}
+			span {
+				width: 100%;
+				font-size: 3em;
+				font-weight: 700;
+				font-family: $admin-control-font-family;
+			}
+		}
+	}
+}

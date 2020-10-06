@@ -1,0 +1,51 @@
+@import "variables";
+
+$admin-grey-color: #e5e5e5;
+$admin-light-yellow: #ffffa5;
+$admin-light-brown: #d5b464;
+
+$admin-magenta-color: #e01765;
+$admin-error-color: #cc2027;
+
+$admin-green-color: #1a937d;
+$admin-blue-color: $some-blue;
+$admin-gold-color: #e8a723;
+$admin-red-color: $some-red;
+
+$link-blue: #0073aa;
+$hover-darken: 10;
+$hover-shadow: 15;
+
+$admin-colors: (
+	'green': $admin-green-color,
+	'blue': $admin-blue-color,
+	'gold': $admin-gold-color,
+	'red': $admin-red-color,
+	'magenta': $admin-magenta-color,
+	'light-yellow': $admin-light-yellow,
+	'light-brown': $admin-light-brown,
+	'error': $admin-error-color,
+	'admin-blue': $wp-admin-blue-color
+);
+
+// colors ---------------------------------------------------------------------]
+
+$page-basic-color: rgba($admin-grey-color, 0.3);
+$settings-color: white;
+$sidebar-color: white;
+$settings-border-color: $admin-border-color;
+$toggle-help-color: #006287; //rgba($dark-blue-grey, 0.5);
+$help-color-opacity: 0.1;
+$help-border-radius: 5px;
+
+// sizes ----------------------------------------------------------------------]
+
+$settings-max-width: 1020px; //none;
+$settings-left-width: 200px;
+$settings-left-min-width: $settings-left-width + 60px;
+$basic-font-size: 14px;
+$plugin-title-size: 40px;
+$plugin-icon-width: 100px;
+$plugin-icon-height: 80px;
+
+$select-item-size: 80px;

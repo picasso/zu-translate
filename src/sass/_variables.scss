@@ -1,0 +1,296 @@
+
+//-----------------------------------------------------------------------------]
+@import "instyle";
+//
+// https://github.com/salsita/inStyle/
+//
+// @include in('<.class')
+// Appending a state to an existing parent is done with the < special character.
+// Each additional use of this character targets a higher parent (works the same for all features).
+//
+// EXAMPLE:
+// .my-app {
+//     display: block;
+//
+//     .widget {
+//         border-radius: 5px;
+//
+//         &.large {
+//             font-size: 20px;
+//         }
+//
+//         @include in('<.expanded') { font-size: 10px; }
+//         // .my-app.expanded .widget { font-size: 10px; };
+// }
+//
+// You can also explicitly mention the compound selector, which is useful for filtering out undesired multiselector parents.
+// May also be preferential for readability.
+//
+// EXAMPLE:
+// ul, ol {
+//     list-style: none
+//
+//     li {
+//         display: inline-block;
+//
+//         a {
+//             text-decoration: underline;
+//
+//             @include in('ol.links') { text-decoration: none; }
+//             // ol.links li a { text-decoration: none; };
+//         }
+//     }
+// }
+//
+// @include in('^.class')
+// Inserting a new selector at a certain position above the current element is done with the ^ special character.
+//
+// EXAMPLE:
+// .container {
+//     display: flex;
+//
+//     div {
+//         flex: 1;
+//
+//         span {
+//             padding: 0;
+//
+//             @include in('^.upside-down') { transform: rotate(180deg); }
+//             // .container div .upside-down span { transform: rotate(180deg); };
+//
+//             @include in('^^[class^=foo]') { content: 'bar'; }
+//             // .container [class^=foo] div span { content: 'bar'; };
+//         }
+//     }
+// }
+//
+// @include in('@.class')
+// Replacing a certain selector is done using the @ character.
+// Multiselectors that become duplicit due to the replacement are removed from the rendered selector.
+//
+// EXAMPLE:
+// ul, ol {
+//     list-style: none;
+//
+//     li {
+//         display: inline-block;
+//
+//         a {
+//             text-decoration: underline;
+//
+//             @include in('@.cool') { background: transparent; }
+//              // ul .cool a, ol .cool a { background: transparent; };
+//
+//             @include in('@@.special-list') { border-bottom: 1px dotted; }
+//             // .special-list li a { border-bottom: 1px dotted; };
+//         }
+//     }
+// }
+
+
+//-----------------------------------------------------------------------------]
+
+@function strip-units($number) {  @return $number / ($number * 0 + 1); }
+@function half($number)             {  @return floor($number / 2); }
+@function twice($number)            {  @return floor($number * 2); }
+
+// Colors ---------------------------------------------------------------------]
+
+$some-orange: #fb8f3d; //#fcbf00; // #fb8f3d;
+$some-orange-bright: #fcbf00;
+$some-green: #5b9a68; // #83b19a - truewine;  // #63ad72 - safari?
+$some-blue: #00aced;
+$some-violet: #bc2a8d;
+$some-red: #ff3358; // #ff3358 // #ff4136 // orig - #e32546
+
+$dark-blue-grey: #434750;
+$dark-grey: #363636;
+$light-grey: #b5b5bf; // #a7abb5;
+$light-grey-more: #cfcfde;
+
+$light-yellow: #fff4d9;
+$dark-yellow: #fcb813;
+
+$black-blue: #2f2933;
+
+$bright-red: #ff4136; // #ff3358 // #ff4136 // orig - #e32546
+$gold-green-color: #c8ba51; // #9f985e;
+
+// Site colors ----------------------------------------------------------------]
+
+$red-color: $some-red !default;
+$green-color: $some-green !default;
+$blue-color: $some-blue !default;
+$violet-color: $some-violet !default;
+$orange-color: $some-orange !default;
+$orange-bright-color: $some-orange-bright !default;
+
+// Wordpress basic vars -------------------------------------------------------]
+
+// Alert colors
+$wp-alert-yellow: #f0b849;
+$wp-alert-red: #cc1818;
+$wp-alert-green: #4ab866;
+$wp-gray-900: #1e1e1e;          // For UI, use $gray-900.
+$wp-gray-700: #757575;		    // Meets 4.6:1 text contrast against white.
+$wp-gray-600: #949494;		    // Meets 3:1 UI or large text contrast against white.
+$wp-gray-400: #ccc;
+$wp-gray-200: #ddd;             // Used for most borders.
+$wp-blue-medium-100: #e5f5fa;
+$wp-blue-medium-500: #00a0d2;
+$wp-light-gray-500: #e2e4e7;
+
+// Fonts & basic variables.
+$wp-default-font: -apple-system, BlinkMacSystemFont,"Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell,"Helvetica Neue", sans-serif;
+$wp-default-font-size: 13px;
+$wp-bigger-font-size: 14px;
+$wp-border-width: 1px;
+// $wp-border-width-focus: 1.5px;
+// $wp-border-width-tab: 4px;
+
+$wp-grid-size-small: 4px;
+$wp-grid-size: 8px;
+$wp-grid-size-large: 16px;
+$wp-grid-size-xlarge: 24px;
+$wp-icon-button-size-small: 24px;
+
+$wp-shadow-modal: 0 3px 30px rgba(25, 30, 35, 0.2);
+$wp-modal-min-width: 360px;
+$wp-header-height: 56px;
+
+//-----------------------------------------------------------------------------]
+
+$folders-blue: rgb(0, 117, 175);
+$link-color-hover: rgba($folders-blue, 0.8);
+$link-color-selected: #016087;
+$breadcrumb-color: $wp-gray-700;
+
+
+$facebook-color: #3b5998;
+$twitter-color: #00aced;
+$googleplus-color: #dd4b39;
+$instagram-color: #bc2a8d;
+$youtube-color: #bb0000;
+$pinterest-color: #cb2027;
+$vk-color: #45668e;
+$rss-feed-color: #fb8f3d;
+$at-color: #5b9a68;
+$flickr-pink-color:#ff0084;
+$flickr-blue-color: #0063db;
+
+$my-font-family: 'Ubuntu' !default;
+
+// Transitions ----------------------------------------------------------------]
+
+$transition-time: .3s !default;
+$transition-short-time: .1s !default;
+$transition-medium-time: .6s !default;
+$transition-long-time: 1s !default;
+$transition-function: ease-out !default;
+$transition-soft: ease-in !default;
+$transition-cubic: cubic-bezier(0.33, 0, 0.2, 1) !default;
+
+// this setting is shared between gallery & masonry/excerpt -> that's why separated
+$collection-transition-time: $transition-medium-time !default;
+$collection-transition-function: $transition-cubic !default;
+$collection-transition-delay: 0.2s !default;
+
+// Admin Components -----------------------------------------------------------]
+
+$wp-admin-blue-color: #0075af;
+$admin-grey-blue-color: #323c5a;
+$admin-light-blue: #b2d5e7; // equal rgba($wp-admin-blue-color, 0.3) on white
+$admin-dark: #555d66;
+$admin-border-color: #e2e4e7;
+$admin-disable-border-color: #ddd;
+$admin-disable-background-color: #f7f7f7;
+$admin-disable-text-color: #a0a5aa;
+
+// common colors and sizes ----------------------------------------------------]
+
+$admin-block-accent-color: $some-violet;
+
+$admin-control-highlight-color: $wp-admin-blue-color;
+$admin-control-font-family: Ubuntu,'Open Sans';
+$admin-control-selected-color: rgba($admin-control-highlight-color, 0.3);
+$admin-control-text-color: $admin-dark;
+
+$admin-button-wrapper-padding: 3px;
+$admin-button-wrapper-margin: 4px;
+$admin-control-border-box-size: 3px;
+$admin-control-border-size: 5px;
+$admin-control-border-radius: 5px;
+$admin-control-border-color: $admin-control-text-color;
+
+$admin-control-hover-color: rgba($admin-control-highlight-color, 0.7);
+$admin-control-hover-text-color: white;
+
+$admin-selected-image-border-color: $admin-block-accent-color;
+$admin-selected-image-border-size: 4px;
+$admin-selected-image-border-radius: 3px;
+
+$admin-type-label-color: #191e23; //rgba($admin-dark, 0.8);
+$admin-type-label-bg-color: #f3f4f5; //rgba($wp-admin-blue-color, 0.1);
+$admin-type-label-link-color: #999;
+
+// Responsive Design ----------------------------------------------------------]
+
+$more-than-break-1280-width: 1200px;
+$break-1280: 1280px;
+$break-1280-width: 960px;
+$break-1020: 1020px;
+$break-1020-width: 800px;
+$break-880: 880px;
+
+$break-320: 320px;
+$break-480: 480px;
+$break-768: 768px;
+$break-1800: 1800px;
+
+$break-layout: $break-1020;					// when all columns will be reverted to 100% width (and Normal Menu will be hidden and MX Menu will be shown)
+$topmenu-break-width: $break-1280;			// when Normal Menu will be reduced (small font and padding)
+
+@mixin breakpoint-width($point) {
+  @if $point == LESS320 {
+    @media all and (max-width: $break-320)  { @content; }
+  }
+  @else if $point == LESS480 {
+    @media all and (max-width: $break-480)  { @content; }
+  }
+
+ @else if $point == LESS768 {
+    @media all and (max-width: $break-768)  { @content; }
+  }
+
+ @else if $point == LESS880 {
+    @media all and (max-width: $break-880)  { @content; }
+  }
+ @else if $point == LESS1020 {
+    @media all and (max-width: $break-1020)  { @content; }
+  }
+ @else if $point == LESS_LAYOUT_BREAK {
+    @media all and (max-width: $break-layout)  { @content; }
+  }
+ @else if $point == LESS1280 {
+    @media all and (max-width: $break-1280)  { @content; }
+  }
+ @else if $point == LESS1800 {
+    @media all and (max-width: $break-1800)  { @content; }
+  }
+ @else {
+	@media all and (max-width: $point)  { @content; }
+  }
+}
+
+@mixin breakpoint-height($point) {
+  @if $point == LESS480 {
+    @media all and (max-height: $break-480)  { @content; }
+  }
+  @else {
+	@media all and (max-height: $point)  { @content; }
+  }
+}
+
+@mixin breakpoint-small-mobile() {
+    @media all and (max-width: $break-480), all and (max-device-width: 640px) and (orientation: landscape)  { @content; }
+}

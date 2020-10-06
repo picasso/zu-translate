@@ -1,0 +1,30 @@
+{
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/picasso/zukit.git"
+    },
+    "keywords": [
+        "wordpress",
+        "framework",
+        "plugin",
+        "gutenberg",
+        "responsive"
+    ],
+    "author": "Dmitry Rudakov",
+    "description": "Implements basic functionality for managing scripts and creating plugin or theme settings page based on Gutenberg functionality.",
+    "license": "MIT",
+    "scripts": {},
+    "devDependencies": {
+        "@wordpress/eslint-plugin": "^7.2.1",
+        "eslint": "^7.10.0",
+        "eslint-plugin-react": "^7.21.3",
+        "eslint-plugin-react-hooks": "^4.1.2",
+        "typescript": "^4.0.3"
+    },
+    "dependencies": {
+        "classnames": "^2.2.6"
+    },
+    "name": "zukit",
+    "version": "0.8.0",
+    "optionalDependencies": {}
+}
