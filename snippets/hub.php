@@ -71,8 +71,8 @@ class zukit_Snippets extends zukit_Singleton {
 
 // Common Interface to helpers ------------------------------------------------]
 
-if(!function_exists('zusnippets')) {
-	function zusnippets() {
+if(!function_exists('zu_snippets')) {
+	function zu_snippets() {
 		return zukit_Snippets::instance();
 	}
 }
