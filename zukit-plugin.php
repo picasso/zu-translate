@@ -8,6 +8,10 @@ require_once('traits/admin.php');
 require_once('traits/admin-menu.php');
 require_once('traits/ajax.php');
 
+if(!function_exists('zu_snippets')) {
+	require_once('snippets/hub.php');
+}
+
 // Basic Plugin Class ---------------------------------------------------------]
 
 class zukit_Plugin extends zukit_Singleton {
@@ -221,11 +225,21 @@ class zukit_Plugin extends zukit_Singleton {
 	}
 
 	public function is_option($key, $check_value = true, $addon_options = null) {
-		if(is_bool($check_value)) $value = filter_var($this->get_option($key, false, $addon_options), FILTER_VALIDATE_BOOLEAN);
-		else if(is_int($check_value)) $value = intval($this->get_option($key, 0, $addon_options));
-		else $value = strval($this->get_option($key, '', $addon_options));
+		$value = $this->get_option($key, $this->def_value($check_value), $addon_options);
+
+		// if(is_bool($check_value)) $value = filter_var($this->get_option($key, false, $addon_options), FILTER_VALIDATE_BOOLEAN);
+		// else if(is_int($check_value)) $value = intval($this->get_option($key, 0, $addon_options));
+		// else $value = strval($this->get_option($key, '', $addon_options));
 
 		return $value === $check_value;
+	}
+
+	private function def_value($type) {
+		// return default value for given type
+		if(is_bool($type)) return false;
+		if(is_int($type)) return 0;
+		if(is_string($type)) return '';
+		return null;
 	}
 
 	// Scripts & Paths management ---------------------------------------------]
@@ -280,6 +294,10 @@ class zukit_Plugin extends zukit_Singleton {
 		$this->enqueue_more(false, $hook);
 	}
 
+	public function prefix_it($str, $divider = '-') {
+		return sprintf('%1$s%2$s%3$s', $this->prefix, $divider, $str);
+	}
+
 	// Error handling ---------------------------------------------------------]
 
 	// нужно написать перегрузку этой функции чтобы вызывать функцию из Zu+ если он доступен
@@ -303,8 +321,8 @@ class zukit_Plugin extends zukit_Singleton {
 	// Common Interface to Zu Snippets helpers with availability check --------]
 
 	public function snippets($func, ...$params) {
-		if(!function_exists('zusnippets')) return null;
-		$snippets = zusnippets();
+		if(!function_exists('zu_snippets')) return null;
+		$snippets = zu_snippets();
 		if(method_exists($snippets, $func)) return call_user_func_array([$snippets, $func], $params);
 		else return null;
 	}

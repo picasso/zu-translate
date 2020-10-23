@@ -109,6 +109,9 @@ class zukit_Addon {
 	protected function create_notice($status, $message, $actions = []) {
 		return $this->plugin->create_notice($status, $message, $actions);
 	}
+	protected function prefix_it($str, $divider = '-') {
+		return $this->plugin->prefix_it($str, $divider);
+	}
 
 	// Common interface plugin methods with availability check ----------------]
 	// NOTE: only public functions can be called with this helper
@@ -124,9 +127,6 @@ class zukit_Addon {
 
 	// Helpers ----------------------------------------------------------------]
 
-	protected function prefix_it($str, $divider = '-') {
-		return sprintf('%1$s%2$s%3$s', $this->plugin->prefix, $divider, $str);
-	}
 	protected function get($key, $from_plugin = false, $default_value = null) {
 		$config = $from_plugin ? $this->plugin->config : $this->config;
 		return isset($config[$key]) ? $config[$key] : $default_value;
