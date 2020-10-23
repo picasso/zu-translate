@@ -40,7 +40,7 @@ The latest version of __Zukit__ can downloaded [on GitHub](https://github.com/pi
 class my_Class extends zukit_Plugin {
 }
 ```
-- Переопредилить метод `config` в которой вернуть массив с ключами. Практически все ключи являются опциональным кроме ключа `prefix`, который должен содержать некое уникальное имя используемое во многих методах впоследствии.
+- Переопредилить метод `config` в котором вернуть массив с ключами. Практически все ключи являются опциональным кроме ключа `prefix`, который должен содержать некое уникальное имя используемое во многих методах впоследствии.
 
 ```php
 protected function config() {
@@ -74,8 +74,8 @@ protected function construct_more() {
 #### Options
 - для получения __options__ и их обновления служат методы `options` and `update_options`
 - метод `reset_options` служит для сброса __options__  к default values. На странице настроек плагина автоматические создается кнопка, которая вызывает это метод по AJAX
-- метод `set_option` служит для установки значения __options__ по конкретному ключу и их обновления. Если argument `$key` содержит __path__ (dots separated keys), тогда будет найден требуемый ключ in nested options
-- метод `is_option` служит для сравнения значения по заданому ключу со вторым аргументом метода. Для типов 'bool', 'int' и 'string' происходит cast to required value type
+- метод `set_option` служит для установки значения __options__ по конкретному ключу и последующего обновления `options`. Если argument `$key` содержит __path__ (dots separated keys), тогда будет найден требуемый ключ in nested options
+- метод `is_option` служит для сравнения значения по заданому ключу со вторым аргументом метода. Для типов `bool`, `int` и `string` происходит cast to required value type
 ```php
 if($this->is_option('option1')) {
     add_action('pre_get_posts', [$this, 'pre_get_attachments']);
@@ -106,7 +106,7 @@ public function admin_init() {
 
 #### Scripts & Styles
 
-- Для загрузки JS скриптов нужно переопределить метод `should_load_js` в котором вернуть true если скрипт должен быть загружен (если скрипт не нужен то и переопределение метода не требуется). Метод имеет два аргумента: `$is_frontend` and `$hook`. Имя файла скрипта будет сформировано автоматически на основание `prefix` (см. выше). Для скрипта загружаемого на front-end это будет файл `js/<prefix>.min.js`, а для админ страниц будет файл `admin/js/<prefix>.min.js`. Если админ скрипт содержит только управление настройками плагина, то его загрузку лучше ограничить этой страницей с помощью helper method `ends_with_slug` (см. пример).
+- Для загрузки JS скриптов нужно переопределить метод `should_load_js` в котором вернуть true если скрипт должен быть загружен (если скрипт не нужен то и переопределение метода не требуется). Метод имеет два аргумента: `$is_frontend` and `$hook`. Имя файла скрипта будет сформировано автоматически на основе `prefix` (см. выше). Для скрипта загружаемого на front-end это будет файл `js/<prefix>.min.js`, а для админ страниц будет файл `admin/js/<prefix>.min.js`. Если админ скрипт содержит только управление настройками плагина, то его загрузку лучше ограничить лишь данной страницей с помощью helper method `ends_with_slug` (см. пример).
 
 ```php
 // for front-end and admin scripts
@@ -136,7 +136,7 @@ protected function css_deps($is_frontend) {
 }
 ```
 
-- По умолчанию для JS скрипта создается JSON object доступный из скрипта по переменной с именем `zukit_settings` и содержащий необходимые данные для работы __Zukit__. Если требуются дополнительные данные, то нужно переопределить метод `js_data`. Для того чтобы сохранить данные необходимые для работы __Zukit__ рекомендуется merge your data with default set. You also could rename the variable which will be available in javascript via `jsdata_name` key (see example). Обычно дополнительные данные нужны если вы отобразить дополнительные AJAX actions на странице настроек плагина.
+- По умолчанию для JS скрипта создается JSON object доступный из скрипта по переменной с именем `zukit_settings` и содержащий необходимые данные для работы __Zukit__. Если требуются дополнительные данные, то нужно переопределить метод `js_data`. Для того чтобы сохранить данные необходимые для работы __Zukit__ рекомендуется merge your data with default set. You also could rename the variable which will be available in javascript via `jsdata_name` key (see example). Обычно изменение the default data set требуется если нужно отобразить дополнительные AJAX actions на странице настроек плагина.
 ```php
 protected function js_data($is_frontend, $default_data) {
     return  $is_frontend ? [] : array_merge($default_data, [
@@ -162,7 +162,7 @@ protected function js_data($is_frontend, $default_data) {
 }
 ```
 
-- Если требуется загрузить больше, чем один script or styles, то нужно переопределить метод `enqueue_more`. У него тоже два аргумента: `$is_frontend` and `$hook`. Для удобства можно воспользоваться helper методами `sprintf_dir` и `sprintf_uri` которые работают аналогично функции `sprintf`, но добавляют в начало создаваемой строки plugin directory or uri соответственно. Также есть helper методы `enqueue_style` и `enqueue_script` для добавления на front-end страницах и `admin_enqueue_style` и `admin_enqueue_script` для добавления на админ страницах:
+- Если требуется загрузить больше, чем один файл для script and styles, то нужно переопределить метод `enqueue_more`. У него тоже два аргумента: `$is_frontend` and `$hook`. Для удобства можно воспользоваться helper методами `sprintf_dir` и `sprintf_uri` которые работают аналогично функции `sprintf`, но добавляют в начало создаваемой строки plugin directory or uri соответственно. Также есть helper методы `enqueue_style` и `enqueue_script` для добавления файлов на front-end страницах и `admin_enqueue_style` и `admin_enqueue_script` для добавления файлов на админ страницах:
 ```php
 protected function enqueue_more($is_frontend, $hook) {
     if($is_frontend) {

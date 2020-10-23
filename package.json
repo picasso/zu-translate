@@ -1,4 +1,6 @@
 {
+    "name": "zukit",
+    "version": "0.9.0",
     "repository": {
         "type": "git",
         "url": "https://github.com/picasso/zukit.git"
@@ -24,7 +26,5 @@
     "dependencies": {
         "classnames": "^2.2.6"
     },
-    "name": "zukit",
-    "version": "0.8.0",
     "optionalDependencies": {}
 }
