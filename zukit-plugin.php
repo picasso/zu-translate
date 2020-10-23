@@ -327,3 +327,30 @@ class zukit_Plugin extends zukit_Singleton {
 		else return null;
 	}
 }
+
+// A special version of the 'sprintf' function that removes the extra spaces 
+// from the format string resulting from the 'human-readable' HTML template
+
+if(!function_exists('zu_sprintf')) {
+	function zu_sprintf($format, ...$params) {
+		// remove multiple space inside tags
+		if(preg_match_all('/(<[^>]+?>)/', $format, $matches)) {
+			  foreach($matches[1] as $tag) {
+			      $tag_compressed = preg_replace('/\s+/', ' ', $tag);
+			      $format = str_replace($tag, $tag_compressed, $format);
+			  }
+		  }
+		// remove empty space between tags
+		$format = preg_replace('/>\s+</', '><', $format);
+		// remove empty space after format directive and before opening tag
+		$format = preg_replace('/\$s\s+</', '$s<', $format);
+		// remove empty space after closing tag and before format directive
+		$format = preg_replace('/>\s+\%/', '>%', $format);
+		return call_user_func_array('sprintf', array_unshift($params , $format));
+	}
+
+	function zu_printf(...$params) {
+		$output = call_user_func_array('zu_sprintf', $params);
+		print($output);
+	}
+}
