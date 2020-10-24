@@ -27,7 +27,6 @@ class zukit_Plugin extends zukit_Singleton {
 	use zukit_Admin, zukit_AdminMenu, zukit_Ajax;
 
 	function config_singleton($file) {
-
 		if(isset($file)) {
 			$this->dir = untrailingslashit(plugin_dir_path($file));
 			$this->uri = untrailingslashit(plugin_dir_url($file));
@@ -56,8 +55,8 @@ class zukit_Plugin extends zukit_Singleton {
 		add_action('admin_init', [$this, 'admin_init'], 10);
 		add_action('admin_init', function() { $this->do_addons('admin_init'); }, 11);
 
-		add_action('enqueue_scripts', [$this, 'frontend_enqueue'], 10, 1);
-		add_action('enqueue_scripts', function($hook) { $this->do_addons('enqueue', $hook); }, 11, 1);
+		add_action('wp_enqueue_scripts', [$this, 'frontend_enqueue'], 10, 1);
+		add_action('wp_enqueue_scripts', function($hook) { $this->do_addons('enqueue', $hook); }, 11, 1);
 
 		add_action('admin_enqueue_scripts', [$this, 'admin_enqueue'], 10, 1);
 		add_action('admin_enqueue_scripts', function($hook) { $this->do_addons('admin_enqueue', $hook); }, 11, 1);
@@ -269,6 +268,13 @@ class zukit_Plugin extends zukit_Singleton {
 			'actions' 		=> [],
 		]);
 	}
+	protected function merge_js_data($plugin_data = []) {
+		return array_merge([
+			'ajaxurl'       => admin_url('admin-ajax.php'),
+			'nonce'     	=> $this->ajax_nonce(true),
+			'slug'			=> $this->snippets('get_slug'),
+		], $plugin_data);
+	}
 
 	protected function js_data($is_frontend, $default_data) { return  $is_frontend ? [] : $default_data; }
 	protected function should_load_css($is_frontend, $hook) { return false; }
@@ -328,7 +334,7 @@ class zukit_Plugin extends zukit_Singleton {
 	}
 }
 
-// A special version of the 'sprintf' function that removes the extra spaces 
+// A special version of the 'sprintf' function that removes the extra spaces
 // from the format string resulting from the 'human-readable' HTML template
 
 if(!function_exists('zu_sprintf')) {
