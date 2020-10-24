@@ -18,7 +18,8 @@ $ git config core.sparsecheckout true                                       # en
 
 $ echo -e '*\n!src/**\n!*.json\n!*.md\n!.*' >> .git/info/sparse-checkout    # configure sparse-checkout by specifying what files are not included
 
-$ git pull origin master                                                    # checkout from the remote
+$ git branch --set-upstream-to=origin/master master                         # set local branch tracks github branch as an upstream
+$ git pull                                                                  # checkout from the remote
 
 ```
 See [Git Sparse Checkout](https://www.git-scm.com/docs/git-sparse-checkout) for complete docs and examples.
@@ -35,11 +36,35 @@ The latest version of __Zukit__ can downloaded [on GitHub](https://github.com/pi
 
 ## Description
 
+```diff
++ Создать новый класс наследующий класс
+```
+
 - Создать новый класс наследующий класс `zukit_Plugin`
 ```php
 class my_Class extends zukit_Plugin {
+
 }
 ```
+
+> &#x274C;__Внимание!__ В новом классе нельзя определять конструктор класса `__construct`.
+
+- Если необходимо сделать что-то в конструкторе класса, то нужно переопределить метод `construct_more`.
+> &#x1F645;__Внимание!__ Нельзя пользоваться функциями по работе с `options` (см. "Options" section) в этом методе, так как там `options` еще не синхронизированы с классом:
+
+```php
+protected function construct_more() {
+    add_action('add_attachment', [$this, 'attachment_save']);
+    add_filter('attachment_fields_to_edit', [$this, 'add_attachment_field'], 10, 2);
+
+    // you should avoid ‘options’ getter and setter here!!
+    //
+    // if($this->is_option('option1')) {
+    //     add_action('pre_get_posts', [$this, 'pre_get_attachments']);
+    // }
+}
+```
+
 - Переопредилить метод `config` в котором вернуть массив с ключами. Практически все ключи являются опциональным кроме ключа `prefix`, который должен содержать некое уникальное имя используемое во многих методах впоследствии.
 
 ```php
@@ -55,19 +80,6 @@ protected function config() {
             'option3'		    => 'somevalue',
         ],
     ];
-}
-```
-- Если необходимо сделать что-то в конструкторе класса, то нужно переопределить метод `construct_more`. __Нельзя!__ пользоваться функциями по работе с `options` в этом методе, так там `options` еще не определены:
-```php
-protected function construct_more() {
-    add_action('add_attachment', [$this, 'attachment_save']);
-    add_filter('attachment_fields_to_edit', [$this, 'add_attachment_field'], 10, 2);
-
-    // you should avoid ‘options’ getter and setter here!!
-    //
-    // if($this->is_option('option1')) {
-    //     add_action('pre_get_posts', [$this, 'pre_get_attachments']);
-    // }
 }
 ```
 
@@ -204,6 +216,18 @@ protected function enqueue_more($is_frontend, $hook) {
 - Folder __snippets__ contains a collection of various functions that I have accumulated during my work with WordPress. They are combined into one class for ease of use;
 - Folder __traits__ contains traits that are included in the class `zukit_Plugin`. Used to group functionality in a fine-grained and consistent way;
 - Folder __src__ contains _source_ versions of js and css files.
+
+<!--
+коды для emoji unicode
+https://apps.timwhitlock.info/emoji/tables/unicode
+
+```diff
+- red
++ green
+! orange
+# gray
+```
+-->
 
 <!-- See [Dmitry Rudakov Coding](https://dmitryrudakov.com/coding/) for complete docs and demos.
 -->

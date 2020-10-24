@@ -19,9 +19,8 @@ class zukit_Singleton {
 
     // The Singleton's constructor should always be private to prevent direct
     // construction calls with the `new` operator.
-    protected function __construct($params) {
+    private function __construct($params) {
         $theme = wp_get_theme();
-
         $this->dir = get_stylesheet_directory();
         $this->uri = get_stylesheet_directory_uri();
         $this->prefix = str_replace(' ', '_', strtolower($theme->get('Name')));
@@ -51,7 +50,7 @@ class zukit_Singleton {
 
     final public static function instance($params = null) {
         $calledClass = static::class;
-        if (!isset(self::$instances[$calledClass])) {
+        if(!isset(self::$instances[$calledClass])) {
             self::$instances[$calledClass] = new $calledClass($params); // new static; //
         }
         return self::$instances[$calledClass];
@@ -144,7 +143,7 @@ class zukit_Singleton {
         // by wrapping our $data values inside an inner array we prevent integer and boolean values to be interpreted as strings
         // https://wpbeaches.com/using-wp_localize_script-and-jquery-values-including-strings-booleans-and-integers/
         if(!empty($data)) {
-            $jsdata_name= $data['jsdata_name'] ?? $this->prefix.'_jsdata';
+            $jsdata_name = $data['jsdata_name'] ?? $this->prefix.'_jsdata';
             if(isset($data['jsdata_name'])) unset($data['jsdata_name']);
             wp_localize_script($handle, $jsdata_name, ['data' => $data]);
         }
