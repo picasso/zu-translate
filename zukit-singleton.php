@@ -181,6 +181,9 @@ class zukit_Singleton {
 
             // by wrapping our $data values inside an inner array we prevent integer and boolean values to be interpreted as strings
             // https://wpbeaches.com/using-wp_localize_script-and-jquery-values-including-strings-booleans-and-integers/
+            if(!$is_style) {
+                _dbug(static::class, $handle, $data, $filepath);
+            }
             if(!$is_style && !empty($data)) {
                 $jsdata_name = $data['jsdata_name'] ?? $this->prefix.'_jsdata';
                 if(isset($data['jsdata_name'])) unset($data['jsdata_name']);

@@ -13,8 +13,8 @@ trait zukit_Admin {
 
 		$defaults = [
 			'hook' 			=>	'options-general.php',
-			'title' 		=>	sprintf('%2$s %1$s', __('Options', 'zu-plugin'), $this->data['Name']),
-			'menu' 			=>	$this->data['Name'],
+			'title' 		=>	sprintf('%2$s %1$s', __('Options', 'zu-plugin'), $this->data['Name'] ?? 'unknown'),
+			'menu' 			=>	$this->data['Name'] ?? 'unknown',
 			'permissions' 	=>	'manage_options',
 			'slug' 			=>	$this->prefix.'-settings',
 		];
