@@ -115,7 +115,7 @@ class zukit_Singleton {
         return $this->style_or_script(true, true, array_merge($params, ['file' => $file]));
 	}
     public function enqueue_script($file, $params = []) {
-		return $this->style_or_script(true, false, array_merge($params, ['file' => $file]));
+		return $this->style_or_script(false, true, array_merge($params, ['file' => $file]));
 	}
 
 	public function admin_enqueue_style($file, $params = []) {
@@ -130,16 +130,17 @@ class zukit_Singleton {
         return $handle;
     }
 
-    public function enqueue_only($is_style, $handle = null) {
+    public function enqueue_only($is_style = null, $handle = null) {
         $handle = is_null($handle) ? $this->create_handle($is_style) : $handle;
-        if($is_style) wp_enqueue_style($handle);
-        else wp_enqueue_script($handle);
+        // if $is_style is null - then enqueue both (style and script)
+        if($is_style === true || $is_style === null) wp_enqueue_style($handle);
+        if($is_style === false || $is_style === null) wp_enqueue_script($handle);
     }
 
     protected function create_handle($is_style, $file = null) {
         if(is_null($file)) $file = $this->prefix;
-        $info = pathinfo($file);
-        return $is_style ? $info['filename'] : $info['filename'].'-script';
+        $info = explode('.', pathinfo($file)['filename']);
+        return $is_style ? $info[0] : $info[0].'-script';
     }
 
     private function style_or_script($is_style, $is_frontend, $params) {
@@ -191,13 +192,11 @@ class zukit_Singleton {
                 'is_style'      => $is_style,
                 'is_frontend'   => $is_frontend,
                 'is_absolute'   => $is_absolute,
+                '$params'       => $params,
                 '$file'         => $file,
                 '$filepath'     => $filepath,
                 '$src'          => $src,
-                '$deps'         => $deps,
                 '$handle'       => $handle,
-                '$bottom'       => $bottom,
-                '$data'         => $data,
 
                 'prefix'        => $this->prefix,
                 'dir'           => $this->dir,
