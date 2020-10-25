@@ -23,6 +23,8 @@ class zukit_Plugin extends zukit_Singleton {
 	protected $data = [];
 	protected $addons = [];
 
+	private static $registred = false;
+
 	// Admin basics, menu management and REST API support
 	use zukit_Admin, zukit_AdminMenu, zukit_Ajax;
 
@@ -303,11 +305,12 @@ class zukit_Plugin extends zukit_Singleton {
 	public function admin_enqueue($hook) {
 
 		// enqueue 'zukit' helpers & components and its CSS
-		if($this->config['zukit'] && $this->should_load_js(false, $hook)) {
+		if(!self::$registred && $this->config['zukit'] && $this->should_load_js(false, $hook)) {
 			// redefine defaults to no data and 'zukit' handle
 			$zukit_params = [ 'data' => null, 'handle' => 'zukit'];
 			$this->admin_enqueue_style($this->get_zukit_filepath(true, 'zukit'), array_merge(self::css_params(false), $zukit_params));
 			$this->admin_enqueue_script($this->get_zukit_filepath(false, 'zukit'), array_merge(self::js_params(false), $zukit_params));
+			self::$registred = true;
 		}
 
 		if($this->should_load_css(false, $hook)) $this->admin_enqueue_style(null, $this->css_params(false));
@@ -367,7 +370,9 @@ if(!function_exists('zu_sprintf')) {
 		$format = preg_replace('/\$s\s+</', '$s<', $format);
 		// remove empty space after closing tag and before format directive
 		$format = preg_replace('/>\s+\%/', '>%', $format);
-		return call_user_func_array('sprintf', array_unshift($params , $format));
+
+		array_unshift($params, $format);
+		return call_user_func_array('sprintf', $params);
 	}
 
 	function zu_printf(...$params) {
