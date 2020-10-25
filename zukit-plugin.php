@@ -253,12 +253,25 @@ class zukit_Plugin extends zukit_Singleton {
 		return $this->uri.$path;
 	}
 
-	protected function js_deps($is_frontend) {
-		return $is_frontend ? [] : ['wp-api', 'wp-i18n', 'wp-components', 'wp-element'];
+	protected function js_params($is_frontend) {
+		return [
+			'deps'	=> $is_frontend ? [] : ['wp-api', 'wp-i18n', 'wp-components', 'wp-element'],
+            'data'	=> $this->get_js_data($is_frontend),
+		];
 	}
-	protected function css_deps($is_frontend) {
-		return $is_frontend ? [] : ['wp-edit-post'];
+	protected function css_params($is_frontend) {
+		return [
+			'deps'	=> $is_frontend ? [] : ['wp-edit-post'],
+		];
 	}
+
+	// protected function js_deps($is_frontend) {
+	// 	return $is_frontend ? [] : ['wp-api', 'wp-i18n', 'wp-components', 'wp-element'];
+	// }
+	// protected function css_deps($is_frontend) {
+	// 	return $is_frontend ? [] : ['wp-edit-post'];
+	// }
+
 	protected function get_js_data($is_frontend) {
 		return $this->js_data($is_frontend, [
 			'jsdata_name'	=> 'zukit_settings',
@@ -282,21 +295,23 @@ class zukit_Plugin extends zukit_Singleton {
 	protected function enqueue_more($is_frontend, $hook) {}
 
 	public function frontend_enqueue($hook) {
-		if($this->should_load_css(true, $hook)) $this->enqueue_style(null, $this->css_deps(true));
-		if($this->should_load_js(true, $hook)) $this->enqueue_script(null, $this->get_js_data(true), $this->js_deps(true));
+		if($this->should_load_css(true, $hook)) $this->enqueue_style(null, $this->css_params(true));
+		if($this->should_load_js(true, $hook)) $this->enqueue_script(null, $this->js_params(true));
 		$this->enqueue_more(true, $hook);
 	}
 
 	public function admin_enqueue($hook) {
 
-		// enqueue 'zukit' helpers & components and CSS
+		// enqueue 'zukit' helpers & components and its CSS
 		if($this->config['zukit'] && $this->should_load_js(false, $hook)) {
-			$this->admin_enqueue_script($this->get_zukit_filepath(false, 'zukit'), null, self::js_deps(false), true, 'zukit');
-			$this->admin_enqueue_style($this->get_zukit_filepath(true, 'zukit'), self::css_deps(false), 'zukit');
+			// redefine defaults to no data and 'zukit' handle
+			$zukit_params = [ 'data' => null, 'handle' => 'zukit'];
+			$this->admin_enqueue_style($this->get_zukit_filepath(true, 'zukit'), array_merge(self::css_params(false), $zukit_params));
+			$this->admin_enqueue_script($this->get_zukit_filepath(false, 'zukit'), array_merge(self::js_params(false), $zukit_params));
 		}
 
-		if($this->should_load_css(false, $hook)) $this->admin_enqueue_style(null, $this->css_deps(false));
-		if($this->should_load_js(false, $hook)) $this->admin_enqueue_script(null, $this->get_js_data(false), $this->js_deps(false));
+		if($this->should_load_css(false, $hook)) $this->admin_enqueue_style(null, $this->css_params(false));
+		if($this->should_load_js(false, $hook)) $this->admin_enqueue_script(null, $this->js_params(false));
 		$this->enqueue_more(false, $hook);
 	}
 

@@ -82,17 +82,17 @@ class zukit_Addon {
 	protected function sprintf_uri(...$params) {
 		return call_user_func_array([$this->plugin, 'sprintf_uri'], $params);
 	}
-	protected function enqueue_style($file, $deps = [], $handle = null) {
-		return $this->plugin->enqueue_style($this->prefix_it($file), $deps, $handle);
+	protected function enqueue_style($file, $params = []) {
+		return $this->plugin->enqueue_style($this->prefix_it($file), $params);
 	}
-	protected function enqueue_script($file, $data = null, $deps = [], $bottom = true, $handle = null) {
-		return $this->plugin->enqueue_script($this->prefix_it($file), $data, $deps, $bottom, $handle);
+	protected function enqueue_script($file, $params = []) {
+		return $this->plugin->enqueue_script($this->prefix_it($file), $params);
 	}
-	protected function admin_enqueue_style($file, $deps = [], $handle = null) {
-		return $this->plugin->admin_enqueue_style($this->prefix_it($file), $deps, $handle);
+	protected function admin_enqueue_style($file, $params = []) {
+		return $this->plugin->admin_enqueue_style($this->prefix_it($file), $params);
 	}
-	protected function admin_enqueue_script($file, $data = null, $deps = [], $bottom = true, $handle = null) {
-		return $this->plugin->admin_enqueue_script($this->prefix_it($file), $data, $deps, $bottom, $handle);
+	protected function admin_enqueue_script($file, $params = []) {
+		return $this->plugin->admin_enqueue_script($this->prefix_it($file), $params);
 	}
 	protected function ajax_error($error, $params = null) {
 		return $this->plugin->ajax_error($error, $params);
@@ -110,6 +110,8 @@ class zukit_Addon {
 		return $this->plugin->create_notice($status, $message, $actions);
 	}
 	protected function prefix_it($str, $divider = '-') {
+		// if $str starts with '!' then do not prefix it (could be an absolute path)
+		if(substr($str, 0, 1) === '!') return $str;
 		return $this->plugin->prefix_it($str, $divider);
 	}
 
