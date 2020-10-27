@@ -1,8 +1,12 @@
 text eol=lf
 
-.eslintrc.json export-ignore
 .gitattributes export-ignore
 .gitignore export-ignore
-package.json export-ignore
-package-lock.json export-ignore
-/src export-ignore
+
+# Archive ignore stuff
+
+zukit/src export-ignore
+zukit/*.json export-ignore
+zukit/*.md export-ignore
+zukit/*.sh export-ignore
+zukit/.* export-ignore

@@ -5,30 +5,30 @@ _Framework serves as the basis for creating plugins or themes for WordPress._
 Implements basic functionality for managing scripts and creating plugin or theme settings page based on Gutenberg functionality.
 
 ## Install
-To _use_ __Zukit__ in your project, you need to create a `zukit` folder in the plugin root directory and then perform the following sequence of commands:
+To _use_ __Zukit__ in your project, you need to install it as a `subtree` in your project. To simplify this process, I wrote a bash script [`zukit.sh`] that does all the necessary operations. You will need to download the script from the remote repository and then execute it. Before executing the script, you can change it and remove unnecessary (in your opinion) operations:
 
 ```shell
-# you must be inside the 'zukit' folder!
+# retrieve 'zukit.sh' from the repository
+$ curl 'https://raw.githubusercontent.com/picasso/zukit/master/zukit.sh' > zukit.sh
 
-$ git init                                                                  # create new repository
+# maybe you have to give the script permission to run
+# chmod +x zukit.sh
 
-$ git remote add -f origin https://github.com/picasso/zukit.git             # initialize remote
-
-$ git config core.sparsecheckout true                                       # enable sparse-checkout
-
-$ echo -e '*\n!src/**\n!*.json\n!*.md\n!.*' >> .git/info/sparse-checkout    # configure sparse-checkout by specifying what files are not included
-
-$ git branch --set-upstream-to=origin/master master                         # set local branch tracks github branch as an upstream
-$ git pull                                                                  # checkout from the remote
-
+# execute script
+$ sh zukit.sh
 ```
-See [Git Sparse Checkout](https://www.git-scm.com/docs/git-sparse-checkout) for complete docs and examples.
 
+To update __Zukit__ to the current version, you need to run the `subtree pull` command. You can change the commit message at your discretion:
+```shell
+# pull updates from Zukit
+$ git subtree pull --prefix=zukit zukit master --squash -m 'Zukit updated'
+```
 
-It is also a good idea to add this line to your `.gitignore` file:
-```
-zukit/.git/
-```
+See [Git sparse-checkout](https://www.git-scm.com/docs/git-sparse-checkout) and [Git subtree](https://opensource.com/article/20/5/git-submodules-subtrees) for complete docs and examples.
+
+> &#x2757; Памятка. Попробовать потом [иначе](https://docs.github.com/en/free-pro-team@latest/github/using-git/about-git-subtree-merges)
+
+After installation, you can remove `zukit.sh` or add it to your `.gitignore` file.
 
 ### Download
 
@@ -36,9 +36,7 @@ The latest version of __Zukit__ can downloaded [on GitHub](https://github.com/pi
 
 ## Description
 
-```diff
-+ Создать новый класс наследующий класс
-```
+The best way to learn a framework is to look at working examples of its use. This can be done in plugins that I have already adapted for the new framework: [Zu Contact](https://github.com/picasso/zu-contact) и [Zu Media](https://github.com/picasso/zumedia). Below I have described the main points of working with the framework. This in no way pretends to be complete documentation, but I think that by looking at the source codes you can understand a lot. While this framework is used only by me, then all these descriptions are just *memos* for myself.
 
 - Создать новый класс наследующий класс `zukit_Plugin`
 ```php
@@ -47,10 +45,10 @@ class my_Class extends zukit_Plugin {
 }
 ```
 
-> &#x274C;__Внимание!__ В новом классе нельзя определять конструктор класса `__construct`.
+> &#x274C; __Attention!__ You should not define a class constructor `__construct` in a new class.
 
 - Если необходимо сделать что-то в конструкторе класса, то нужно переопределить метод `construct_more`.
-> &#x1F645;__Внимание!__ Нельзя пользоваться функциями по работе с `options` (см. "Options" section) в этом методе, так как там `options` еще не синхронизированы с классом:
+> &#x1F645; __Внимание!__ Нельзя пользоваться функциями по работе с `options` (см. "Options" section) в этом методе, так как там `options` еще не синхронизированы с классом:
 
 ```php
 protected function construct_more() {
@@ -134,17 +132,23 @@ protected function should_load_js($is_frontend, $hook) {
 
 - Для загрузки styles нужно переопределить метод `should_load_css`. Аргументы и логика работы такая же как со скриптами. Для styles загружаемых на front-end это будет файл `css/<prefix>.css`, а для админ страниц будет файл `admin/css/<prefix>.css`.
 
-- По умолчанию an array of dependencies the script depends on is empty for front-end and `['wp-api', 'wp-i18n', 'wp-components', 'wp-element']` for admin script. For styles - is empty for front-end and `['wp-edit-post']` for admin styles. Для измения этих значений нужно переопределить методы `js_deps` или `css_deps` соответственно:
+- Все остальные параметры загрузки скрипта можно задать переопределив методы `js_params` для скрипта или `css_params` для стилей. Если массив не содержит ключа или значение ключа равно null то значение по умолчанию будет использовано. По умолчанию an array of dependencies the script depends on is empty for front-end and `['wp-api', 'wp-i18n', 'wp-components', 'wp-element']` for admin script. For styles - is empty for front-end and `['wp-edit-post']` for admin styles. Примеры задания параметров для скриптов и стилей:
 
 ```php
-// dependencies for scripts
-protected function js_deps($is_frontend) {
-    return $is_frontend ? ['jquery'] : parent::js_deps($is_frontend);
+// redefine dependencies for scripts and 'in-footer' param
+protected function js_params($is_frontend) {
+    return [
+        'deps'	     => $is_frontend ? ['jquery'] : null,
+        'bottom'     => $is_frontend ? true : false,
+    ];
 }
 
-// dependencies for styles
-protected function css_deps($is_frontend) {
-    return $is_frontend ? [] : ['wp-edit-post', 'wp-editor-font'];
+// redefine dependencies for styles and handle
+protected function css_params($is_frontend) {
+    return [
+        'deps'	    => $is_frontend ? [] : ['wp-edit-post', 'wp-editor-font'],
+        'handle'    => $is_frontend ? 'my-gallery' : null,
+    ];    
 }
 ```
 
@@ -188,25 +192,57 @@ protected function enqueue_more($is_frontend, $hook) {
     } else if(in_array($hook, ['customize.php', 'widgets.php'])) {
 
         // the script with path 'admin/js/my-colors.min.js',
-        // without wp_localize_script() data,
         // with dependency 'jquery'
-        // with handle 'my-colors-script'
-        // will be added in footer
-        $this->admin_enqueue_script('my-colors', null, ['jquery']);
+        // without wp_localize_script() data (default value),
+        // with handle 'my-colors-script' (default handle)
+        // will be added in footer (default value)
+        $this->admin_enqueue_script('my-colors', [
+            'deps'  => ['jquery'],
+        ]);
 
         // the script with path '/dist/js/more.js',
-        // without JS data,
+        // with JS data,
         // with dependency 'lodash' and 'jquery-ui-droppable'
-        // with handle 'more-script'
+        // with handle 'more-plus'
         // will be added in header
         $filename = 'more';
         $absolute_path = $this->sprintf_dir('/dist/js/%1$s.js', $filename);
         // if we use absolute path then $file should start with '!'
-        $this->admin_enqueue_script('!'.$absolute_path, null, ['lodash','jquery-ui-droppable'], 'more-script', false);
+        $this->admin_enqueue_script('!'.$absolute_path, [
+            'data'      => ['ajaxurl' => admin_url('admin-ajax.php')],
+            'deps'      => ['lodash','jquery-ui-droppable'],
+            'handle'    => 'more-plus',
+            'bottom'    => false,
+        ]);
     }
 }
 ```
 
+- If you __only__ need to __register__ the script so that later it will be enqueue, depending on some conditions (for example, when calling the shortcode on the page), then you need to set the `register_only` key to *true*. И затем при выполнении условия вызвать метод `enqueue_only`. У этого метода два аргумента: `$is_style` and `$handle`. The first one defines what will be enqueue - script or style. If `$handle` is *null*, then it will be generated based on the `prefix`:
+```php
+protected function enqueue_more($is_frontend, $hook) {
+    if($is_frontend) {
+        $this->script_handle = $this->enqueue_script('my-gallery', [
+            'deps'			=> ['jquery'],
+			'register_only'	=> true,    
+        ]);
+    }
+}
+
+public function gallery_shortcode($atts, $content = null) {
+
+    extract(shortcode_atts([
+        'columns' 		=> 3,
+        'border'		=> 'thin',
+    ], $atts));
+
+    $this->enqueue_only(false, $this->script_handle);
+
+    // some shortcode logic here
+
+    return $shortcode_output;
+}
+```
 
 ------------------------------------------------------
 
