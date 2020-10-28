@@ -73,9 +73,9 @@ protected function config() {
         'zukit'				=> true,         
         // default values for plugin options
         'options'			=> [
-            'option1'			=> true,
-            'option2' 		    => false,
-            'option3'		    => 'somevalue',
+            'option1'           => true,
+            'option2'           => false,
+            'option3'           => 'somevalue',
         ],
     ];
 }
@@ -132,7 +132,7 @@ protected function should_load_js($is_frontend, $hook) {
 
 - Для загрузки styles нужно переопределить метод `should_load_css`. Аргументы и логика работы такая же как со скриптами. Для styles загружаемых на front-end это будет файл `css/<prefix>.css`, а для админ страниц будет файл `admin/css/<prefix>.css`.
 
-- Все остальные параметры загрузки скрипта можно задать переопределив методы `js_params` для скрипта или `css_params` для стилей. Если массив не содержит ключа или значение ключа равно null то значение по умолчанию будет использовано. По умолчанию an array of dependencies the script depends on is empty for front-end and `['wp-api', 'wp-i18n', 'wp-components', 'wp-element']` for admin script. For styles - is empty for front-end and `['wp-edit-post']` for admin styles. Примеры задания параметров для скриптов и стилей:
+- Все остальные параметры загрузки скрипта можно задать переопределив методы `js_params` для скрипта или `css_params` для стилей. Если массив не содержит ключа или значение ключа равно *null*, то значение по умолчанию будет использовано. По умолчанию an array of dependencies is empty for front-end and `['zukit']` for admin script and styles. Примеры задания параметров для скриптов и стилей:
 
 ```php
 // redefine dependencies for scripts and 'in-footer' param
@@ -170,7 +170,7 @@ protected function js_data($is_frontend, $default_data) {
                 'value'		=> 'myplugin_action_two',
                 'icon'		=> 'admin-customizer',
                 'color'		=> 'gold',
-                // the button will be visible only if this option is 'true'
+                // the button will be visible only if "option2" is 'true'
                 'depends'	=> 'option2',
             ],
         ],
@@ -223,8 +223,8 @@ protected function enqueue_more($is_frontend, $hook) {
 protected function enqueue_more($is_frontend, $hook) {
     if($is_frontend) {
         $this->script_handle = $this->enqueue_script('my-gallery', [
-            'deps'			=> ['jquery'],
-			'register_only'	=> true,    
+            'deps'          => ['jquery'],
+            'register_only' => true,    
         ]);
     }
 }
@@ -232,8 +232,8 @@ protected function enqueue_more($is_frontend, $hook) {
 public function gallery_shortcode($atts, $content = null) {
 
     extract(shortcode_atts([
-        'columns' 		=> 3,
-        'border'		=> 'thin',
+        'columns'       => 3,
+        'border'        => 'thin',
     ], $atts));
 
     $this->enqueue_only(false, $this->script_handle);
