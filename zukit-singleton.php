@@ -16,6 +16,10 @@ class zukit_Singleton {
     // this array will be an instance of a specific Singleton's subclass.
     private static $instances = [];
 
+    // We can only have one definition of the 'zukit_Singleton' class and therefore
+    // store its location in a static property so that we can access its JS and CSS files later.
+    private static $zukit_file = __FILE__;
+
     // The Singleton's constructor should always be private to prevent direct
     // construction calls with the `new` operator.
     private function __construct($params) {
@@ -68,7 +72,7 @@ class zukit_Singleton {
     // Scripts management -----------------------------------------------------]
 
     protected function get_zukit_filepath($is_style, $file, $absolute_marker = true) {
-        $dir = dirname(__FILE__).'/dist';
+        $dir = dirname(self::$zukit_file).'/dist';
 		$filename = sprintf($is_style ? '%2$s/%1$s.css' : '%2$s/%1$s.min.js', $file, $dir);
 		return $absolute_marker ? ('!'.$filename) : $filename;
 	}
@@ -137,7 +141,7 @@ class zukit_Singleton {
         if($is_style === false || $is_style === null) wp_enqueue_script($handle);
     }
 
-    protected function create_handle($is_style, $file = null) {
+    protected function create_handle($is_style, $file) {
         if(is_null($file)) $file = $this->prefix;
         $info = explode('.', pathinfo($file)['filename']);
         return $is_style ? $info[0] : $info[0].'-script';
@@ -157,17 +161,16 @@ class zukit_Singleton {
 
         extract($params, EXTR_OVERWRITE);
 
-        $handle = $this->create_handle($is_style, $file);
+        if(is_null($handle)) $handle = $this->create_handle($is_style, $file);
         if(is_null($file)) $file = $this->prefix;
-		// if(is_null($handle)) $handle = $is_style ? $file : $file.'-script';
 
         // if we use absolute path then $file should start with '!'
         $is_absolute = substr($file, 0, 1) === '!';
         $file = str_replace('!', '', $file);
 
-        $filename = $is_absolute ? str_replace($this->dir, '', $file) : $this->get_filepath($is_style, $is_frontend, $file, true);
-		$filepath = $this->dir.$filename;
-		$src = $this->uri.$filename;
+        extract($this->get_filepath_and_src($is_absolute, $is_style, $is_frontend, $file), EXTR_OVERWRITE);
+
+    // _dbug(static::class, $handle, $data, $filepath, $src, $deps, $bottom);
 
 		if(file_exists($filepath)) {
 			$version = $this->get_version($filepath);
@@ -181,9 +184,6 @@ class zukit_Singleton {
 
             // by wrapping our $data values inside an inner array we prevent integer and boolean values to be interpreted as strings
             // https://wpbeaches.com/using-wp_localize_script-and-jquery-values-including-strings-booleans-and-integers/
-            if(!$is_style) {
-                _dbug(static::class, $handle, $data, $filepath);
-            }
             if(!$is_style && !empty($data)) {
                 $jsdata_name = $data['jsdata_name'] ?? $this->prefix.'_jsdata';
                 if(isset($data['jsdata_name'])) unset($data['jsdata_name']);
@@ -207,6 +207,28 @@ class zukit_Singleton {
         }
 		return $handle;
 	}
+
+    private function get_filepath_and_src($is_absolute, $is_style, $is_frontend, $file) {
+
+        $filepath = $src = null;
+        if($is_absolute) {
+            $filename = str_replace($this->dir, '', $file);
+            if($file === 'zukit') {
+                $filepath = $this->get_zukit_filepath($is_style, $file, false);
+                $src = plugin_dir_url(self::$zukit_file).str_replace(plugin_dir_path(self::$zukit_file), '', $filepath);
+            }
+        } else {
+            $filename = $this->get_filepath($is_style, $is_frontend, $file, true);
+        }
+
+        $filepath = empty($filepath) ? $this->dir.$filename : $filepath;
+        $src = empty($src) ? $this->uri.$filename : $src;
+
+        return [
+            'filepath'  => $filepath,
+            'src'       => $src,
+        ];
+    }
 
     // private function enqueue_script_with_data($is_frontend, $file, $data = null, $deps = [], $bottom = true, $handle = null) {
     //
