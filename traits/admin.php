@@ -4,6 +4,11 @@
 
 trait zukit_Admin {
 
+	// The Zukit's slug is stored in a static property. This property is
+	// an array, because we'll allow the first class to enqueue Zukit files
+	// for all the following subclasses.
+	private static $zukit_slugs = [];
+
 	protected $min_php_version = '7.0.0';
 	protected $min_wp_version = '5.0.0';
 	protected $ops;
@@ -20,6 +25,9 @@ trait zukit_Admin {
 		];
 
 		$this->ops = array_merge($defaults, $options);
+
+		// if Zukit is requred then add the admin slug to the static property
+		if($this->config['zukit']) self::$zukit_slugs[] = $this->ops['slug'];
 
 		// Activation Hooks ---------------------------------------------------]
 
@@ -63,6 +71,8 @@ trait zukit_Admin {
 
 		add_action('admin_menu', [$this, 'admin_menu']);
 		add_filter('plugin_action_links_'.plugin_basename($file), [$this, 'admin_settings_link']);
+
+
 	}
 
 	protected function on_activation() {}
@@ -74,9 +84,16 @@ trait zukit_Admin {
 		return $this->ops['slug'];
 	}
 
-	public function ends_with_slug($str) {
-		$slug = $this->ops['slug'];
+	public function ends_with_slug($str, $slug = null) {
+		$slug = is_null($slug) ? $this->admin_slug() : $slug;
 		return substr($str, -strlen($slug)) === $slug;
+	}
+
+	private function is_zukit_slug($str) {
+		foreach(self::$zukit_slugs as $zukit_slug) {
+			if($this->ends_with_slug($str, $zukit_slug)) return true;
+		}
+		return false;
 	}
 
 	public function admin_menu() {
