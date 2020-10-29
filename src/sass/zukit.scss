@@ -37,10 +37,11 @@ $divider-component-class: zukit-divider;
 					margin-left: 10px;
 					padding: 3px 6px;
 					border-width: 0;
-					background-color: $admin-light-brown;
+					background-color: $admin-error-bg-color;
 					color: $admin-error-color;
 					pointer-events: none;
 					cursor: default;
+					font-weight: 400;
 				}
 			}
 
