@@ -23,8 +23,6 @@ class zukit_Plugin extends zukit_Singleton {
 	protected $data = [];
 	protected $addons = [];
 
-	private static $registred = false;
-
 	// Admin basics, menu management and REST API support
 	use zukit_Admin, zukit_AdminMenu, zukit_Ajax;
 
@@ -283,6 +281,7 @@ class zukit_Plugin extends zukit_Singleton {
 	protected function get_js_data($is_frontend) {
 		return $this->js_data($is_frontend, [
 			'jsdata_name'	=> 'zukit_settings',
+			'router'		=> $this->admin_slug(),
 			'options' 		=> $this->options,
 			'info'			=> $this->info(),
 			'debug'			=> $this->debug_actions(),

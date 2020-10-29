@@ -15,6 +15,10 @@ trait zukit_Ajax {
 	private $nonce;
 	private $ajax_error;
 
+	private static $rest_registered = false;
+
+	private static $rest_router = false;
+
 	private function ajax_config() {
 
 		$this->nonce = $this->config['nonce'] ?? $this->prefix.'_ajax_nonce';
@@ -25,6 +29,10 @@ trait zukit_Ajax {
 				'methods' 		=> WP_REST_Server::CREATABLE,
 				'callback'		=> 'do_ajax',
 				'args'			=> [
+					'router'		=> [
+						'required'			=> true,
+						'sanitize_callback' => 'sanitize_key',
+					],
 					'key'		=> [
 						'default'			=> false,
 						'sanitize_callback' => 'sanitize_key',
@@ -37,6 +45,10 @@ trait zukit_Ajax {
 				'methods' 		=> WP_REST_Server::READABLE,
 				'callback'		=> 'get_option_ajax',
 				'args'			=> [
+					'router'		=> [
+						'required'			=> true,
+						'sanitize_callback' => 'sanitize_key',
+					],
 					'key'		=> [
 						'default'			=> false,
 						'sanitize_callback' => 'sanitize_key',
@@ -49,6 +61,10 @@ trait zukit_Ajax {
 				'methods' 		=> WP_REST_Server::CREATABLE,
 				'callback'		=> 'set_options_ajax',
 				'args'			=> [
+					'router'		=> [
+						'required'			=> true,
+						'sanitize_callback' => 'sanitize_key',
+					],
 					'keys'		=> [
 						'default'			=> [],
 						'sanitize_callback' => [$this, 'sanitize_paths'],
@@ -67,6 +83,8 @@ trait zukit_Ajax {
 	}
 
 	public function init_api() {
+		// prevent 'register_rest_route' be called many times from different plugins
+		if(self::$rest_registered) return;
 
 		foreach($this->routes as $route => $params) {
 
@@ -85,6 +103,8 @@ trait zukit_Ajax {
                 },
 			]);
 		}
+
+		self::$rest_registered = true;
 	}
 
 	// Sanitize helpers -------------------------------------------------------]
@@ -207,27 +227,32 @@ trait zukit_Ajax {
 		$value = $params['value'] ?? null;
 		$result = null;
 
+		// instead of $this, should use $router, because it defines the active plugin
+		$router = $this->get_router($params);
+
 		// collect data for REST API
-		switch($key) {
-			case 'zukit_more_info':
-				$result = $this->create_notice('data', null, $this->info());
-				break;
+		if(!is_null($router)) {
+			switch($key) {
+				case 'zukit_more_info':
+					$result = $router->create_notice('data', null, $router->info());
+					break;
 
-			case 'clear_log':
-				$result = $this->ajax_empty_log();
-				break;
+				case 'clear_log':
+					$result = $router->ajax_empty_log();
+					break;
 
-			case 'reset_options':
-				$result = $this->ajax_reset_options();
-				break;
+				case 'reset_options':
+					$result = $router->ajax_reset_options();
+					break;
 
-			case 'test_ajax':
-				$result = $this->ajax_test();
-				break;
+				case 'test_ajax':
+					$result = $router->ajax_test();
+					break;
 
-			default:
-				$result = $this->ajax_more($key, $value);
-				if($result === null) $result = $this->ajax_addons($key, $value);
+				default:
+					$result = $router->ajax_more($key, $value);
+					if($result === null) $result = $router->ajax_addons($key, $value);
+			}
 		}
 
 		// if $result is empty - something went wrong - then return empty object
@@ -239,9 +264,11 @@ trait zukit_Ajax {
 	public function get_option_ajax($request) {
 
 		$params =  $request->get_params();
+		// instead of $this, should use $router, because it defines the active plugin
+		$router = $this->get_router($params);
 
 		$key = $params['key'];
-		$value = $this->get_option($key, null);
+		$value = is_null($router) ? null : $router->get_option($key, null);
 
 		// if $result is null - something went wrong - then return null
 		return rest_ensure_response($value === null ? (object) null : $value);
@@ -255,11 +282,13 @@ trait zukit_Ajax {
 		$values = $params['values'];
 		if(!is_array($values)) $values = array_fill_keys($keys, $values);
 
+		// instead of $this, should use $router, because it defines the active plugin
+		$router = $this->get_router($params);
 		$result = true;
 
 		foreach($keys as $key) {
-			// 'null' will be ignored
-			$return = $this->set_option($key, $values[$key] ?? null);
+			// with set_option 'null' will be ignored, 'false' considered as failure
+			$return = is_null($router) ? false : $router->set_option($key, $values[$key] ?? null);
 			if($return === false) $result = false;
 		}
 		// if $result is false - something went wrong - then return null
@@ -267,6 +296,19 @@ trait zukit_Ajax {
 	}
 
 	// Ajax Actions Helpers ---------------------------------------------------]
+
+	// $rest_router serves to identify the plugin that currently uses the REST API,
+	// since all plugins inherit the same Zukit_plugin class and identification
+	// is required to determine which of the active plugins should respond to ajax requests
+	private function get_router($params) {
+
+		$router_slug = $params['router'] ?? '';
+		$rest_router = $this->instance_by_slug($router_slug);
+
+		if($rest_router instanceof zukit_Plugin) return $rest_router;
+		$this->ajax_error(__('Active router not defined', 'zukit'), $params);
+		return null;
+	}
 
 	public function create_notice($status, $message, $data = []) {
 		return [

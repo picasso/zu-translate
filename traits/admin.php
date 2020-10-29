@@ -4,10 +4,9 @@
 
 trait zukit_Admin {
 
-	// The Zukit's slug is stored in a static property. This property is
-	// an array, because we'll allow the first class to enqueue Zukit files
-	// for all the following subclasses.
-	private static $zukit_slugs = [];
+	// The Zukit's plugin instance is stored in a static property. This property is
+	// an array, because we need to identify the plugin that currently uses the REST API.
+	private static $zukit_items = [];
 
 	protected $min_php_version = '7.0.0';
 	protected $min_wp_version = '5.0.0';
@@ -26,8 +25,8 @@ trait zukit_Admin {
 
 		$this->ops = array_merge($defaults, $options);
 
-		// if Zukit is requred then add the admin slug to the static property
-		if($this->config['zukit']) self::$zukit_slugs[] = $this->ops['slug'];
+		// if Zukit is requred then add the admin slug and class instance to the static property
+		if($this->config['zukit']) self::$zukit_items[$this->ops['slug']] = $this;
 
 		// Activation Hooks ---------------------------------------------------]
 
@@ -84,16 +83,21 @@ trait zukit_Admin {
 		return $this->ops['slug'];
 	}
 
-	public function ends_with_slug($str, $slug = null) {
+	public function ends_with_slug($hook, $slug = null) {
 		$slug = is_null($slug) ? $this->admin_slug() : $slug;
-		return substr($str, -strlen($slug)) === $slug;
+		return substr($hook, -strlen($slug)) === $slug;
 	}
 
-	private function is_zukit_slug($str) {
-		foreach(self::$zukit_slugs as $zukit_slug) {
-			if($this->ends_with_slug($str, $zukit_slug)) return true;
+	private function is_zukit_slug($hook) {
+		foreach(array_keys(self::$zukit_items) as $zukit_slug) {
+			// if $zukit_slug is the current admin_slug() and $hook ends with $zukit_slug
+			if($zukit_slug === $this->admin_slug() && $this->ends_with_slug($hook, $zukit_slug)) return true;
 		}
 		return false;
+	}
+
+	private function instance_by_slug($slug) {
+		return self::$zukit_items[$slug] ?? null;
 	}
 
 	public function admin_menu() {
