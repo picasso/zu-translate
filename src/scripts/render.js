@@ -8,6 +8,7 @@ const { ToggleControl, SelectControl, Button } = wp.components;
 // Internal dependencies
 
 import { externalData, checkDependency } from './utils.js';
+import { setRestRouter } from './fetch.js';
 import ZukitSkeleton from './components/skeleton.js'
 import ZukitDivider from './components/divider.js'
 
@@ -16,6 +17,9 @@ const debugPanelKey = '_debug';
 export function renderPlugin(pluginId, settings = {}) {
 
 	const pluginData = externalData(`${pluginId}_settings`);
+
+	// restRouter serves to identify the plugin that currently uses the REST API
+	setRestRouter(pluginData.router);
 
 	if(get(settings, 'panels') !== undefined) {
 		// Add 'Debug Actions' panel defaults

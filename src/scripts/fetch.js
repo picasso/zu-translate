@@ -10,14 +10,20 @@ const { apiFetch } = wp;
 const cacheKey = 'cache';
 const apiBaseURL = '/zukit/v1/';
 
+// restRouter serves to identify the plugin that currently uses the REST API,
+// since all plugins inherit the same Zukit_plugin class and identification
+// is required to determine which of the active plugins should respond to ajax requests.
+// Therefore, we automatically add the 'router' param to all API request.
+let restRouter = null;
+
 // Ajax actions and options update --------------------------------------------]
 
-// Если status === 'data' просто возвращаем данные из проперти 'data',
+// Если status === 'data' просто возвращаем данные из property 'data',
 // в противном случае формируем и отображаем 'Notice'
 function onSuccessAjax(createNotice, request, callback = null, loading = null) {
 
 	const actionKey = _.get(request, 'options.key');
-	const actionData = [{ className: 'zukit-data', label: actionKey }];
+	// const actionData = [{ className: 'zukit-data', label: actionKey }];
 
 	return ajaxData => {
 		let {
@@ -48,20 +54,26 @@ function onSuccessAjax(createNotice, request, callback = null, loading = null) {
 		if(status === false && message) {
 			status = 'error';
 			content = message;
-			if(params) params = [{ className: 'zukit-data', label: params }];
+			if(params) {
+				params = _.isArray(params) || _.isPlainObject(params) ? toJSON(params) : String(params);
+				params = params
+					.replace(/([{|}])/g, ' $1 ')
+					.replace(/,\s*/g, ',  ')
+					.replace(/"([^"]+)":/g, '<b>$1</b>: ');
+			}
 		}
 
 		if(_.isNil(content)) {
-			content = 'Unknown action:';
-			params = actionData;
+			content = 'Unknown action';
+			params = actionKey;
 		}
 
 		if(status !== 'data' && !withData) {
 			createNotice({
-				status, 								// Can be one of: success, info, warning, error
-				content, 								// Text string to display
-				isDismissible: true, 					// Whether the user can dismiss the notice
-				actions: params,						// Any actions the user can perform
+				status, 									// Can be one of: success, info, warning, error
+				content: messageWithError(content, params), // Text string to display
+				isDismissible: true, 						// Whether the user can dismiss the notice
+				// actions: params,							// Any actions the user can perform
 				__unstableHTML: withHTML,
 			});
 		}
@@ -76,12 +88,13 @@ function onErrorAjax(createNotice, request, loading) {
 		// mark action as 'complete'
 		if(_.isFunction(loading)) loading({ [requestKey]: false });
 
-		const { message = 'Unknown error:' } = error;
+		const [message, param] = parseError(error, requestKey);
+		// const { message = 'Unknown error:' } = error;
 		createNotice({
-			status: 'error', 				// Can be one of: success, info, warning, error
-			content: message, 				// Text string to display
-			isDismissible: true, 			// Whether the user can dismiss the notice
-			actions: [{ className: 'zukit-data', label: requestKey }],
+			status: 'error', 							// Can be one of: success, info, warning, error
+			content: messageWithError(message, param), 	// Text string to display
+			isDismissible: true, 						// Whether the user can dismiss the notice
+			// actions: param ? [{ className: 'zukit-data', label: param }] : null,
 			__unstableHTML: true,
 		});
 	}
@@ -139,6 +152,7 @@ export function ajaxUpdateOptions(keys, values, createNotice, updateHooks) {
 	const requestData = {
 		route: 'options',
 		options: {
+			router: restRouter,
 			keys,
 			values,
 		},
@@ -151,6 +165,27 @@ export function ajaxUpdateOptions(keys, values, createNotice, updateHooks) {
 }
 
 // Some helpers for API fetch -------------------------------------------------]
+
+function messageWithError(message, params) {
+	return _.isNil(params) ? message : message.replace(/:\s*$/g, '') + `: <span class="zukit-data">${params}</span>`;
+}
+
+// Если сообщение об ошибке заканчивается ": <value>", то отделяем <value> от строки
+// сообщения и превращаем его в отдельный param
+function parseError(error, requestKey) {
+	const { message: errMessage = 'Unknown error:'} = error;
+	let message = errMessage, param = requestKey;
+	const match = /:\s*(.+)$/.exec(errMessage);
+	if(match !== null) {
+		message = errMessage.replace(match[1], '');
+		param = _.isNil(param) ? match[1] : `${match[1]} [${param}]`;
+	}
+	return [message, param];
+}
+
+export function setRestRouter(router) {
+	restRouter = router;
+}
 
 // Convert object to JSON
 export function toJSON(obj) {
@@ -185,6 +220,9 @@ function serializeData(data, cache = false, skip = []) {
             str.push(`${encodeURIComponent(p)}=${encodeURIComponent(value)}`);
         }
     }
+
+	// Automatically add the 'router' param to all API request
+	str.push(`router=${encodeURIComponent(restRouter)}`);
 
     if(cache) {
         let random = Math.floor(Math.random() * 1000000);
@@ -224,11 +262,12 @@ export function fetchAndCatchWithOptions({ route, options, picked, onSuccess, on
 export function postAndCatchWithOptions({ route, options, picked, onSuccess, onError }) {
 
 	const method = 'POST';
+	const requestOptions = { ...options, router: restRouter };
 
 	apiFetch({
 		path: requestURL(route),
 		method: method,
-		data: !_.isEmpty(picked) ? _.pick(options, picked) : options,
+		data: !_.isEmpty(picked) ? _.pick(requestOptions, picked) : requestOptions,
 	}).then(data => {
 		if(_.isFunction(onSuccess)) onSuccess(data);
 	}).catch(error => {
