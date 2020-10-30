@@ -1,3 +1,11 @@
+##### 0.9.4 / 2020-10-30
+* fixed bug in `is_zukit_slug` method
+* added `router` support for REST API methods
+* added `router` support in `fetch.js`
+* improved error processing in fetch functions
+* changed the methods for creating additional info and actions for the sidebar
+* css improvements
+
 ##### 0.9.3 / 2020-10-28
 * method `enqueue_only` now enqueue both script and style when called without params
 * implemented logic when `null` is replaced with default value in `js_params` and `css_params`
