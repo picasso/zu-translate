@@ -54,18 +54,11 @@ function onSuccessAjax(createNotice, request, callback = null, loading = null) {
 		if(status === false && message) {
 			status = 'error';
 			content = message;
-			if(params) {
-				params = _.isArray(params) || _.isPlainObject(params) ? toJSON(params) : String(params);
-				params = params
-					.replace(/([{|}])/g, ' $1 ')
-					.replace(/,\s*/g, ',  ')
-					.replace(/"([^"]+)":/g, '<b>$1</b>: ');
-			}
 		}
 
 		if(_.isNil(content)) {
 			content = 'Unknown action';
-			params = actionKey;
+			params = { action: actionKey };
 		}
 
 		if(status !== 'data' && !withData) {
@@ -88,7 +81,7 @@ function onErrorAjax(createNotice, request, loading) {
 		// mark action as 'complete'
 		if(_.isFunction(loading)) loading({ [requestKey]: false });
 
-		const [message, param] = parseError(error, requestKey);
+		const [message, param] = parseError(error, { action: requestKey });
 		// const { message = 'Unknown error:' } = error;
 		createNotice({
 			status: 'error', 							// Can be one of: success, info, warning, error
@@ -166,8 +159,18 @@ export function ajaxUpdateOptions(keys, values, createNotice, updateHooks) {
 
 // Some helpers for API fetch -------------------------------------------------]
 
+// Add error parameters (if present) to the message, converting any object to a string
 function messageWithError(message, params) {
-	return _.isNil(params) ? message : message.replace(/:\s*$/g, '') + `: <span class="zukit-data">${params}</span>`;
+
+	if(_.isNil(params)) return message;
+
+	params = _.isArray(params) || _.isPlainObject(params) ? toJSON(params) : String(params);
+	params = params
+		.replace(/([{|}])/g, ' $1 ')
+		.replace(/,\s*/g, ',  ')
+		.replace(/"([^"]+)":/g, '<b>$1</b>: ');
+
+	return message.replace(/[:|.]\s*$/g, '') + `: <span class="zukit-data">${params}</span>`;
 }
 
 // Если сообщение об ошибке заканчивается ": <value>", то отделяем <value> от строки
