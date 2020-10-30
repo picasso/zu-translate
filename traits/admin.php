@@ -11,7 +11,6 @@ trait zukit_Admin {
 	protected $min_php_version = '7.0.0';
 	protected $min_wp_version = '5.0.0';
 	protected $ops;
-	// public $hook_suffix = null;
 
 	public function admin_config($file, $options = []) {
 
@@ -77,7 +76,55 @@ trait zukit_Admin {
 	protected function on_activation() {}
 	protected function on_deactivation() {}
 
+	protected function extend_info() { return (object)null;}
+	protected function extend_debug_actions($actions) { return $actions;}
+
 	// Wordpress Admin Page ---------------------------------------------------]
+
+	protected function info() {
+		// $more_info = $this->extend_info();
+		// apply_filters('zukit_plugin_info', (object) null);
+		return [
+			'version'		=> $this->version,
+			'title'			=> $this->data['Name'],
+			'author'		=> $this->data['AuthorName'],
+			'link'			=> preg_replace('/.*href="([^\"]+).*/ims', '$1', $this->data['Author']),
+			'description'	=> preg_replace('/<cite>.+<\/cite>/i', '', $this->data['Description']),
+			'icon'			=> $this->config['icon'],
+			'more' 			=> $this->extend_info(),
+		];
+	}
+
+	protected function debug_actions() {
+		return $this->extend_debug_actions([
+			[
+				'label'		=> __('Clear Debug Log', 'zu-plugin'),
+				'value'		=> 'clear_log',
+				'icon'		=> 'trash',
+				'color'		=> 'error',
+			],
+			[
+				'label'		=> __('Test Ajax', 'zu-plugin'),
+				'value'		=> 'test_ajax',
+				'icon'		=> 'dashboard',
+				'color'		=> 'green',
+			],
+		]);
+		// return $debug_actions === false ? [] : array_merge([
+		// 		[
+		// 			'label'		=> __('Clear Debug Log', 'zu-plugin'),
+		// 			'value'		=> 'clear_log',
+		// 			'icon'		=> 'trash',
+		// 			'color'		=> 'error',
+		// 		],
+		// 		[
+		// 			'label'		=> __('Test Ajax', 'zu-plugin'),
+		// 			'value'		=> 'test_ajax',
+		// 			'icon'		=> 'dashboard',
+		// 			'color'		=> 'green',
+		// 		],
+		// 	], $debug_actions);
+	}
 
 	public function admin_slug() {
 		return $this->ops['slug'];

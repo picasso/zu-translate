@@ -17,8 +17,6 @@ trait zukit_Ajax {
 
 	private static $rest_registered = false;
 
-	private static $rest_router = false;
-
 	private function ajax_config() {
 
 		$this->nonce = $this->config['nonce'] ?? $this->prefix.'_ajax_nonce';

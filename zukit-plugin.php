@@ -69,37 +69,6 @@ class zukit_Plugin extends zukit_Singleton {
 		$this->ajax_config();
 	}
 
-	protected function info() {
-		$more_info = apply_filters('zukit_plugin_info', (object) null);
-		return [
-			'version'		=> $this->version,
-			'title'			=> $this->data['Name'],
-			'author'		=> $this->data['AuthorName'],
-			'link'			=> preg_replace('/.*href="([^\"]+).*/ims', '$1', $this->data['Author']),
-			'description'	=> preg_replace('/<cite>.+<\/cite>/i', '', $this->data['Description']),
-			'icon'			=> $this->config['icon'],
-			'more' 			=> $more_info,
-		];
-	}
-
-	protected function debug_actions() {
-		$debug_actions = apply_filters('zukit_debug_actions', []);
-		return $debug_actions === false ? [] : array_merge([
-				[
-					'label'		=> __('Clear Debug Log', 'zu-plugin'),
-					'value'		=> 'clear_log',
-					'icon'		=> 'trash',
-					'color'		=> 'error',
-				],
-				[
-					'label'		=> __('Test Ajax', 'zu-plugin'),
-					'value'		=> 'test_ajax',
-					'icon'		=> 'dashboard',
-					'color'		=> 'green',
-				],
-			], $debug_actions);
-	}
-
 	// Нельзя! работать с 'options' в 'construct_more()', там 'options' еще не определены
 	protected function construct_more() {}
 
