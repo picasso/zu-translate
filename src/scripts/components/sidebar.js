@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { get, map, isEmpty, isNil, omitBy } = lodash;
+const { get, map, isEmpty, isNil, omitBy, pickBy } = lodash;
 const { __ } = wp.i18n;
 const { Fragment, useCallback } = wp.element;
 const { PanelBody, PanelRow, Button, ExternalLink, ToggleControl, Spinner } = wp.components;
@@ -35,7 +35,7 @@ const ZukitSidebar = ({
 }) => {
 
 	const moreItems = omitBy(more, isNil);
-	const pluginActions = omitBy(actions, isNil);
+	const pluginActions = pickBy(omitBy(actions, isNil), ({depends}) => checkDependency(depends, options, true));
 	const debugActions = omitBy(debug, isNil);
 
 	const hasMoreItems = !isEmpty(moreItems);
