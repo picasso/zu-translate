@@ -6,17 +6,19 @@ include_once('traits/inline.php');
 include_once('traits/minify.php');
 include_once('traits/date.php');
 include_once('traits/content.php');
+include_once('traits/loader.php');
 include_once('traits/useful.php');
 
 class zukit_Snippets extends zukit_Singleton {
 
-	use zusnippets_Slugs,
-		zusnippets_Thumbnails,
-		zusnippets_Lang,
-		zusnippets_InlineStyle,
-		zusnippets_Minify,
+	use zusnippets_Content,
 		zusnippets_Date,
-		zusnippets_Content,
+		zusnippets_InlineStyle,
+		zusnippets_Lang,
+		zusnippets_Loader,
+		zusnippets_Minify,
+		zusnippets_Slugs,
+		zusnippets_Thumbnails,
 		zusnippets_Useful;
 
 	protected function construct_more() {

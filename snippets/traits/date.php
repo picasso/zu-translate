@@ -13,36 +13,38 @@ trait zusnippets_Date {
 	}
 
 	public function dateToEnglish($date) {
-	    $month = array(
-	    "январь"=>"january",
-	    "февраль"=>"february",
-	    "март"=>"march",
-	    "апрель"=>"april",
-	    "май"=>"may",
-	    "июнь"=>"june",
-	    "июль"=>"july",
-	    "август"=>"august",
-	    "сентябрь"=>"september",
-	    "октябрь"=>"october",
-	    "ноябрь"=>"november",
-	    "декабрь"=>"december");
+	    $month = [
+		    "январь"	=> "january",
+		    "февраль"	=> "february",
+		    "март"		=> "march",
+		    "апрель"	=> "april",
+		    "май"		=> "may",
+		    "июнь"		=> "june",
+		    "июль"		=> "july",
+		    "август"	=> "august",
+		    "сентябрь"	=> "september",
+		    "октябрь"	=> "october",
+		    "ноябрь"	=> "november",
+		    "декабрь"	=> "december"
+		];
 	    return str_replace(array_keys($month), $month, mb_convert_case($date, MB_CASE_LOWER, 'UTF-8'));
 	}
 
 	public function dateToRussian($date) {
-	    $month = array(
-	    "january"=>"января",
-	    "february"=>"февраля",
-	    "march"=>"марта",
-	    "april"=>"апреля",
-	    "may"=>"мая",
-	    "june"=>"июня",
-	    "july"=>"июля",
-	    "august"=>"августа",
-	    "september"=>"сентября",
-	    "october"=>"октября",
-	    "november"=>"ноября",
-	    "december"=>"декабря");
+	    $month = [
+		    "january"	=> "января",
+		    "february"	=> "февраля",
+		    "march"		=> "марта",
+		    "april"		=> "апреля",
+		    "may"		=> "мая",
+		    "june"		=> "июня",
+		    "july"		=> "июля",
+		    "august"	=> "августа",
+		    "september"	=> "сентября",
+		    "october"	=> "октября",
+		    "november"	=> "ноября",
+		    "december"	=> "декабря"
+		];
 	    return str_replace(array_keys($month), $month, mb_convert_case($date, MB_CASE_LOWER, 'UTF-8'));
 	}
 
@@ -63,8 +65,8 @@ trait zusnippets_Date {
 	public function date_i18n($date, $with_year = true, $without_day = false) {
 
 		$locale = substr(get_locale(), 0, 2);
-		$format = $with_year ? array('ru' => 'j F, Y', 'en' => '%B %e, %G', 'it' => '%e %B, %G') : array('ru' => 'j F', 'en' => '%B %e', 'it' => '%e %B');
-		$format = $without_day ? array('ru' => 'F, Y', 'en' => '%B, %G', 'it' => '%B, %G') : $format;
+		$format = $with_year ? ['ru' => 'j F, Y', 'en' => '%B %e, %G', 'it' => '%e %B, %G'] : ['ru' => 'j F', 'en' => '%B %e', 'it' => '%e %B'];
+		$format = $without_day ? ['ru' => 'F, Y', 'en' => '%B, %G', 'it' => '%B, %G'] : $format;
 
 		if($locale === 'ru') {
 			return $this->dateToRussian(date($format['ru'], $this->eng_strtotime($date)));
