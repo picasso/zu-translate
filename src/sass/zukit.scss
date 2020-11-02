@@ -153,6 +153,10 @@ $divider-component-class: zukit-divider;
 				margin-top: 1em;
 			}
 
+			.edit-post-sidebar h2 {
+				font-weight: 600;
+			}
+
 			.components-panel__body.is-opened {
 				.components-panel__body-title + div {
 					margin-top: 12px;
