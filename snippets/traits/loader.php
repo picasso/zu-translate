@@ -20,7 +20,7 @@ trait zusnippets_Loader {
 		$wrapper = $getAll ? '' : sprintf('<div class="%1$s">', $classes);
 		$wrapper_closing = $getAll ? '' : '</div>';
 
-		$loaders[] = sprintf(
+		$loaders[] = zu_sprintf(
 			'%1$s
 			  <svg version="1.1" id="loader-%4$s" data-id="%4$s" xmlns="%3$s" viewBox="0 0 40 40" preserveAspectRatio="xMidYMin slice">
 				  <path opacity="%6$s" d="M20.201,5.169c-8.254,0-14.946,6.692-14.946,14.946c0,8.255,6.692,14.946,14.946,14.946
@@ -46,7 +46,7 @@ trait zusnippets_Loader {
 			$opacity
 		);
 
-		$loaders[] = sprintf(
+		$loaders[] = zu_sprintf(
 			'%1$s
 			  <svg version="1.1" id="loader-%4$s" data-id="%4$s" xmlns="%3$s" viewBox="0 0 50 50" preserveAspectRatio="xMidYMin slice">
 			  <path d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z">
@@ -67,7 +67,7 @@ trait zusnippets_Loader {
 			$wrapper_closing
 		);
 
-		$loaders[] = sprintf(
+		$loaders[] = zu_sprintf(
 			'%1$s
 			  <svg version="1.1" id="loader-%4$s" data-id="%4$s" xmlns="%3$s" viewBox="0 0 50 50" preserveAspectRatio="xMidYMin slice">
 			  <path d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z">
@@ -88,7 +88,7 @@ trait zusnippets_Loader {
 			$wrapper_closing
 		);
 
-		$loaders[] = sprintf(
+		$loaders[] = zu_sprintf(
 			'%1$s
 			  <svg version="1.1" id="loader-%7$s" data-id="%7$s" xmlns="%6$s" viewBox="0 0 20 30" preserveAspectRatio="xMidYMin slice">
 			    <rect x="0" y="10" width="4" height="10" opacity="%5$s">
@@ -119,7 +119,7 @@ trait zusnippets_Loader {
 		);
 
 		$duration_long = $duration * 5;
-		$loaders[] = sprintf(
+		$loaders[] = zu_sprintf(
 			'%1$s
 			  <svg version="1.1" id="loader-%4$s" data-id="%4$s" xmlns="%3$s" viewBox="0 0 55 80" preserveAspectRatio="xMidYMin slice">
 					<g transform="matrix(1 0 0 -1 0 80)">
@@ -160,7 +160,7 @@ trait zusnippets_Loader {
 			$wrapper_closing
 		);
 
-		$loaders[] = sprintf(
+		$loaders[] = zu_sprintf(
 			'%1$s
 			  <svg version="1.1" id="loader-%4$s" data-id="%4$s" xmlns="%3$s" viewBox="0 0 24 30" preserveAspectRatio="xMidYMin slice">
 			    <rect x="0" y="0" width="4" height="10">
@@ -192,7 +192,7 @@ trait zusnippets_Loader {
 			$wrapper_closing
 		);
 
-		$loaders[] = sprintf(
+		$loaders[] = zu_sprintf(
 			'%1$s
 			  <svg version="1.1" id="loader-%4$s" data-id="%4$s" xmlns="%3$s" viewBox="0 0 120 30" preserveAspectRatio="xMidYMin slice">
 				    <circle cx="15" cy="15" r="15" fill="currentColor">
