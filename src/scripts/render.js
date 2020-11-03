@@ -14,12 +14,12 @@ import ZukitDivider from './components/divider.js'
 
 const debugPanelKey = '_debug';
 
-export function renderPlugin(pluginId, settings = {}) {
+export function renderPage(pageId, settings = {}) {
 
-	const pluginData = externalData(`${pluginId}_settings`);
+	const pageData = externalData(`${pageId}_settings`);
 
-	// restRouter serves to identify the plugin that currently uses the REST API
-	setRestRouter(pluginData.router);
+	// restRouter serves to identify the plugin/theme that currently uses the REST API
+	setRestRouter(pageData.router);
 
 	if(get(settings, 'panels') !== undefined) {
 		// Add 'Debug Actions' panel defaults
@@ -27,16 +27,16 @@ export function renderPlugin(pluginId, settings = {}) {
 			[debugPanelKey]: { label: __('Debug Actions', 'zumedia'), value: false },
 		});
 		// Sync 'panels' with saved 'options' if presented
-		if(get(pluginData, 'options.panels') !== undefined) {
-			const { options: { panels } } = pluginData;
+		if(get(pageData, 'options.panels') !== undefined) {
+			const { options: { panels } } = pageData;
 			forEach(panels, (value, key) => set(settings, `panels.${key}.value`, value));
 		}
 	}
 
-	if(document.getElementById(pluginId) !== null) {
+	if(document.getElementById(pageId) !== null) {
 		render(
-			<ZukitSkeleton id={ pluginId } { ...pluginData } { ...settings }/>,
-			document.getElementById(pluginId)
+			<ZukitSkeleton id={ pageId } { ...pageData } { ...settings }/>,
+			document.getElementById(pageId)
 		);
 	}
 }
