@@ -82,10 +82,10 @@ protected function config() {
 ```
 
 #### Options
-- для получения __options__ и их обновления служат методы `options` and `update_options`
-- метод `reset_options` служит для сброса __options__  к default values. На странице настроек плагина автоматические создается кнопка, которая вызывает это метод по AJAX
-- метод `set_option` служит для установки значения __options__ по конкретному ключу и последующего обновления `options`. Если argument `$key` содержит __path__ (dots separated keys), тогда будет найден требуемый ключ in nested options
-- метод `is_option` служит для сравнения значения по заданому ключу со вторым аргументом метода. Для типов `bool`, `int` и `string` происходит cast to required value type
+- methods `options` and `update_options` are used to get __options__ and update them
+- the `reset_options` method is used to reset __options__ to default values. On the settings page, a button is automatically created that calls this method via AJAX
+- the `set_option` method is used to set the __options__ value for a given key and then update `options` in WordPress. If argument `$key` contains *path* (dots separated keys) then the required key will be found in nested options
+- the `is_option` method is used to compare the value by the given key with the second argument of the method. For types `bool`, `int` and` string`, a cast to required value type occurs
 ```php
 if($this->is_option('option1')) {
     add_action('pre_get_posts', [$this, 'pre_get_attachments']);
@@ -101,7 +101,7 @@ $this->set_option('more_option.nextkey', true);
 ```
 
 #### Init
-Плагину не требуется добавлять action на события `init` and `admin_init` - нужно просто переопределить методы с такими названиями и в них выполнить необходимые инициализации. Внутри этих методов можно безопасно обращаться к `options`.
+The plugin does not need to add action to the `init` and `admin_init` events - you just need to override the methods with such names and perform the necessary initializations in them. Within these methods, you can safely refer to `options`.
 ```php
 public function init() {
     if($this->is_option('add_category')) {
@@ -116,8 +116,7 @@ public function admin_init() {
 
 #### Scripts & Styles
 
-- Для загрузки JS скриптов нужно переопределить метод `should_load_js` в котором вернуть true если скрипт должен быть загружен (если скрипт не нужен то и переопределение метода не требуется). Метод имеет два аргумента: `$is_frontend` and `$hook`. Имя файла скрипта будет сформировано автоматически на основе `prefix` (см. выше). Для скрипта загружаемого на front-end это будет файл `js/<prefix>.min.js`, а для админ страниц будет файл `admin/js/<prefix>.min.js`. Если админ скрипт содержит только управление настройками плагина, то его загрузку лучше ограничить лишь данной страницей с помощью helper method `ends_with_slug` (см. пример).
-
+- To load JS scripts, you need to override the `should_load_js` method in which to return true if the script should be loaded (if the script is not needed, then overriding the method is not required). The method has two arguments: `$is_frontend` and `$hook`. The script file name will be generated automatically based on the `prefix` (see above). For the script loaded to the front-end it will be the file `js/<prefix>.min.js`, and for the admin pages it will be the file `admin/js/<prefix>.min.js`. If the admin script contains only options page management, then it is better to limit its loading only to this page using the helper method `ends_with_slug` (see example).
 ```php
 // for front-end and admin scripts
 protected function should_load_js($is_frontend, $hook) {
@@ -130,7 +129,7 @@ protected function should_load_js($is_frontend, $hook) {
 }
 ```
 
-- Для загрузки styles нужно переопределить метод `should_load_css`. Аргументы и логика работы такая же как со скриптами. Для styles загружаемых на front-end это будет файл `css/<prefix>.css`, а для админ страниц будет файл `admin/css/<prefix>.css`.
+- To load styles, you need to override the `should_load_css` method. The arguments and logic are the same as with scripts. For styles loaded on the front-end it will be the file `css/<prefix>.css`, and for the admin pages it will be the file `admin/css/<prefix>.css`.
 
 - Все остальные параметры загрузки скрипта можно задать переопределив методы `js_params` для скрипта или `css_params` для стилей. Если массив не содержит ключа или значение ключа равно *null*, то значение по умолчанию будет использовано. По умолчанию an array of dependencies is empty for front-end and `['zukit']` for admin script and styles. Примеры задания параметров для скриптов и стилей:
 
@@ -152,12 +151,14 @@ protected function css_params($is_frontend) {
 }
 ```
 
-- По умолчанию для JS скрипта создается JSON object доступный из скрипта по переменной с именем `zukit_settings` и содержащий необходимые данные для работы __Zukit__. Если требуются дополнительные данные, то нужно переопределить метод `js_data`. Для того чтобы сохранить данные необходимые для работы __Zukit__ рекомендуется merge your data with default set. You also could rename the variable which will be available in javascript via `jsdata_name` key (see example). Обычно изменение the default data set требуется если нужно отобразить дополнительные AJAX actions на странице настроек плагина.
+- By default, a JSON object is created for a JS script, accessible from the script by a variable named `<prefix>_jsdata`. You also could rename the variable which will be available in javascript via `jsdata_name` key (see example). For the options page in admin mode, the variable name will be `<prefix>_settings`. And although this can also be renamed, it is highly discouraged in order to keep the default data set necessary for __Zukit__ to work. If additional JS data is required, then you need to override the `js_data` method. Usually changing the default data set is required if you want to display additional AJAX actions on the plugin/theme settings page.
 ```php
-protected function js_data($is_frontend, $default_data) {
-    return  $is_frontend ? [] : array_merge($default_data, [
-        'jsdata_name'	=> 'myplugin_settings',
-        'actions' 		=> [
+protected function js_data($is_frontend) {
+    return  $is_frontend ? [
+        'jsdata_name'	=> 'myplugin_data',
+        'important_id'  => $very_important_id,
+    ] : [
+        'actions'   => [
             [
                 'label'		=> __('My Action 1', 'myplugin'),
                 'value'		=> 'myplugin_action_one',
@@ -174,7 +175,7 @@ protected function js_data($is_frontend, $default_data) {
                 'depends'	=> 'option2',
             ],
         ],
-    ]);
+    ];
 }
 ```
 
@@ -218,7 +219,7 @@ protected function enqueue_more($is_frontend, $hook) {
 }
 ```
 
-- If you __only__ need to __register__ the script so that later it will be enqueue, depending on some conditions (for example, when calling the shortcode on the page), then you need to set the `register_only` key to *true*. And then, when the condition is met, call the `enqueue_only` method. This method has two arguments: `$is_style` and `$handle`. The first one defines what will be enqueue - script or style. If `$handle` is *null* or omitted then it will be generated based on the `prefix`. If call the `enqueue_only` method without arguments, both the script and the style with handles based on `prefix` will be enqueued. Some examples:
+- If you __only__ need to __register__ the script so that later it will be enqueued, depending on some conditions (for example, when calling the shortcode on the page), then you need to set the `register_only` key to *true*. And then, when the condition is met, call the `enqueue_only` method. This method has two arguments: `$is_style` and `$handle`. The first one defines what will be enqueue - script or style. If `$handle` is *null* or omitted then it will be generated based on the `prefix`. If call the `enqueue_only` method without arguments, both the script and the style with handles based on `prefix` will be enqueued. Some examples:
 ```php
 protected function enqueue_more($is_frontend, $hook) {
     if($is_frontend) {
@@ -257,18 +258,104 @@ public function gallery_shortcode($atts, $content = null) {
 
 > &#x2757; Description required
 
-
 #### Snippets
 
 *Snippets* is a collection of various functions that I have accumulated during my work with WordPress. They are combined into one class for ease of use.
 
 > &#x2757; Description required
 
+------------------------------------------------------
+### Options Page With Gutenberg Components
+
+In order to create the `options` page for the plugin (theme), you need to create a JS script that will be loaded in the WordPress admin mode. All Gutenberg components are based on [React](https://reactjs.org), so without knowing this library it will be very difficult. But first, you can just copy the example. Even using the default parameters, you will get a page displaying your plugin (theme) options and can easily change them:
+```js
+// WordPress dependencies
+
+const { __ } = wp.i18n;
+
+// Zukit dependencies
+
+const { renderPlugin, toggleOption, selectOption } = wp.zukit.render;
+
+// Options labels
+
+const optionsData = {
+	option1: {
+		label: 	__('Use Option1?', 'myplugin'),
+		help:	__('Detailed description for option1.', 'myplugin'),
+	},
+	option1_1: {
+		label: 	__('Use Option1_1?', 'myplugin'),
+		help:	__('Detailed description for option1_1.', 'myplugin'),
+        // will be displayed only when 'option1' is true
+        depends: 'option1',
+        // divider will be added after this option
+        // 2em -> margins above and under the divider
+		divider: 2,
+	},
+	option2: {
+		label: 	__('Use Option2?', 'myplugin'),
+		help:	__('Detailed description for option2.', 'myplugin'),
+	},
+};
+
+const selectData = {
+	id: 'font_size',
+	label: 	__('Font Size', 'myplugin'),
+	help:	__('Choose which page slug will be considered as a gallery', 'myplugin'),
+	options: [
+		{ value: 'small', label: __('Small font size', 'myplugin') },
+		{ value: 'normal', label: __('Normal font size', 'myplugin') },
+		{ value: 'large', label: __('Large font size', 'myplugin') },
+	],
+	defaultValue: 'normal',
+}
+
+const EditMyplugin = ({
+		zukitPanel: Panel,
+		title,
+		options,
+		updateOptions,
+}) => {
+
+	return (
+			<Panel title={ title }>
+				{ toggleOption(optionsData, options, updateOptions) }
+                { selectOption(options[selectData.id], selectData, updateOptions) }
+			</Panel>
+	);
+};
+
+renderPlugin('myplugin', {
+	edit: EditMyplugin,
+});
+```
+This example will work provided that the `prefix` key is defined in the `config` method as `myplugin`.
+
+#### Sidebar info
+
+> &#x2757; Description required
+
+#### Sidebar actions
+
+> &#x2757; Description required
+
+#### Panels
+
+> &#x2757; Description required
+
+#### Option Hooks
+
+> &#x2757; Description required
+
+#### Tables
+
+> &#x2757; Description required
 
 
 ------------------------------------------------------
 
-## Structure of "Zukit"
+### Structure of "Zukit"
 
 - Folder __dist__ contains _production_ versions of js and css files;
 - Folder __snippets__ contains a collection of various functions that I have accumulated during my work with WordPress. They are combined into one class for ease of use;

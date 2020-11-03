@@ -227,13 +227,13 @@ class zukit_Plugin extends zukit_Singleton {
 
 	protected function js_params($is_frontend) {
 		return [
-			'deps'	=> $is_frontend ? [] : ['zukit'],//['wp-api', 'wp-i18n', 'wp-components', 'wp-element'],
+			'deps'	=> $is_frontend ? [] : ['zukit'],
 			'data'	=> $this->get_js_data($is_frontend),
 		];
 	}
 	protected function css_params($is_frontend) {
 		return [
-			'deps'	=> $is_frontend ? [] : ['zukit'], //['wp-edit-post'],
+			'deps'	=> $is_frontend ? [] : ['zukit'],
 		];
 	}
 	// Guarantees that if user did not include any requred keys or set it to 'null'
@@ -248,24 +248,31 @@ class zukit_Plugin extends zukit_Singleton {
 	}
 
 	protected function get_js_data($is_frontend) {
-		return $this->js_data($is_frontend, [
-			'jsdata_name'	=> 'zukit_settings',
+		$default_data = $is_frontend ? [
+			'ajaxurl'       => admin_url('admin-ajax.php'),
+			'nonce'     	=> $this->ajax_nonce(true),
+			'slug'			=> $this->snippets('get_slug'),
+		] : [
+			'jsdata_name'	=> $this->prefix_it('settings', '_'), //'zukit_settings',
 			'router'		=> $this->admin_slug(),
 			'options' 		=> $this->options,
 			'info'			=> $this->info(),
 			'debug'			=> $this->debug_actions(),
 			'actions' 		=> [],
-		]);
-	}
-	protected function merge_js_data($plugin_data = []) {
-		return array_merge([
-			'ajaxurl'       => admin_url('admin-ajax.php'),
-			'nonce'     	=> $this->ajax_nonce(true),
-			'slug'			=> $this->snippets('get_slug'),
-		], $plugin_data);
+		];
+		$custom_data = $this->js_data($is_frontend);
+		return array_merge($default_data, is_array($custom_data) ? $custom_data : []);
 	}
 
-	protected function js_data($is_frontend, $default_data) { return  $is_frontend ? [] : $default_data; }
+	// protected function merge_js_data($plugin_data = []) {
+	// 	return array_merge([
+	// 		'ajaxurl'       => admin_url('admin-ajax.php'),
+	// 		'nonce'     	=> $this->ajax_nonce(true),
+	// 		'slug'			=> $this->snippets('get_slug'),
+	// 	], $plugin_data);
+	// }
+
+	protected function js_data($is_frontend) {}
 	protected function should_load_css($is_frontend, $hook) { return false; }
 	protected function should_load_js($is_frontend, $hook) { return false; }
 	protected function enqueue_more($is_frontend, $hook) {}
@@ -278,14 +285,17 @@ class zukit_Plugin extends zukit_Singleton {
 
 	public function zukit_enqueue($hook) {
 		if($this->is_zukit_slug($hook)) {
+			// dependencies for Zukit script & styles
+			$js_deps = ['wp-api', 'wp-i18n', 'wp-components', 'wp-element'];
+			$css_deps = ['wp-edit-post'];
 			// params for 'zukit' script
 			$zukit_params = [
 				'data'		=> null,
-				'deps'		=> ['wp-api', 'wp-i18n', 'wp-components', 'wp-element'],
+				'deps'		=> $js_deps,
 				'handle'	=> 'zukit'
 			];
 			$this->admin_enqueue_script('!zukit', $zukit_params);
-			$this->admin_enqueue_style('!zukit', array_merge($zukit_params, ['deps'	=> ['wp-edit-post']]));
+			$this->admin_enqueue_style('!zukit', array_merge($zukit_params, ['deps'	=> $css_deps]));
 		}
 	}
 
