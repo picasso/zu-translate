@@ -64,8 +64,8 @@ class zukit_Singleton {
 
     // Basic error handling ---------------------------------------------------]
 
-    public function log_error($error, $context) {
-		if(isset($context)) error_log(var_export($context, true));
+    public function log_error($error, $context = null) {
+		if(!empty($context)) error_log(var_export($context, true));
 		error_log(var_export($error, true));
 	}
 
@@ -135,16 +135,16 @@ class zukit_Singleton {
     }
 
     public function enqueue_only($is_style = null, $handle = null) {
-        $handle = is_null($handle) ? $this->create_handle($is_style) : $handle;
+        $handle = is_null($handle) ? $this->create_handle() : $handle;
         // if $is_style is null - then enqueue both (style and script)
         if($is_style === true || $is_style === null) wp_enqueue_style($handle);
         if($is_style === false || $is_style === null) wp_enqueue_script($handle);
     }
 
-    protected function create_handle($is_style, $file) {
+    protected function create_handle($file = null) {
         if(is_null($file)) $file = $this->prefix;
         $info = explode('.', pathinfo($file)['filename']);
-        return $is_style ? $info[0] : $info[0].'-script';
+        return $info[0];
     }
 
     private function style_or_script($is_style, $is_frontend, $params) {
@@ -161,7 +161,7 @@ class zukit_Singleton {
 
         extract($params, EXTR_OVERWRITE);
 
-        if(is_null($handle)) $handle = $this->create_handle($is_style, $file);
+        if(is_null($handle)) $handle = $this->create_handle($file);
         if(is_null($file)) $file = $this->prefix;
 
         // if we use absolute path then $file should start with '!'
@@ -170,7 +170,7 @@ class zukit_Singleton {
 
         extract($this->get_filepath_and_src($is_absolute, $is_style, $is_frontend, $file), EXTR_OVERWRITE);
 
-    // _dbug(static::class, $handle, $data, $filepath, $src, $deps, $bottom);
+// _dbug(static::class, $is_absolute, $handle, $register_only, $data, $filepath, $src, $deps, $bottom);
 
 		if(file_exists($filepath)) {
 			$version = $this->get_version($filepath);

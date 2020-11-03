@@ -38,7 +38,7 @@ The latest version of __Zukit__ can downloaded [on GitHub](https://github.com/pi
 
 The best way to learn a framework is to look at working examples of its use. This can be done in plugins that I have already adapted for the new framework: [Zu Contact](https://github.com/picasso/zu-contact) и [Zu Media](https://github.com/picasso/zumedia). Below I have described the main points of working with the framework. This in no way pretends to be complete documentation, but I think that by looking at the source codes you can understand a lot. While this framework is used only by me, then all these descriptions are just *memos* for myself.
 
-- Создать новый класс наследующий класс `zukit_Plugin`
+- Create a new class inheriting the class `zukit_Plugin`
 ```php
 class my_Class extends zukit_Plugin {
 
@@ -47,8 +47,8 @@ class my_Class extends zukit_Plugin {
 
 > &#x274C; __Attention!__ You should not define a class constructor `__construct` in a new class.
 
-- Если необходимо сделать что-то в конструкторе класса, то нужно переопределить метод `construct_more`.
-> &#x1F645; __Внимание!__ Нельзя пользоваться функциями по работе с `options` (см. "Options" section) в этом методе, так как там `options` еще не синхронизированы с классом:
+- If you need to do something in the class constructor, you need to override the `construct_more` method.
+> &#x1F645; __Attention!__ You cannot use the functions for working with `options` (see the "Options" section) in this method, since the `options` there are not yet synchronized with the class methods:
 
 ```php
 protected function construct_more() {
@@ -63,7 +63,7 @@ protected function construct_more() {
 }
 ```
 
-- Переопредилить метод `config` в котором вернуть массив с ключами. Практически все ключи являются опциональным кроме ключа `prefix`, который должен содержать некое уникальное имя используемое во многих методах впоследствии.
+- Override the `config` method in which to return an array with keys. Almost all keys are optional except for the `prefix` key, which must contain some unique name used in many methods later.
 
 ```php
 protected function config() {
@@ -163,7 +163,7 @@ protected function js_data($is_frontend, $default_data) {
                 'value'		=> 'myplugin_action_one',
                 'icon'		=> 'update',
                 'color'		=> 'green',
-                'help'		=> 'Remove stored keys or anything else...',
+                'help'		=> 'Do something special or something else...',
             ],
             [
                 'label'		=> __('My Action 2', 'myplugin'),
@@ -194,7 +194,7 @@ protected function enqueue_more($is_frontend, $hook) {
         // the script with path 'admin/js/my-colors.min.js',
         // with dependency 'jquery'
         // without wp_localize_script() data (default value),
-        // with handle 'my-colors-script' (default handle)
+        // with handle 'my-colors' (default handle)
         // will be added in footer (default value)
         $this->admin_enqueue_script('my-colors', [
             'deps'  => ['jquery'],
@@ -218,7 +218,7 @@ protected function enqueue_more($is_frontend, $hook) {
 }
 ```
 
-- If you __only__ need to __register__ the script so that later it will be enqueue, depending on some conditions (for example, when calling the shortcode on the page), then you need to set the `register_only` key to *true*. И затем при выполнении условия вызвать метод `enqueue_only`. У этого метода два аргумента: `$is_style` and `$handle`. The first one defines what will be enqueue - script or style. If `$handle` is *null*, then it will be generated based on the `prefix`:
+- If you __only__ need to __register__ the script so that later it will be enqueue, depending on some conditions (for example, when calling the shortcode on the page), then you need to set the `register_only` key to *true*. And then, when the condition is met, call the `enqueue_only` method. This method has two arguments: `$is_style` and `$handle`. The first one defines what will be enqueue - script or style. If `$handle` is *null* or omitted then it will be generated based on the `prefix`. If call the `enqueue_only` method without arguments, both the script and the style with handles based on `prefix` will be enqueued. Some examples:
 ```php
 protected function enqueue_more($is_frontend, $hook) {
     if($is_frontend) {
@@ -236,6 +236,7 @@ public function gallery_shortcode($atts, $content = null) {
         'border'        => 'thin',
     ], $atts));
 
+    // enqueue js script with the stored handle
     $this->enqueue_only(false, $this->script_handle);
 
     // some shortcode logic here
@@ -244,9 +245,30 @@ public function gallery_shortcode($atts, $content = null) {
 }
 ```
 
+#### Addons
+
+> &#x2757; Description required
+
+#### Ajax
+
+> &#x2757; Description required
+
+#### Admin page and menu
+
+> &#x2757; Description required
+
+
+#### Snippets
+
+*Snippets* is a collection of various functions that I have accumulated during my work with WordPress. They are combined into one class for ease of use.
+
+> &#x2757; Description required
+
+
+
 ------------------------------------------------------
 
-### Structure of "Zukit"
+## Structure of "Zukit"
 
 - Folder __dist__ contains _production_ versions of js and css files;
 - Folder __snippets__ contains a collection of various functions that I have accumulated during my work with WordPress. They are combined into one class for ease of use;
