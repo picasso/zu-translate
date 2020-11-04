@@ -1,6 +1,6 @@
 <?php
 
-// The Singleton class defines the `instance` method that serves as an
+// The zukit_Singleton class defines the `instance` method that serves as an
 // alternative to constructor and lets clients access the same instance of this
 // class over and over.
 class zukit_Singleton {
@@ -11,16 +11,16 @@ class zukit_Singleton {
     public $uri;
     public $debug;
 
-    // The Singleton's instance is stored in a static property. This property is an
-    // array, because we'll allow our Singleton to have subclasses. Each item in
-    // this array will be an instance of a specific Singleton's subclass.
+    // The zukit_Singleton's instance is stored in a static property. This property is an
+    // array, because we'll allow our zukit_Singleton to have subclasses. Each item in
+    // this array will be an instance of a specific zukit_Singleton's subclass.
     private static $instances = [];
 
     // We can only have one definition of the 'zukit_Singleton' class and therefore
     // store its location in a static property so that we can access its JS and CSS files later.
     private static $zukit_file = __FILE__;
 
-    // The Singleton's constructor should always be private to prevent direct
+    // The zukit_Singleton's constructor should always be private to prevent direct
     // construction calls with the `new` operator.
     private function __construct($params) {
         $theme = wp_get_theme();
@@ -33,12 +33,12 @@ class zukit_Singleton {
         $this->construct_more();
     }
 
-    // Singletons should not be cloneable.
+    // singleton should not be cloneable.
     final public function __clone() {
         _doing_it_wrong(__FUNCTION__, 'Singleton object -> we do not want it to be cloned');
     }
 
-    // Singletons should not be restorable from strings.
+    // singletons should not be restorable from strings.
     final public function __wakeup() {
         _doing_it_wrong(__FUNCTION__, 'Unserializing instances of this class is forbidden');
     }
@@ -48,13 +48,12 @@ class zukit_Singleton {
     // into the static property. On subsequent runs, it returns the client existing
     // object stored in the static field.
 
-    // This implementation lets you subclass the Singleton class while keeping
+    // This implementation lets you subclass the zukit_Singleton class while keeping
     // just one instance of each subclass around.
-
     final public static function instance($params = null) {
         $calledClass = static::class;
         if(!isset(self::$instances[$calledClass])) {
-            self::$instances[$calledClass] = new $calledClass($params); // new static; //
+            self::$instances[$calledClass] = new $calledClass($params);
         }
         return self::$instances[$calledClass];
     }
@@ -65,8 +64,22 @@ class zukit_Singleton {
     // Basic error handling ---------------------------------------------------]
 
     public function log_error($error, $context = null) {
-		if(!empty($context)) error_log(var_export($context, true));
-		error_log(var_export($error, true));
+        $log = PHP_EOL.'* * * without context';
+		if(!empty($context)) $log = preg_replace(
+            '/\)/', '',
+            preg_replace(
+                '/array\s*\(/i', '',
+                preg_replace(
+                    '/(?<!=>)\s+?\'/', PHP_EOL.'* * * \'',
+                    preg_replace(
+                        '/,/', '',
+                        var_export($context, true)
+                    )
+                )
+            )
+        );
+        $log .= PHP_EOL.var_export($error, true);
+		error_log($log);
 	}
 
     // Scripts management -----------------------------------------------------]
