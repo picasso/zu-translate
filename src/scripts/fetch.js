@@ -5,7 +5,7 @@ const { apiFetch } = wp;
 
 // Internal dependencies
 
-// import { useNoticesContext } from './data/with-notices-context.js';
+import { messageWithError, toJSON } from './utils.js';
 
 const cacheKey = 'cache';
 const apiBaseURL = '/zukit/v1/';
@@ -159,20 +159,6 @@ export function ajaxUpdateOptions(keys, values, createNotice, updateHooks) {
 
 // Some helpers for API fetch -------------------------------------------------]
 
-// Add error parameters (if present) to the message, converting any object to a string
-function messageWithError(message, params) {
-
-	if(_.isNil(params)) return message;
-
-	params = _.isArray(params) || _.isPlainObject(params) ? toJSON(params) : String(params);
-	params = params
-		.replace(/([{|}])/g, ' $1 ')
-		.replace(/,\s*/g, ',  ')
-		.replace(/"([^"]+)":/g, '<b>$1</b>: ');
-
-	return message.replace(/[:|.]\s*$/g, '') + `: <span class="zukit-data">${params}</span>`;
-}
-
 // Если сообщение об ошибке заканчивается ": <value>", то отделяем <value> от строки
 // сообщения и превращаем его в отдельный param
 function parseError(error, requestKey) {
@@ -188,19 +174,6 @@ function parseError(error, requestKey) {
 
 export function setRestRouter(router) {
 	restRouter = router;
-}
-
-// Convert object to JSON
-export function toJSON(obj) {
-	if(obj) {
-
-		try {
-			obj = JSON.stringify(obj);
-		} catch(err) {
-			obj = '{}';
-		}
-	}
-	return obj || '{}';
 }
 
 // Convert object to query string and skip "unwanted" properties

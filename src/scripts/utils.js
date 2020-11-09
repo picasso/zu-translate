@@ -6,10 +6,6 @@ import classnames from 'classnames';
 
 const _ = lodash;
 
-// Internal dependencies
-
-// import { useNoticesContext } from './data/with-notices-context.js';
-
 // Gets JSON data from PHP
 export function externalData(key) {
 	const { data = {} } =  window[key] || {};
@@ -70,6 +66,33 @@ export function checkDependency(item, options, isAction = false) {
 
 	var value = options[_.trimStart(depends, '!')];
 	return _.startsWith(depends, '!') ? !value : value;
+}
+
+// Convert object to JSON
+export function toJSON(obj) {
+	if(obj) {
+
+		try {
+			obj = JSON.stringify(obj);
+		} catch(err) {
+			obj = '{}';
+		}
+	}
+	return obj || '{}';
+}
+
+// Add error value (if present) to the message, converting any object to a string
+export function messageWithError(message, value = null) {
+
+	if(_.isNil(value)) return message;
+
+	value = _.isArray(value) || _.isPlainObject(value) ? toJSON(value) : String(value);
+	value = value
+		.replace(/([{|}])/g, ' $1 ')
+		.replace(/,\s*/g, ',  ')
+		.replace(/"([^"]+)":/g, '<b>$1</b>: ');
+
+	return message.replace(/[:|.]\s*$/g, '') + `: <span class="zukit-data">${value}</span>`;
 }
 
 // Returns SVG with a reference to an already loaded SVG set
