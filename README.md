@@ -261,9 +261,22 @@ public function gallery_shortcode($atts, $content = null) {
 #### Snippets
 
 *Snippets* is a collection of various functions that I have accumulated during my work with WordPress. They are combined into one class for ease of use.
+You can view all available functions in the source codes, which for convenience are grouped in traits that are located in the __snippets__ folder. There is a special helper method for using "snippet" functions in a plugin or add-on:
+```php
+    // add class to BODY in admin mode
+    $this->snippets('add_admin_body_class', 'zukit-settings');
 
-> &#x2757; Description required
+    // check if the page with ID is child of the page with slug 'gallery'
+    if($this->snippets('is_child_of_slug', 'gallery', $page->ID)) {
+        // ...
+    }
 
+    // convert string with 'translit'
+    $slug = $this->snippets('translit', $term->name);
+
+    // format bytes to kilobytes, megabytes, gigabytes
+    $formatted_value = $this->snippets('format_bytes', $memory_in_bytes, 1);
+```
 ------------------------------------------------------
 ### Options Page With Gutenberg Components
 
@@ -272,10 +285,11 @@ In order to create the `options` page for the plugin (theme), you need to create
 // WordPress dependencies
 
 const { __ } = wp.i18n;
+const { PanelBody } = wp.components;
 
 // Zukit dependencies
 
-const { renderPlugin, toggleOption, selectOption } = wp.zukit.render;
+const { renderPage, toggleOption, selectOption } = wp.zukit.render;
 
 // Options labels
 
@@ -312,21 +326,20 @@ const selectData = {
 }
 
 const EditMyplugin = ({
-		zukitPanel: Panel,
 		title,
 		options,
 		updateOptions,
 }) => {
 
 	return (
-			<Panel title={ title }>
+			<PanelBody title={ title }>
 				{ toggleOption(optionsData, options, updateOptions) }
                 { selectOption(options[selectData.id], selectData, updateOptions) }
-			</Panel>
+			</PanelBody>
 	);
 };
 
-renderPlugin('myplugin', {
+renderPage('myplugin', {
 	edit: EditMyplugin,
 });
 ```
@@ -334,19 +347,192 @@ This example will work provided that the `prefix` key is defined in the `config`
 
 #### Sidebar info
 
-> &#x2757; Description required
+The "Plugin info" section displays information about the plugin version and its author. Additional information can be added there. To do this, you need to override the `extend_info` method in which to return an array, each element of the array describes a information string: `label` and `value`. If you also specify the `depends` key, then when you change the value of this option, additional information will be re-requested from the server via AJAX (this is needed when some information depends on the options configuration). Also, if value is `null`, then the information string will be skipped when displayed:
+```php
+protected function extend_info() {
+    return [
+        'images'		=> [
+                'label'		=> __('Images', 'myplugin'),
+                'value'		=> count($this->get_attachments()),
+        ],
+        'galleries' 	=> empty($this->galleries) ? null : [
+                'label'		=> __('Galleries', 'myplugin'),
+                'value'		=> count($this->galleries),
+        ],
+        'memory'		=> [
+                'label'		=> __('Cached Data', 'myplugin'),
+                'value'		=> $this->get_cached_memory(),
+                'depends' 	=> ['galleries', 'disable_cache'],
+        ],
+    ];
+}
+```
 
 #### Sidebar actions
 
-> &#x2757; Description required
+You can define some actions that will be executed from the `options` page via AJAX. To do this, you need to override the `js_data` method in which to return an array describing the actions that should be displayed in the sidebar. The `depends` key determines as usual whether the button is shown or not, depending on the value of the given option. If you specify the option name with an exclamation mark at the beginning, the button will be displayed when option value is `false` and will be hidden if `true`. If `depends` is `false` then the button will not be displayed:
+```php
+protected function js_data($is_frontend) {
+    return  $is_frontend ? $this->ajax_data() : [
+        'actions' 		=> [
+            [
+                'label'		=> __('Update Galleries', 'myplugin'),
+                'value'		=> 'myplugin_update_galleries',
+                'icon'		=> 'admin-customizer',
+                'color'		=> 'gold',
+                'help'		=> __('Galleries will be updated for all existing images', 'myplugin'),
+            ],
+            [
+                'label'		=> __('Convert Galleries', 'myplugin'),
+                'value'		=> 'myplugin_convert_galleries',
+                'color'		=> 'green',
+                'depends'	=> $this->is_convertible() ? 'galleries' : false,
+            ],
+            [
+                'label'		=> __('Clean All Cached Data', 'myplugin'),
+                'value'		=> 'myplugin_reset_cached',
+                'icon'		=> 'dismiss',
+                'color'		=> 'magenta',
+                'help'		=> __('Clear all cached data referenced to attachments and galleries', 'myplugin'),
+                'depends'	=> '!disable_cache',
+            ],
+        ],
+    ];
+}
+```
+
+You must also define the response to AJAX requests for these actions. This is done by overriding the `ajax_more` method. You need to check the `$action` (action name) and perform the necessary actions. If this given `$action` is not processed, then `null` must be returned from this method. To form data for the response from the action, you can use the helper method `create_notice`:
+```php
+public function ajax_more($action, $value) {
+    if($action === 'myplugin_reset_cached') return $this->reset_cached();
+    else if($action === 'myplugin_convert_galleries') return $this->convert_galleries();
+    else if($action === 'myplugin_update_galleries') return $this->update();
+    else return null;
+}
+
+public function reset_cached() {
+    $this->delete_cached('attachments');
+    $this->delete_cached('galleries');
+    return $this->create_notice('success', __('All cached data were cleared.', 'myplugin'));
+}
+```
 
 #### Panels
 
-> &#x2757; Description required
+It is recommended to use the built-in panel control mechanism to create groups of options or sections to display settings and data. To do this, you need to use the `ZukitPanel` component instead of the `Panel` component that is included in Gutenberg. You also need to pass the `panels` object to the `renderPage` function when creating the page. The object should contain the panel title, default value and panel dependency on plugin/theme option (optional). If the dependency is specified, the panel will be automatically hidden if the option value is false. Using the panel mechanism will allow you to hide and show panels using toggles in the sidebar and also store their state in the database:
+```js
+// WordPress dependencies
+
+const { __ } = wp.i18n;
+const { RangeControl, ToggleControl } = wp.components;
+
+// Zukit dependencies
+
+const { renderPage } = wp.zukit.render;
+const { ZukitPanel } = wp.zukit.components;
+
+const panelsData = {
+	section1: {
+		value: true,
+		label: __('Section One', 'myplugin'),
+		// This will exclude this panel when option is false
+		depends: 'option2',
+	},
+	section2: {
+		value: true,
+		label: __('Small but important Section', 'myplugin'),
+	},
+};
+
+const EditMyplugin = ({
+		options,
+		updateOptions,
+}) => {
+
+	return (
+			<>
+				<ZukitPanel id="section1" initialOpen={ false }>
+                    <RangeControl
+    					label={ __('Tree Animation Speed, ms', 'myplugin') }
+    					value={ options.anim_speed }
+    					onChange={ value => updateOptions({ anim_speed: value }) }
+    					step={ 100 }
+    					min={ 200 }
+    					max={ 600 }
+    				/>
+                </ZukitPanel>
+                <ZukitPanel id="section2">
+                    <ToggleControl
+        				label={ __('Something small', 'myplugin') }
+        				checked={ !!options.small }
+        				onChange={ () => updateOptions({ small: !options.small }) }
+        			/>
+                </ZukitPanel>
+			</>
+	);
+};
+
+renderPage('myplugin', {
+	edit: EditMyplugin,
+	panels: panelsData,
+});
+```
 
 #### Option Hooks
 
-> &#x2757; Description required
+Sometimes required to do something when some option(s) is changed. To do this, you need to use
+special `hooks` on updating options. The hook registration function `setUpdateHook` is available as one of the param in your component. Register a hook when necessary (for example, via `useEffect`) and it will be called when the value of the required option is changed:
+```js
+// WordPress dependencies
+
+const { useState, useEffect, useCallback } = wp.element;
+
+// Zukit dependencies
+
+const { ZukitPanel, SelectItem } = wp.zukit.components;
+
+const MypluginSection = ({
+        options,
+        updateOptions,
+        ajaxAction,
+		setUpdateHook,
+}) => {
+
+    const [icons, setIcons] = useState(null);
+
+    const onToggle = useCallback(() => {
+		if(icons === null) {
+			ajaxAction('myplugin_get_icons', data => {
+				const iconset = get(data, 'icons', []);
+				if(iconset.length) setIcons(iconset);
+			});
+		}
+	}, [ajaxAction, icons]);
+
+    // reset icons set when 'icons' or 'more_icons' option is updated
+	useEffect(() => {
+		setUpdateHook(['icons', 'more_icons'], () => {
+			setIcons(null);
+		});
+	}, [setIcons, setUpdateHook]);
+
+	return (
+            <ZukitPanel id="icons" initialOpen={ false } onToggle={ onToggle }>
+                <SelectItem
+                    columns={ 3 }
+                    label={ __('Select Icon', 'myplugin') }
+                    options={ icons }
+                    selectedItem={ options.icon }
+                    onClick={ value => updateOptions({ icon: value }) }
+                    transformValue={ value => (<div className={ `dashicons ${value}` }></div>) }
+                />
+            </ZukitPanel>
+	);
+};
+
+export default MypluginSection;
+```
+
 
 #### Tables
 
