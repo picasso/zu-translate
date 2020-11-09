@@ -69,7 +69,8 @@ class zukit_Plugin extends zukit_Singleton {
 		$this->ajax_config();
 	}
 
-	// Нельзя! работать с 'options' в 'construct_more()', там 'options' еще не определены
+	// Should not use the functions for 'options' in construct_more(),
+	// since the 'options' there are not yet synchronized with the class properties
 	protected function construct_more() {}
 
 	protected function config() { return []; }
@@ -121,9 +122,8 @@ class zukit_Plugin extends zukit_Singleton {
 	}
 
 	// Options management -----------------------------------------------------]
+	// !! Should not use these functions in construct_more() !!
 	//
-	// Нельзя использовать эти функции в 'construct_more()',
-	// там options еще не определены
 	public function options() {
 		$options = get_option($this->options_key);
 // _dbug('get options', $options);
@@ -198,9 +198,10 @@ class zukit_Plugin extends zukit_Singleton {
 	public function is_option($key, $check_value = true, $addon_options = null) {
 		$value = $this->get_option($key, $this->def_value($check_value), $addon_options);
 
-		// if(is_bool($check_value)) $value = filter_var($this->get_option($key, false, $addon_options), FILTER_VALIDATE_BOOLEAN);
-		// else if(is_int($check_value)) $value = intval($this->get_option($key, 0, $addon_options));
-		// else $value = strval($this->get_option($key, '', $addon_options));
+// NOTE: delete
+// if(is_bool($check_value)) $value = filter_var($this->get_option($key, false, $addon_options), FILTER_VALIDATE_BOOLEAN);
+// else if(is_int($check_value)) $value = intval($this->get_option($key, 0, $addon_options));
+// else $value = strval($this->get_option($key, '', $addon_options));
 
 		return $value === $check_value;
 	}
@@ -253,7 +254,7 @@ class zukit_Plugin extends zukit_Singleton {
 			'nonce'     	=> $this->ajax_nonce(true),
 			'slug'			=> $this->snippets('get_slug'),
 		] : [
-			'jsdata_name'	=> $this->prefix_it('settings', '_'), //'zukit_settings',
+			'jsdata_name'	=> $this->prefix_it('settings', '_'),
 			'router'		=> $this->admin_slug(),
 			'options' 		=> $this->options,
 			'info'			=> $this->info(),
@@ -263,14 +264,6 @@ class zukit_Plugin extends zukit_Singleton {
 		$custom_data = $this->js_data($is_frontend);
 		return array_merge($default_data, is_array($custom_data) ? $custom_data : []);
 	}
-
-	// protected function merge_js_data($plugin_data = []) {
-	// 	return array_merge([
-	// 		'ajaxurl'       => admin_url('admin-ajax.php'),
-	// 		'nonce'     	=> $this->ajax_nonce(true),
-	// 		'slug'			=> $this->snippets('get_slug'),
-	// 	], $plugin_data);
-	// }
 
 	protected function js_data($is_frontend) {}
 	protected function should_load_css($is_frontend, $hook) { return false; }

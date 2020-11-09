@@ -110,20 +110,6 @@ trait zukit_Admin {
 				'color'		=> 'green',
 			],
 		]);
-		// return $debug_actions === false ? [] : array_merge([
-		// 		[
-		// 			'label'		=> __('Clear Debug Log', 'zu-plugin'),
-		// 			'value'		=> 'clear_log',
-		// 			'icon'		=> 'trash',
-		// 			'color'		=> 'error',
-		// 		],
-		// 		[
-		// 			'label'		=> __('Test Ajax', 'zu-plugin'),
-		// 			'value'		=> 'test_ajax',
-		// 			'icon'		=> 'dashboard',
-		// 			'color'		=> 'green',
-		// 		],
-		// 	], $debug_actions);
 	}
 
 	public function admin_slug() {

@@ -101,33 +101,6 @@ class zukit_Singleton {
     	return $this->version;
     }
 
-	// public function enqueue_script($file, $data = null, $deps = [], $bottom = true, $handle = null) {
-	// 	return $this->enqueue_script_with_data(true, $file, $data, $deps, $bottom, $handle);
-	// }
-    //
-	// public function enqueue_style($file, $deps = [], $handle = null) {
-	// 	return $this->enqueue_style_or_script(true, true, $file, $deps, $handle);
-	// }
-    //
-    // public function admin_enqueue_script($file, $data = null, $deps = [], $bottom = true, $handle = null) {
-	// 	return $this->enqueue_script_with_data(false, $file, $data, $deps, $bottom, $handle);
-	// }
-    //
-	// public function admin_enqueue_style($file, $deps = [], $handle = null) {
-	// 	return $this->enqueue_style_or_script(true, false, $file, $deps, $handle);
-	// }
-    //
-    // private function register_style_or_script($is_style, $is_frontend, $file = null, $deps = [], $handle = null, $bottom = true) {
-    //     return $this->style_or_script($is_style, $is_frontend, $file, $deps, $handle, $bottom, true);
-    // }
-    //
-    // private function enqueue_style_or_script($is_style, $is_frontend, $file = null, $deps = [], $handle = null, $bottom = true) {
-    //     return $this->style_or_script($is_style, $is_frontend, $file, $deps, $handle, $bottom, false);
-    // }
-
-
-
-
     public function enqueue_style($file, $params = []) {
         return $this->style_or_script(true, true, array_merge($params, ['file' => $file]));
 	}
@@ -242,19 +215,6 @@ class zukit_Singleton {
             'src'       => $src,
         ];
     }
-
-    // private function enqueue_script_with_data($is_frontend, $file, $data = null, $deps = [], $bottom = true, $handle = null) {
-    //
-    //     $handle = $this->enqueue_style_or_script(false, $is_frontend, $file, $deps, $handle, $bottom);
-    //     // by wrapping our $data values inside an inner array we prevent integer and boolean values to be interpreted as strings
-    //     // https://wpbeaches.com/using-wp_localize_script-and-jquery-values-including-strings-booleans-and-integers/
-    //     if(!empty($data)) {
-    //         $jsdata_name = $data['jsdata_name'] ?? $this->prefix.'_jsdata';
-    //         if(isset($data['jsdata_name'])) unset($data['jsdata_name']);
-    //         wp_localize_script($handle, $jsdata_name, ['data' => $data]);
-    //     }
-    //     return $handle;
-    // }
 
     private function filename_version($filename) {
     	if(file_exists($filename)) return filemtime($filename);
