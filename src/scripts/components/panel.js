@@ -1,31 +1,28 @@
 // WordPress dependencies
 
-const { get } = lodash;
-
-// const { __ } = wp.i18n;
-// const { useState, useCallback } = wp.element; // , useEffect
 const { PanelBody } = wp.components;
 
 // Internal dependencies
 
 import { mergeClasses } from './../utils.js';
+import { usePanelsContext } from './../hooks/use-panels.js';
 
 // Zukit Panel Component
 
 const ZukitPanel = ({
 		id,
 		className,
-		panels,
 		title,
 		children,
 		...props
 }) => {
 
-	if(id !== undefined && !get(panels, `${id}.value`)) return null;
+	const getPanel = usePanelsContext();
+	if(getPanel({ type: 'hidden', id })) return null;
 
 	return (
 		<PanelBody
-			title={ get(panels, `${id}.label`) || title }
+			title={ getPanel({ type: 'title', id }) || title }
 			className={ mergeClasses('zukit-panel', className) }
 			{ ...props }
 		>
@@ -33,9 +30,5 @@ const ZukitPanel = ({
 		</PanelBody>
 	);
 }
-
-export const withZukitPanel = (panels = {}) => {
-	return (props) => <ZukitPanel panels={ panels } { ...props }/>;
-};
 
 export default ZukitPanel;
