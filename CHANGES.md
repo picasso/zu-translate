@@ -1,3 +1,16 @@
+##### 0.9.5 / 2020-11-09
+* created a new component `ListInput`
+* added `loaders` to snippets
+* refactoring `js_data` methods
+* renaming `renderPlugin` to `renderPage`
+* implemented work with `options` and `panels` via useReducer to decrease re-renders
+* refactoring `skeleton` and `sidebar` to work with new hooks
+* fixed bug with `ZukitPanel` component created via inline function (constantly unmounting)
+* fixed bugs in menu reordering
+* improved output of `log_error` method
+* improved css
+* several sections are added to README.md
+
 ##### 0.9.4 / 2020-10-30
 * fixed bug in `is_zukit_slug` method
 * added `router` support for REST API methods
