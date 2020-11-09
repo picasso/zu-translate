@@ -3,7 +3,7 @@
 $select-item-digits-height: 60px;
 $select-item-basic-border-color: rgb(25, 30, 35);
 
-.#{$select-item-class} {
+.#{$selectitem-component-class} {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-between;
@@ -21,7 +21,7 @@ $select-item-basic-border-color: rgb(25, 30, 35);
 		width: 100%;
 	}
 
-	.#{$select-item-class}__button-wrapper {
+	.#{$selectitem-component-class}__button-wrapper {
 		border-radius: 4px;
 		display: flex;
 		flex-direction: column;
@@ -82,7 +82,7 @@ $select-item-basic-border-color: rgb(25, 30, 35);
 		}
 	}
 
-	.#{$select-item-class}__button.components-button {
+	.#{$selectitem-component-class}__button.components-button {
 		align-items: center;
 		background-color: white;
 		border: 1px solid rgba($select-item-basic-border-color, 0.2);
