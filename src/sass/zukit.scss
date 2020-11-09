@@ -2,11 +2,13 @@
 
 // class prefixes -------------------------------------------------------------]
 
-$select-item-class: zukit-select-item;
+$selectitem-component-class: zukit-select-item;
+$listinput-component-class: zukit-list-input;
 $table-component-class: zukit-table;
 $divider-component-class: zukit-divider;
 
 @import "components/select-item";
+@import "components/list-input";
 @import "components/table";
 @import "components/divider";
 
