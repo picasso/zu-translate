@@ -20,6 +20,7 @@ class zukit_Plugin extends zukit_Singleton {
 
 	protected $options_key;
 	protected $options = null;
+	protected $path_autocreated = false;
 	protected $data = [];
 	protected $addons = [];
 
@@ -149,6 +150,7 @@ class zukit_Plugin extends zukit_Singleton {
 
 	// Если меняем только часть опций принадлежащих addon, то не обновляем опции - addon об этом позаботится
 	// If 'key' contains 'path' - then resolve it before update
+	// When $this->path_autocreated is true then if a portion of path doesn't exist, it's created
 	public function set_option($key, $value, $rewrite_array = false, $addon_options = null) {
 
 		// $value cannot be undefined or null!
@@ -168,10 +170,16 @@ class zukit_Plugin extends zukit_Singleton {
 				$current = &$options;
 				foreach($pathParts as $pathKey) {
 					if($pathKey === $lastKey) break;
-					if(!is_array($current)) return false;
+					if(!is_array($current)) {
+						if($this->path_autocreated) $current = [];
+						else return false;
+					}
 					$current = &$current[$pathKey];
 				}
-				if(!is_array($current)) return false;
+				if(!is_array($current)) {
+					if($this->path_autocreated) $current = [];
+					else return false;
+				}
 				$current[$lastKey] = $value;
 			}
 		}
