@@ -39,6 +39,11 @@ $settings-border-color: $admin-border-color;
 $toggle-help-color: #006287; //rgba($dark-blue-grey, 0.5);
 $help-color-opacity: 0.1;
 $help-border-radius: 5px;
+$custom-button-color: rgba($wp-admin-blue-color, 0.1);
+$custom-button-border-color: rgba($wp-admin-blue-color, 0.7);
+$custom-button-text-color: darken($wp-admin-blue-color, 10);
+$custom-button-hover-color: $wp-admin-blue-color;
+$custom-button-hover-text-color: white;
 
 // sizes ----------------------------------------------------------------------]
 

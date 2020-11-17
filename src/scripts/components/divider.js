@@ -2,9 +2,6 @@
 
 const { includes } = lodash;
 
-// const { __ } = wp.i18n;
-// const { useState, useCallback } = wp.element; // , useEffect
-
 // Internal dependencies
 
 import { mergeClasses, toRange } from './../utils.js';
