@@ -65,7 +65,8 @@ class zukit_Singleton {
 
     public function log_error($error, $context = null) {
         $log = PHP_EOL.'* * * without context';
-		if(!empty($context)) $log = preg_replace(
+        if(is_string($context)) $log = PHP_EOL.'* * * '.$context;
+		else if(!empty($context)) $log = preg_replace(
             '/\)/', '',
             preg_replace(
                 '/array\s*\(/i', '',
