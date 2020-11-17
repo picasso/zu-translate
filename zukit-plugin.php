@@ -148,9 +148,26 @@ class zukit_Plugin extends zukit_Singleton {
 		return $this->options;
 	}
 
-	// Если меняем только часть опций принадлежащих addon, то не обновляем опции - addon об этом позаботится
+	// If we remove from the options belonging to the add-on, then after the operation
+	// we do not update the options - add-on will take care of this
+	public function del_option($key, $addon_options = null) {
+
+		$result = true;
+		$options = is_null($addon_options) ? $this->options : $addon_options;
+		if(array_key_exists($key, $options)) {
+			unset($options[$key]);
+			if(is_null($addon_options)) {
+				$this->options = $options;
+				$result = $this->update_options();
+			}
+		}
+		return $result === false ? false : $options;
+	}
+
 	// If 'key' contains 'path' - then resolve it before update
 	// When $this->path_autocreated is true then if a portion of path doesn't exist, it's created
+	// If we set value for the options belonging to the add-on, then after the operation
+	// we do not update the options - add-on will take care of this
 	public function set_option($key, $value, $rewrite_array = false, $addon_options = null) {
 
 		// $value cannot be undefined or null!

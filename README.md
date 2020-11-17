@@ -84,7 +84,7 @@ protected function config() {
 #### Options
 - methods `options` and `update_options` are used to get __options__ and update them
 - the `reset_options` method is used to reset __options__ to default values. On the settings page, a button is automatically created that calls this method via AJAX
-- the `set_option` method is used to set the __options__ value for a given key and then update `options` in WordPress. If argument `$key` contains *path* (dots separated keys) then the required key will be found in nested options. By default, if a path to a nonexistent object is given, then nothing will happen and the option value will not be saved. To change this behavior, you need to set the internal variable `path_autocreated` to` true` before using the `set_option` method. Then, if a portion of path doesn't exist, it's created:
+- the `set_option` method is used to set the __options__ value for a given key and then update `options` in WordPress. Option `$value` cannot be `undefined` or `null`! Use `del_option` method to remove option by key. If argument `$key` contains *path* (dots separated keys) then the required key will be found in nested options. By default, if a path to a nonexistent object is given, then nothing will happen and the option value will not be saved. To change this behavior, you need to set the internal variable `path_autocreated` to` true` before using the `set_option` method. Then, if a portion of path doesn't exist, it's created:
 ```php
 protected function construct_more() {
     // some other logic...

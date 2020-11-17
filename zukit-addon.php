@@ -61,6 +61,11 @@ class zukit_Addon {
 		return $this->plugin->is_option($key, $check_value, $this->options);
 	}
 
+	protected function del_option($key) {
+		$this->options = $this->plugin->del_option($key, $this->options);
+		return $this->plugin->set_option($this->options_key, $this->options, true);
+	}
+
 	protected function set_option($key, $value, $rewrite_array = false) {
 		$this->options = $this->plugin->set_option($key, $value, $rewrite_array, $this->options);
 		return $this->plugin->set_option($this->options_key, $this->options, true);
