@@ -4,6 +4,7 @@
 
 $selectitem-component-class: zukit-select-item;
 $listinput-component-class: zukit-list-input;
+$advtext-component-class: zukit-text-control;
 $table-component-class: zukit-table;
 $divider-component-class: zukit-divider;
 
@@ -11,6 +12,7 @@ $divider-component-class: zukit-divider;
 @import "components/list-input";
 @import "components/table";
 @import "components/divider";
+@import "components/adv-text-control";
 
 .zukit-settings {
 
@@ -53,10 +55,11 @@ $divider-component-class: zukit-divider;
 				border: 1px solid $settings-border-color;
 				border-top-width: 0;
 				border-bottom-width: 0;
-				box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+				box-shadow: 0 1px 1px rgba(black, 0.04);
 			}
 
-			.components-base-control, .components-button:not(.zukit-select-item__button) {
+			.components-base-control,
+				.components-button:not(.zukit-select-item__button):not(.zukit__exclude) {
 				font-size: $basic-font-size;
 				color: $admin-grey-blue-color;
 			}
