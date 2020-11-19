@@ -93,10 +93,40 @@ function onErrorAjax(createNotice, request, loading) {
 	}
 }
 
+// We are trying to find a hook based on options changes (considering cases when
+// key can contain path)
+function getHook(hooks, update) {
+
+	let key = _.first(_.keys(update));
+	let hook = _.get(hooks, key);
+	if(_.isNil(hook)) {
+		// here we check different cases when key is path (dot separated)
+		if(update[key] !== null) {
+			// when the whole object is updated and the hook is set to a nested property
+			_.forEach(hooks || {}, (h, k) => {
+				if(_.get(update, k, null) !== null)  {
+					hook = h;
+					key = k;
+					return false;
+				}
+			});
+		} else {
+			// when an object is deleted and the hook is set to a nested property
+			_.forEach(hooks || {}, (h, k) => {
+				if(_.startsWith(k, key)) {
+					hook = h;
+					key = k;
+					return false;
+				}
+			});
+		}
+	}
+	return [key, hook];
+}
+
 function hookOptionsUpdate(updateValues, hooks) {
 
-	const updateKey = _.first(_.keys(updateValues));
-	const updateHook = _.get(hooks, updateKey);
+	const [updateKey, updateHook] = getHook(hooks, updateValues);
 	if(!_.isFunction(updateHook)) return _.noop;
 
 	return () => updateHook(updateKey, updateValues[updateKey]);
