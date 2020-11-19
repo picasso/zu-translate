@@ -59,7 +59,7 @@ $divider-component-class: zukit-divider;
 			}
 
 			.components-base-control,
-				.components-button:not(.zukit-select-item__button):not(.zukit__exclude) {
+				.components-button:not(.zukit-select-item__button):not(.__plugin_actions):not(.__exclude) {
 				font-size: $basic-font-size;
 				color: $admin-grey-blue-color;
 			}
@@ -171,6 +171,24 @@ $divider-component-class: zukit-divider;
 
 		// Settings Common Rules ----------------------------------------------]
 
+		.__flex {
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+			& > * { margin-right: 1em; }
+			&.__right {
+				justify-content: flex-end;
+				& > * {
+					margin-left: 1em;
+					margin-right: 0;
+				}
+			}
+			&.__side {				
+				justify-content: space-between;
+				& > * { margin: 0; }
+			}
+		}
+
 		.components-button:not(.zukit-select-item__button) {
 			&.__plugin_actions {
 				position: relative;
@@ -193,6 +211,9 @@ $divider-component-class: zukit-divider;
 				&.is-loading {
 					color: rgba(white, 0.5);
 					pointer-events: none;
+				}
+				&.__auto {
+					width: auto;
 				}
 				.components-spinner {
 					position: absolute;

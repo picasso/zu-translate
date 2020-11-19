@@ -64,7 +64,7 @@ const AdvTextControl = ({
 			/>
 			{ (isPassword || !withoutClear) &&
 				<Button
-					className="zukit__exclude"
+					className="__exclude"
 					showTooltip={ showTooltip }
 					label={ controlTooltip }
 					icon={ controlIcon }
