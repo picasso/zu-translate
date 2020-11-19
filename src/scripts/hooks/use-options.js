@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { forEach, set, isPlainObject, isFunction, keys, castArray, reduce } = lodash;
+const { forEach, set, unset, isPlainObject, isFunction, keys, castArray, reduce } = lodash;
 const { useCallback, useReducer, useRef } = wp.element;
 
 // Internal dependencies
@@ -13,9 +13,9 @@ function optionsReducer(options, action) {
 	switch(action.type) {
 		case 'set':
 			// payload -> update object { key: value, key2: value2 }
-			// используем функцию 'set' вместо простого присвоения, потому что 'key'
-			// может представлять из себя 'path'
-			forEach(action.payload, (value, key) => set(options, key, value));
+			// use the 'set' instead of a simple assignment, because 'key' can be 'path'
+			// if 'value' is 'null' then we remove the property at 'path' of object
+			forEach(action.payload, (val, key) => val === null ? unset(options, key) : set(options, key, val));
 			// we can't just return 'options' with changes, we must return a new object
 			return { ...options };
 		case 'pre-reset':

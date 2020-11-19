@@ -151,7 +151,6 @@ class zukit_Plugin extends zukit_Singleton {
 	// If we remove from the options belonging to the add-on, then after the operation
 	// we do not update the options - add-on will take care of this
 	public function del_option($key, $addon_options = null) {
-
 		$result = true;
 		$options = is_null($addon_options) ? $this->options : $addon_options;
 		if(array_key_exists($key, $options)) {

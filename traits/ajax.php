@@ -55,6 +55,7 @@ trait zukit_Ajax {
 				'permission'	=> 'edit_posts',
 			],
 			// set options for requested 'keys'
+			// if value for 'key' is 'null' then this option will be deleted
 			'options'		=> [
 				'methods' 		=> WP_REST_Server::CREATABLE,
 				'callback'		=> 'set_options_ajax',
@@ -282,12 +283,17 @@ trait zukit_Ajax {
 
 		// instead of $this, should use $router, because it defines the active plugin
 		$router = $this->get_router($params);
-		$result = true;
+		$result = is_null($router) ? false : true;
 
-		foreach($keys as $key) {
-			// with set_option 'null' will be ignored, 'false' considered as failure
-			$return = is_null($router) ? false : $router->set_option($key, $values[$key] ?? null);
-			if($return === false) $result = false;
+		if($result) {
+			foreach($keys as $key) {
+				// if value for 'key' is 'null' then call 'del_option' instead of 'set_option'
+				if(array_key_exists($key, $values) && $values[$key] === null) $return = $router->del_option($key);
+				// with set_option 'null' will be ignored, 'false' considered as failure
+				else $return = $router->set_option($key, $values[$key] ?? null);
+				
+				if($return === false) $result = false;
+			}
 		}
 		// if $result is false - something went wrong - then return null
 		return rest_ensure_response($result || (object) null);

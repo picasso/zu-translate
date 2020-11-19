@@ -350,6 +350,13 @@ renderPage('myplugin', {
 ```
 This example will work provided that the `prefix` key is defined in the `config` method as `myplugin`.
 
+#### Edit Params
+
+> &#x2757; Description required
+
+Описать про updateOptions (и то что при передаче value=null произойдет удаление option)
+описать про ajaxAction, noticeOperations,
+
 #### Sidebar info
 
 The "__Plugin info__" section displays information about the plugin version and its author. Additional information can be added there. To do this, you need to override the `extend_info` method in which to return an array, each element of the array describes a information string: `label` and `value`. If you also specify the `depends` key, then when you change the value of this option, additional information will be re-requested from the server via AJAX (this is needed when some information depends on the options configuration). Also, if value is `null`, then the information string will be skipped when displayed:
