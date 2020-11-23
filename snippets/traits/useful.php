@@ -41,6 +41,14 @@ trait zusnippets_Useful {
 		return $this->remove_space_between_tags($svg);
 	}
 
+	public function to_bool($value) {
+		return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+	}
+
+	public function to_float($value) {
+		return filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+	}
+
 	public function int_in_range($intval, $min, $max) {
 
 		$intval = filter_var($intval,
@@ -54,6 +62,28 @@ trait zusnippets_Useful {
 		);
 
 		return $intval === false ? $min : $intval;
+	}
+
+	public function cast($values, $types) {
+		if(is_array($types) && is_array($values)) {
+			foreach($types as $key => $type) {
+				if(array_key_exists($key, $values)) {
+					if($type === 'bool') $values[$key] = $this->to_bool($values[$key]);
+					else if($type === 'int') $values[$key] = absint($values[$key]);
+					else if($type === 'float') $values[$key] = $this->to_float($values[$key]);
+					else if(is_array($type)) $values[$key] = $this->int_in_range(
+						$values[$key],
+						$type[0] ?? 0,
+						$type[1] ?? PHP_INT_MAX
+					);
+				}
+			}
+		}
+		return $values;
+	}
+
+	public function shortcode_atts_with_cast($atts, $pairs, $types, $shortcode = '') {
+		return shortcode_atts($pairs, $this->cast($atts, $types), $shortcode);
 	}
 
 	public function blank_data_uri_img() {
