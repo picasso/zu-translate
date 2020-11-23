@@ -85,6 +85,7 @@ class zukit_Singleton {
                 )
             )
         );
+        $log .= PHP_EOL.str_repeat('=', strlen($log) - 1);
         $log .= PHP_EOL.var_export($error, true);
 		error_log($log);
 	}

@@ -137,7 +137,7 @@ protected function should_load_js($is_frontend, $hook) {
 
 - To load styles, you need to override the `should_load_css` method. The arguments and logic are the same as with scripts. For styles loaded on the front-end it will be the file `css/<prefix>.css`, and for the admin pages it will be the file `admin/css/<prefix>.css`.
 
-- Все остальные параметры загрузки скрипта можно задать переопределив методы `js_params` для скрипта или `css_params` для стилей. Если массив не содержит ключа или значение ключа равно *null*, то значение по умолчанию будет использовано. По умолчанию an array of dependencies is empty for front-end and `['zukit']` for admin script and styles. Примеры задания параметров для скриптов и стилей:
+- All other script loading parameters can be set by overriding the `js_params` methods for the script or `css_params` for the styles. If the array does not contain a key or the key value is *null*, then the default value will be used. By default, an array of dependencies is empty for front-end and `['zukit']` for admin script and styles. Examples of setting parameters for scripts and styles:
 
 ```php
 // redefine dependencies for scripts and 'in-footer' param
@@ -185,7 +185,7 @@ protected function js_data($is_frontend) {
 }
 ```
 
-- Если требуется загрузить больше, чем один файл для script and styles, то нужно переопределить метод `enqueue_more`. У него тоже два аргумента: `$is_frontend` and `$hook`. Для удобства можно воспользоваться helper методами `sprintf_dir` и `sprintf_uri` которые работают аналогично функции `sprintf`, но добавляют в начало создаваемой строки plugin directory or uri соответственно. Также есть helper методы `enqueue_style` и `enqueue_script` для добавления файлов на front-end страницах и `admin_enqueue_style` и `admin_enqueue_script` для добавления файлов на админ страницах:
+- If you need to load more than one file for script and styles, then you need to override the `enqueue_more` method. It also has two arguments: `$is_frontend` and `$ hook`. For convenience, you can use the helper methods `sprintf_dir` and `sprintf_uri`, which work similarly to the `sprintf` function, but add plugin directory or *uri* to the beginning of the generated line, respectively. Also there are helper methods `enqueue_style` and `enqueue_script` for adding files on front-end pages and `admin_enqueue_style` and `admin_enqueue_script` for adding files on admin pages:
 ```php
 protected function enqueue_more($is_frontend, $hook) {
     if($is_frontend) {
@@ -359,7 +359,7 @@ This example will work provided that the `prefix` key is defined in the `config`
 
 #### Sidebar info
 
-The "__Plugin info__" section displays information about the plugin version and its author. Additional information can be added there. To do this, you need to override the `extend_info` method in which to return an array, each element of the array describes a information string: `label` and `value`. If you also specify the `depends` key, then when you change the value of this option, additional information will be re-requested from the server via AJAX (this is needed when some information depends on the options configuration). Also, if value is `null`, then the information string will be skipped when displayed:
+The "__Plugin info__" section displays information about the plugin version and its author. Additional information can be added there. To do this, you need to override the `extend_info` method in which to return an array, each element of the array describes a information string: `label` and `value`. If you also specify the `depends` key, then when you change the value of this option, additional information will be re-requested from the server via AJAX (this is needed when some information depends on the options configuration). Can use path as key for the `depends` array. Also, if value is `null`, then the information string will be skipped when displayed:
 ```php
 protected function extend_info() {
     return [
@@ -382,7 +382,7 @@ protected function extend_info() {
 
 #### Sidebar actions
 
-You can define some actions that will be executed from the `options` page via AJAX. To do this, you need to override the `js_data` method in which to return an array describing the actions that should be displayed in the sidebar. The `depends` key determines as usual whether the button is shown or not, depending on the value of the given option. If you specify the option name with an exclamation mark at the beginning, the button will be displayed when option value is `false` and will be hidden if `true`. If `depends` is `false` then the button will not be displayed:
+You can define some actions that will be executed from the `options` page via AJAX. To do this, you need to override the `js_data` method in which to return an array describing the actions that should be displayed in the sidebar. The `depends` key determines as usual whether the button is shown or not, depending on the value of the given option. If you specify the option name with an exclamation mark at the beginning (`!option`), the button will be displayed when option value is `false` and will be hidden if `true`. If `depends` is `false` then the button will not be displayed:
 ```php
 protected function js_data($is_frontend) {
     return  $is_frontend ? [] : [

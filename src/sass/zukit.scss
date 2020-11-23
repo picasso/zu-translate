@@ -98,6 +98,12 @@ $divider-component-class: zukit-divider;
 				display: block;
 				margin-bottom: 4px;
 			}
+			.__block_label {
+				label {
+					display: block;
+					margin-bottom: 4px;
+				}
+			}
 			.__select_block {
 				display: flex;
 				justify-content: space-between;
@@ -183,7 +189,7 @@ $divider-component-class: zukit-divider;
 					margin-right: 0;
 				}
 			}
-			&.__side {				
+			&.__side {
 				justify-content: space-between;
 				& > * { margin: 0; }
 			}
