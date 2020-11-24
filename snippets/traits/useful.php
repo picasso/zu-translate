@@ -3,12 +3,18 @@ trait zusnippets_Useful {
 
 	// Useful functions -------------------------------------------------------]
 
+	public function array_prefix($array, $prefix, $use_keys = false) {
+		return array_map(
+				function($v) use($prefix) { return $prefix.$v; },
+				$use_keys ? array_keys($array) : $array
+		);
+	}
+
 	public function array_prefix_keys($array, $prefix) {
 		return array_combine(
-			array_map(
-				function($v) use($prefix) { return $prefix.$v; },
-				array_keys($array)
-		), $array);
+			$this->array_prefix($array, $prefix, true),
+			$array
+		);
 	}
 
 	public function format_bytes($bytes, $precision = 0) {
@@ -23,9 +29,23 @@ trait zusnippets_Useful {
 	    return round($bytes, $precision) . ' ' . $units[$pow];
 	}
 
-	public function insert_svg_from_file($path, $name, $preserve_ratio = false, $strip_xml = false) {
+	public function insert_svg_from_file($path, $name, $params) {
 
-		$filepath = sprintf('%1$s/images/%2$s.svg', untrailingslashit($path), $name);
+		$params = array_merge([
+            'preserve_ratio'	=> false,
+            'strip_xml'			=> false,
+            'subdir'			=> '',
+		], $params);
+
+        extract($params, EXTR_OVERWRITE);
+
+		$filepath = sprintf(
+			'%1$s/%3$s%4$s%2$s.svg',
+			untrailingslashit($path),
+			$name,
+			trim($subdir, '/\\'),
+			empty($subdir) ? '' : '/'
+		);
 		if(!file_exists($filepath)) return '';
 
 		$svg = file_get_contents($filepath);
