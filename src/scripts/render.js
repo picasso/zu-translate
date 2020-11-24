@@ -12,7 +12,7 @@ import { setRestRouter } from './fetch.js';
 import ZukitSkeleton from './components/skeleton.js'
 import ZukitDivider from './components/divider.js'
 
-const debugPanelKey = '_debug';
+// const debugPanelKey = '_debug';
 
 export function renderPage(pageId, settings = {}) {
 
@@ -22,10 +22,14 @@ export function renderPage(pageId, settings = {}) {
 	setRestRouter(pageData.router);
 
 	if(get(settings, 'panels') !== undefined) {
-		// Add 'Debug Actions' panel defaults
-		defaultsDeep(settings.panels, {
-			[debugPanelKey]: { label: __('Debug Actions', 'zumedia'), value: false },
-		});
+		// Get 'debug' options key
+		const debugPanelKey = get(pageData, 'debug.prefix', null);
+		// Add 'Debug Actions' panel defaults if 'debug' key is found
+		if(debugPanelKey !== null) {
+			defaultsDeep(settings.panels, {
+				[debugPanelKey]: { label:  __('Debug Plugin', 'zukit'), value: false },
+			});
+		}
 		// Sync 'panels' with saved 'options' if presented
 		if(get(pageData, 'options.panels') !== undefined) {
 			const { options: { panels } } = pageData;

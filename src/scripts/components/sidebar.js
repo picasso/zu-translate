@@ -40,12 +40,20 @@ const ZukitSidebar = ({
 	const panels = availablePanels(getPanel(), options);
 	const moreItems = omitBy(more, isNil);
 	const pluginActions = pickBy(omitBy(actions, isNil), ({depends}) => checkDependency(depends, options, true));
-	const debugActions = omitBy(debug, isNil);
 
 	const hasMoreItems = !isEmpty(moreItems);
 	const hasActions = !isEmpty(pluginActions);
-	const hasDebugActions = !isEmpty(debugActions) && get(panels, '_debug.value') === true;
 	const hasPanels = !isEmpty(panels);
+
+	const debugSet = get(debug, 'prefix', null);
+	const debugOptions = debugSet ? get(debug, 'options') : null;
+	const debugActions =  debugSet ? omitBy(get(debug, 'actions'), isNil) : null;
+	const hasDebug = (!isEmpty(debugActions) || !isEmpty(debugOptions)) && get(panels, `${debugSet}.value`) === true;
+	const debugValue = k => get(options, debugSet ? `${debugSet}.${k}` : k);
+
+	const toggleDebugOptions = useCallback(key => {
+		updateOptions({ [`${debugSet}.${key}`]: !get(options, `${debugSet}.${key}`) })
+	}, [debugSet, options, updateOptions]);
 
 	const resetOptions = useCallback(() => {
 		ajaxAction('reset_options', options => updateOptions(options, true));
@@ -135,8 +143,17 @@ const ZukitSidebar = ({
 					) }
 				</PanelBody>
 			}
-			{ hasDebugActions &&
-				<PanelBody title={ __('Debug Actions') } initialOpen={ false }>
+			{ hasDebug &&
+				<PanelBody title={ getPanel({ type: 'title', id: debugSet }) } initialOpen={ false }>
+					{ map(debugOptions, ({ label, help }, key) =>
+						<ToggleControl
+							key={ key }
+							label={ label }
+							help={ help  }
+							checked={ !!debugValue(key) }
+							onChange={ () => toggleDebugOptions(key) }
+						/>
+					) }
 					{ map(debugActions, ({ label, value, icon, color }, actionKey) =>
 						<PanelRow key={ actionKey }>
 							<Button
