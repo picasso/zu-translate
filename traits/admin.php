@@ -69,21 +69,15 @@ trait zukit_Admin {
 
 		add_action('admin_menu', [$this, 'admin_menu']);
 		add_filter('plugin_action_links_'.plugin_basename($file), [$this, 'admin_settings_link']);
-
-
 	}
 
 	protected function on_activation() {}
 	protected function on_deactivation() {}
-
 	protected function extend_info() { return (object)null;}
-	protected function extend_debug_actions($actions) { return $actions;}
 
 	// Wordpress Admin Page ---------------------------------------------------]
 
 	protected function info() {
-		// $more_info = $this->extend_info();
-		// apply_filters('zukit_plugin_info', (object) null);
 		return [
 			'version'		=> $this->version,
 			'title'			=> $this->data['Name'],
@@ -93,23 +87,6 @@ trait zukit_Admin {
 			'icon'			=> $this->config['icon'],
 			'more' 			=> $this->extend_info(),
 		];
-	}
-
-	protected function debug_actions() {
-		return $this->extend_debug_actions([
-			[
-				'label'		=> __('Clear Debug Log', 'zu-plugin'),
-				'value'		=> 'clear_log',
-				'icon'		=> 'trash',
-				'color'		=> 'error',
-			],
-			[
-				'label'		=> __('Test Ajax', 'zu-plugin'),
-				'value'		=> 'test_ajax',
-				'icon'		=> 'dashboard',
-				'color'		=> 'green',
-			],
-		]);
 	}
 
 	public function admin_slug() {

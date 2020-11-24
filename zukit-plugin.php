@@ -7,6 +7,7 @@ require_once('zukit-table.php');
 require_once('traits/admin.php');
 require_once('traits/admin-menu.php');
 require_once('traits/ajax.php');
+require_once('traits/debug.php');
 
 if(!function_exists('zu_snippets')) {
 	require_once('snippets/hub.php');
@@ -25,7 +26,7 @@ class zukit_Plugin extends zukit_Singleton {
 	protected $addons = [];
 
 	// Admin basics, menu management and REST API support
-	use zukit_Admin, zukit_AdminMenu, zukit_Ajax;
+	use zukit_Admin, zukit_AdminMenu, zukit_Ajax, zukit_Debug;
 
 	function config_singleton($file) {
 		if(isset($file)) {
@@ -39,7 +40,11 @@ class zukit_Plugin extends zukit_Singleton {
 		$this->config = array_merge([
 			'prefix' 	=> 'zuplugin',
 			'admin' 	=> [],
-			'icon'		=> $this->snippets('insert_svg_from_file', $this->dir, 'logo', true, true),
+			'icon'		=> $this->snippets('insert_svg_from_file', $this->dir, 'logo', [
+	            'preserve_ratio'	=> true,
+	            'strip_xml'			=> true,
+	            'subdir'			=> 'images/',
+			]),
 		], $this->config());
 		$this->prefix = $this->config['prefix'] ?? $this->prefix;
 		$this->options_key = $this->config['options_key'] ?? $this->prefix.'_options';
@@ -68,6 +73,7 @@ class zukit_Plugin extends zukit_Singleton {
 		$this->admin_config($file, $this->config['admin']);
 		$this->admin_menu_config();
 		$this->ajax_config();
+		$this->debug_config();
 	}
 
 	// Should not use the functions for 'options' in construct_more(),
@@ -207,16 +213,30 @@ class zukit_Plugin extends zukit_Singleton {
 		return $result === false ? false : $options;
 	}
 
+	// If 'key' contains 'path' - then resolve it before get
 	public function get_option($key, $default = '', $addon_options = null) {
 		$options = is_null($addon_options) ? $this->options : $addon_options;
-		if(!isset($options[$key])) return $default;
+
+		// gets a value in a nested array based on path (if presented)
+		$pathParts = explode('.', $key);
+		$set = $options;
+		if(count($pathParts) > 1) {
+			$key = $pathParts[count($pathParts)-1];
+			foreach($pathParts as $pathKey) {
+				if($pathKey === $key) break;
+				if(!is_array($set)) return $default;
+				$set = $set[$pathKey] ?? null;
+			}
+		}
+
+		if(!isset($set[$key])) return $default;
 
 		// return and cast to default value type
-		if(is_bool($default)) return filter_var($options[$key], FILTER_VALIDATE_BOOLEAN);
-		if(is_int($default)) return intval($options[$key]);
-		if(is_string($default))	return strval($options[$key]);
+		if(is_bool($default)) return filter_var($set[$key], FILTER_VALIDATE_BOOLEAN);
+		if(is_int($default)) return intval($set[$key]);
+		if(is_string($default))	return strval($set[$key]);
 
-		return $options[$key];
+		return $set[$key];
 	}
 
 	public function is_option($key, $check_value = true, $addon_options = null) {
@@ -282,7 +302,7 @@ class zukit_Plugin extends zukit_Singleton {
 			'router'		=> $this->admin_slug(),
 			'options' 		=> $this->options,
 			'info'			=> $this->info(),
-			'debug'			=> $this->debug_actions(),
+			'debug'			=> $this->debug_data(),
 			'actions' 		=> [],
 		];
 		$custom_data = $this->js_data($is_frontend);

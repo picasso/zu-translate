@@ -191,21 +191,6 @@ trait zukit_Ajax {
 		}
 	}
 
-	public function ajax_test() {
-		return $this->create_notice('info', sprintf(
-			'Plugin <strong>"%2$s"</strong> (%3$s) was available via Ajax on <span>%1$s</span>',
-			date('H:i d.m.y',  $this->timestamp()),
-			$this->data['Name'],
-			$this->version
-		));
-	}
-
-	public function ajax_empty_log() {
-		return $this->create_notice('warning',
-			sprintf( 'empty_log is not implemented yet! (Plugin "%1$s")', $this->data['Name'])
-		);
-	}
-
 	public function ajax_reset_options() {
 		$options = $this->reset_options();
 		return $this->create_notice('infodata', // combine 'info' with 'data'
@@ -236,16 +221,17 @@ trait zukit_Ajax {
 					$result = $router->create_notice('data', null, $router->info());
 					break;
 
-				case 'clear_log':
-					$result = $router->ajax_empty_log();
-					break;
-
 				case 'reset_options':
 					$result = $router->ajax_reset_options();
 					break;
 
+				// default debug actions
+				case 'clear_log':
+					$result = $router->debug_empty_log();
+					break;
+
 				case 'test_ajax':
-					$result = $router->ajax_test();
+					$result = $router->debug_ajax_test();
 					break;
 
 				default:
@@ -291,7 +277,7 @@ trait zukit_Ajax {
 				if(array_key_exists($key, $values) && $values[$key] === null) $return = $router->del_option($key);
 				// with set_option 'null' will be ignored, 'false' considered as failure
 				else $return = $router->set_option($key, $values[$key] ?? null);
-				
+
 				if($return === false) $result = false;
 			}
 		}

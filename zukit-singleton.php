@@ -105,7 +105,7 @@ class zukit_Singleton {
 	}
 
     public function get_version($filename = '') {
-        if(is_null($filename)) return null; // If set to null, no version is added
+        if(is_null($filename)) return null; // if set to null, no version is added
     	if($this->debug) return $this->filename_version($filename);
     	return $this->version;
     }
