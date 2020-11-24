@@ -1,3 +1,18 @@
+#### 0.9.6 / 2020-11-24
+* added `editMode` for `ListInput` component
+* created new `AdvTextControl` component
+* all debug methods moved to a separate trait
+* added *debug options* to `Debug Panel` in sidebar
+* added `array_prefix`, `to_bool`, `to_float`, `cast` and `shortcode_atts_with_cast` to __snippets__
+* modified `insert_svg_from_file` and `array_prefix_keys` methods in __snippets__
+* added `del_option` method
+* implemented `del_option` via REST API
+* added `path_autocreated` switch for `set_option` method
+* improved __options__ hooks for cases when `key` contains `path`
+* improved `log_error` method
+* added `async` and `defer` options for script params
+* css improvements and cleaning
+
 #### 0.9.5 / 2020-11-09
 * created a new component `ListInput`
 * added `loaders` to __snippets__

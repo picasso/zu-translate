@@ -56,7 +56,7 @@ protected function construct_more() {
     add_filter('attachment_fields_to_edit', [$this, 'add_attachment_field'], 10, 2);
 
     // you should avoid ‘options’ getter and setter here!!
-    //
+    // wrong!!!
     // if($this->is_option('option1')) {
     //     add_action('pre_get_posts', [$this, 'pre_get_attachments']);
     // }
@@ -84,6 +84,7 @@ protected function config() {
 #### Options
 - methods `options` and `update_options` are used to get __options__ and update them
 - the `reset_options` method is used to reset __options__ to default values. On the settings page, a button is automatically created that calls this method via AJAX
+- the `get_option` method is used to get the __options__ value for a given key. If argument `$key` contains *path* (dots separated keys) then the value will be get from nested options
 - the `set_option` method is used to set the __options__ value for a given key and then update `options` in WordPress. Option `$value` cannot be `undefined` or `null`! Use `del_option` method to remove option by key. If argument `$key` contains *path* (dots separated keys) then the required key will be found in nested options. By default, if a path to a nonexistent object is given, then nothing will happen and the option value will not be saved. To change this behavior, you need to set the internal variable `path_autocreated` to` true` before using the `set_option` method. Then, if a portion of path doesn't exist, it's created:
 ```php
 protected function construct_more() {
@@ -137,7 +138,7 @@ protected function should_load_js($is_frontend, $hook) {
 
 - To load styles, you need to override the `should_load_css` method. The arguments and logic are the same as with scripts. For styles loaded on the front-end it will be the file `css/<prefix>.css`, and for the admin pages it will be the file `admin/css/<prefix>.css`.
 
-- All other script loading parameters can be set by overriding the `js_params` methods for the script or `css_params` for the styles. If the array does not contain a key or the key value is *null*, then the default value will be used. By default, an array of dependencies is empty for front-end and `['zukit']` for admin script and styles. Examples of setting parameters for scripts and styles:
+- All other script loading parameters can be set by overriding the `js_params` methods for the script or `css_params` for the styles. If the array does not contain a key or the key value is *null*, then the default value will be used. By default, an array of dependencies is empty for front-end and `['zukit']` for admin script and styles. With parameters, you can also specify `defer` and `async` attributes for the script if needed. Examples of setting parameters for scripts and styles:
 
 ```php
 // redefine dependencies for scripts and 'in-footer' param
@@ -146,6 +147,18 @@ protected function js_params($is_frontend) {
         'deps'	     => $is_frontend ? ['jquery'] : null,
         'bottom'     => $is_frontend ? true : false,
     ];
+}
+
+// params to enqueue Google reCAPTCHA script
+private function enqueue_recaptcha() {
+	$absolute_path = 'https://www.google.com/recaptcha/api.js?hl='.get_locale();
+	$this->enqueue_script($absolute_path, [
+		'handle'        => 'recaptcha2',
+		'bottom'        => false,
+		'absolute'		=> true,
+		'async'         => true,
+		'defer'         => true,
+	]);
 }
 
 // redefine dependencies for styles and handle
@@ -428,6 +441,11 @@ public function reset_cached() {
     return $this->create_notice('success', __('All cached data were cleared.', 'myplugin'));
 }
 ```
+
+#### Debug Plugin
+
+> &#x2757; Description required
+Описать про про Debug options and actions
 
 #### Panels
 
