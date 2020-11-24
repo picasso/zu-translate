@@ -57,6 +57,11 @@ $list-input-close-size: $_button-svg-default-size + $list-input-padding;
 				}
 			}
 		}
+
+		.__edit {
+			height: $list-input-close-size;
+			margin-bottom: $list-input-padding;
+		}
 	}
 
 	.__input {

@@ -60,6 +60,7 @@ const ListInput = ({
 
 	const { createNotice } = noticeOperations;
 	const [ currentItem, setCurrentItem ] = useState('');
+	const [ editMode, setEditMode ] = useState(false);
 
 	// convert string value to array if needed
 	const items = useMemo(() => {
@@ -141,30 +142,42 @@ const ListInput = ({
 						/>
 					</div>
 				) }
+				{ !editMode &&
+					<Button
+						className="__edit __plugin_actions __auto admin-blue"
+						icon="admin-settings"
+						isSecondary
+						onClick={ () => setEditMode(true) }
+					>
+						{ __('Modify') }
+					</Button>
+				}
 			</div>
-			<div className="__input">
-				<TextControl
-					label={ inputLabel || __('Enter new item') }
-					value={ currentItem }
-					onChange={ setCurrentItem }
-					onKeyDown={ onKeyDown }
-				/>
-				<Button
-					className="__add __plugin_actions admin-blue"
-					icon="tag"
-					isSecondary
-					onClick={ onAddItem }
-				>
-					{ __('Add') }
-				</Button>
-				<Button
-					className="__reset"
-					isSecondary
-					icon={ closeIcon }
-					label={ __('Reset All') }
-					onClick={ onReset }
-				/>
-			</div>
+			{ editMode &&
+				<div className="components-animate__appear is-from-top __input">
+					<TextControl
+						label={ inputLabel || __('Enter new item') }
+						value={ currentItem }
+						onChange={ setCurrentItem }
+						onKeyDown={ onKeyDown }
+					/>
+					<Button
+						className="__add __plugin_actions admin-blue"
+						icon="tag"
+						isSecondary
+						onClick={ onAddItem }
+					>
+						{ __('Add') }
+					</Button>
+					<Button
+						className="__reset"
+						isSecondary
+						icon={ closeIcon }
+						label={ __('Reset All') }
+						onClick={ onReset }
+					/>
+				</div>
+			}
 		</BaseControl>
 	);
 };

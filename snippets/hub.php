@@ -23,36 +23,31 @@ class zukit_Snippets extends zukit_Singleton {
 
 	protected function construct_more() {
 		$this->prefix = 'zu_snippets';
-        $this->version = '1.1.0';
+        $this->version = '1.1.1';
 		$this->init_advanced_style();
 	}
 
 	// Classes manipulations --------------------------------------------------]
 
 	public function split_classes($classes, $as_is = false) {
-
 		$classes = is_array($classes) ? $classes : preg_split('/[\s,]+/', $classes);
 		$classes = array_map('trim', $classes);
-
 		return $as_is ? $classes : array_unique(array_filter($classes));
 	}
 
-	public function merge_classes($classes, $implode = true) {
-		$classes = $this->split_classes($classes, $implode ? false : true);
-		return $implode ? implode(' ', $classes) : $classes;
+	public function merge_classes($classes, $join = true) {
+		$classes = $this->split_classes($classes, $join ? false : true);
+		return $join ? implode(' ', $classes) : $classes;
 	}
 
-	public function remove_classes($classes, $remove = [], $implode = true) {
-
+	public function remove_classes($classes, $remove = [], $join = true) {
 		$classes = $this->split_classes($classes);
 		foreach($remove as $test) if(in_array($test, $classes)) unset($classes[array_search($test, $classes)]);
-
-		return $implode ? $this->merge_classes($classes) : $classes;
+		return $join ? implode(' ', $classes) : $classes;
 	}
 
 	public function add_body_class($my_classes, $prefix = '') {
 		add_filter('body_class', function($classes) use ($my_classes, $prefix) {
-
 			$my_classes = $this->split_classes($my_classes);
 			// add prefix to all classes
 			if(!empty($prefix)) $my_classes = preg_filter('/^/', $prefix, $my_classes);
