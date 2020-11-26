@@ -39,12 +39,18 @@ class zukit_Plugin extends zukit_Singleton {
 
 		$this->config = array_merge([
 			'prefix' 	=> 'zuplugin',
+			// admin settings
 			'admin' 	=> [],
+			// appearance
 			'icon'		=> $this->snippets('insert_svg_from_file', $this->dir, 'logo', [
 	            'preserve_ratio'	=> true,
 	            'strip_xml'			=> true,
 	            'subdir'			=> 'images/',
 			]),
+			'colors'	=> [],
+			// translations
+			'path'				=> null,
+			'domain'			=> null,
 		], $this->config());
 		$this->prefix = $this->config['prefix'] ?? $this->prefix;
 		$this->options_key = $this->config['options_key'] ?? $this->prefix.'_options';
@@ -70,6 +76,9 @@ class zukit_Plugin extends zukit_Singleton {
 		add_action('admin_enqueue_scripts', [$this, 'admin_enqueue'], 10, 1);
 		add_action('admin_enqueue_scripts', function($hook) { $this->do_addons('admin_enqueue', $hook); }, 11, 1);
 
+		//  all translations & forms loaded only after the theme
+		add_action('after_setup_theme', [$this, 'load_translations']);
+
 		$this->admin_config($file, $this->config['admin']);
 		$this->admin_menu_config();
 		$this->ajax_config();
@@ -82,8 +91,18 @@ class zukit_Plugin extends zukit_Singleton {
 
 	protected function config() { return []; }
 	protected function status() { return null; }
+
 	public function init() {}
 	public function admin_init() {}
+
+	public function load_translations() {
+		// load translations if path is provided
+		if(!empty($this->config['path'])) {
+			$folder = $this->config['path'];
+			$domain = $this->config['domain'] ?? $this->prefix;
+			load_theme_textdomain($domain, $this->sprintf_dir('/%1$s', ltrim($folder, '/')));
+		}
+	}
 
 	// Addons management ------------------------------------------------------]
 

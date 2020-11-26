@@ -277,6 +277,11 @@ public function gallery_shortcode($atts, $content = null) {
 
 > &#x2757; Description required
 
+#### Translations
+
+> &#x2757; Description required
+Описать как подключать translations, Domain Path и прочее
+
 #### Snippets
 
 *Snippets* is a collection of various functions that I have accumulated during my work with WordPress. They are combined into one class for ease of use. You can view all available functions in the source codes, which for convenience are grouped in *traits* that are located in the __snippets__ folder. There is a special helper method for using "snippet" function in a plugin or add-on:
