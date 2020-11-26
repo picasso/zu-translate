@@ -370,6 +370,34 @@ This example will work provided that the `prefix` key is defined in the `config`
 Описать про updateOptions (и то что при передаче value=null произойдет удаление option)
 описать про ajaxAction, noticeOperations,
 
+#### Appearance
+
+To a certain extent, you can change the appearance of the settings page. To do this, you need to add parameters to the `config` method.
+
+At the moment, you can set the icon that will be displayed in the header, as well as change some colors. If the `icon` key is given, then its value will be used as the SVG element. If the `icon` key is not found in the configuration, then __Zukit__ will try to load the SVG from the `images/logo.svg` file, otherwise the icon will not be displayed. If colors are specified, they will be used for some elements, instead of default values:
+
+```php
+protected function config() {
+    return  [
+        'prefix'    => 'myplugin',
+        'zukit'     => true,         
+
+        // Settings Page Appearance
+        'icon'      => $myplugin_svg,    
+        'colors'    => [
+            'backdrop'      => '#f0f2f1',
+            'header'        => '#b1eed5',
+            'title'         => '#016760',
+        ],
+
+        'options'   => [
+            'option1'       => true,
+            'option2'       => false,
+        ],
+    ];
+}
+```
+
 #### Sidebar info
 
 The "__Plugin info__" section displays information about the plugin version and its author. Additional information can be added there. To do this, you need to override the `extend_info` method in which to return an array, each element of the array describes a information string: `label` and `value`. If you also specify the `depends` key, then when you change the value of this option, additional information will be re-requested from the server via AJAX (this is needed when some information depends on the options configuration). Can use path as key for the `depends` array. Also, if value is `null`, then the information string will be skipped when displayed:

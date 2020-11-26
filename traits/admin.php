@@ -85,6 +85,7 @@ trait zukit_Admin {
 			'link'			=> preg_replace('/.*href="([^\"]+).*/ims', '$1', $this->data['Author']),
 			'description'	=> preg_replace('/<cite>.+<\/cite>/i', '', $this->data['Description']),
 			'icon'			=> $this->config['icon'],
+			'colors'		=> $this->config['colors'],
 			'more' 			=> $this->extend_info(),
 		];
 	}
