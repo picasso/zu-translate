@@ -99,10 +99,10 @@ export function selectOption(value, option, updateOptions) {
 	);
 }
 
-export function restoreButton(component, updateOptions) {
+export function testComponentWithUpdate(component, updateOptions) {
 
-	const RestoreButton = get(wp, `zukit.components.${component}`);
-	return !RestoreButton ? null : (
-		<RestoreButton updateOptions={ updateOptions }/>
+	const TestComponent = get(wp, `zukit.components.${component}`);
+	return !TestComponent ? null : (
+		<TestComponent updateOptions={ updateOptions }/>
 	);
 }
