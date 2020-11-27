@@ -164,12 +164,17 @@ trait zukit_Ajax {
 		return intval(current_time('timestamp'));
 	}
 
-	public function ajax_error($error, $params = null) {
+	// if '$as_bold' is string then this string will be emphasized in the message with the <strong> tag
+	public function ajax_error($error, $params = null, $as_bold = null) {
 		if(is_null($error)) $this->ajax_error = false;
 		else {
+			$message = is_string($error) ? $error : $error->get_error_message();
+			if(!empty($as_bold)) {
+				$message = preg_replace('/('.$as_bold.')/m', '<strong>$1</strong>', $message);
+			}
 			$this->ajax_error = [
 				'status' 	=> false,
-				'message'	=> is_string($error) ? $error : $error->get_error_message(),
+				'message'	=> $message,
 				'params'	=> $params,
 			];
 		}
@@ -287,10 +292,16 @@ trait zukit_Ajax {
 
 	// Ajax Actions Helpers ---------------------------------------------------]
 
+	private function reset_ajax_error() {
+		$this->ajax_error = false;
+	}
+
 	// $rest_router serves to identify the plugin that currently uses the REST API,
 	// since all plugins inherit the same Zukit_plugin class and identification
 	// is required to determine which of the active plugins should respond to ajax requests
 	private function get_router($params) {
+
+		$this->reset_ajax_error();
 
 		$router_slug = $params['router'] ?? '';
 		$rest_router = $this->instance_by_slug($router_slug);
@@ -298,6 +309,10 @@ trait zukit_Ajax {
 		if($rest_router instanceof zukit_Plugin) return $rest_router;
 		$this->ajax_error(__('Active router not defined', 'zukit'), $params);
 		return null;
+	}
+
+	public function get_ajax_error() {
+		return $this->ajax_error;
 	}
 
 	public function create_notice($status, $message, $data = []) {
