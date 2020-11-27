@@ -35,8 +35,10 @@ const ZukitSkeleton = ({
 	const { createNotice } = noticeOperations;
 	const [moreInfo, setMoreInfo] = useState(info.more || {});
 	const [loading, setLoading] = useState(
-		// create object {action_value: state}
-		reduce(actions, (acc, val) => (acc[val.value] = false, acc), {})
+		// create object {action_value: state} from 'actions'
+		reduce(actions, (acc, val) => (acc[val.value] = false, acc),
+			// from 'debug.actions'
+			reduce(debug.actions, (acc, val) => (acc[val.value] = false, acc), {}))
 	);
 
 	const updateLoading = useCallback(update => {

@@ -157,13 +157,18 @@ const ZukitSidebar = ({
 					{ map(debugActions, ({ label, value, icon, color }, actionKey) =>
 						<PanelRow key={ actionKey }>
 							<Button
-								className={ mergeClasses('__plugin_actions', { [color]: color }) }
+								className={ mergeClasses('__plugin_actions', {
+									[color]: color,
+									'is-loading': get(actionLoading, value),
+									})
+								}
 								icon={ icon }
 								isSecondary
 								isLarge
 								onClick={ () => ajaxAction(value) }
 							>
 								{ label }
+								{ get(actionLoading, value) && <Spinner/> }
 							</Button>
 						</PanelRow>
 					) }
