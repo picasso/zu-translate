@@ -92,9 +92,13 @@ class zukit_Singleton {
 
     // Scripts management -----------------------------------------------------]
 
+    protected function zukit_dirname($subdir = null) {
+        return dirname(self::$zukit_file).(empty($subdir) ? '' : '/'.ltrim($subdir, '/'));
+	}
+
     protected function get_zukit_filepath($is_style, $file, $absolute_marker = true) {
-        $dir = dirname(self::$zukit_file).'/dist';
-		$filename = sprintf($is_style ? '%2$s/%1$s.css' : '%2$s/%1$s.min.js', $file, $dir);
+        // $dir = dirname(self::$zukit_file).'/dist';
+		$filename = sprintf($is_style ? '%2$s/%1$s.css' : '%2$s/%1$s.min.js', $file, $this->zukit_dirname('dist'));
 		return $absolute_marker ? ('!'.$filename) : $filename;
 	}
 
