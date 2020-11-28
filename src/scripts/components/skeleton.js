@@ -78,7 +78,7 @@ const ZukitSkeleton = ({
 				<EditComponent
 					id={ id }
 					info={ info }
-					title={ `${info.title} ${__('Settings')}` }
+					title={ `${info.title} ${__('Settings', 'zukit')}` }
 					options={ options }
 					updateOptions={ updateOptions }
 					ajaxAction={ ajaxAction }

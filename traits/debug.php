@@ -18,13 +18,13 @@ trait zukit_Debug {
 	private function debug_def_actions() {
 	 	return [
 			[
-				'label'		=> __('Clear Debug Log', 'zu-plugin'),
+				'label'		=> __('Clear Debug Log', 'zukit'),
 				'value'		=> 'clear_log',
 				'icon'		=> 'trash',
 				'color'		=> 'error',
 			],
 			[
-				'label'		=> __('Test Ajax', 'zu-plugin'),
+				'label'		=> __('Test Ajax', 'zukit'),
 				'value'		=> 'test_ajax',
 				'icon'		=> 'dashboard',
 				'color'		=> 'green',

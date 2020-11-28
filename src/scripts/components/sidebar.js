@@ -72,13 +72,13 @@ const ZukitSidebar = ({
 					</span>
 				</div>
 			</div>
-			<PanelBody title={ __('Plugin Info') } initialOpen={ false }>
+			<PanelBody title={ __('Plugin Info', 'zukit') } initialOpen={ false }>
 				<PanelRow>
-					<span>{ __('Version') }</span>
+					<span>{ __('Version', 'zukit') }</span>
 					<span>{ version }</span>
 				</PanelRow>
 				<PanelRow>
-					<span>{ __('Author') }</span>
+					<span>{ __('Author', 'zukit') }</span>
 					<ExternalLink href={ link }>{ author }</ExternalLink>
 				</PanelRow>
 				{ hasMoreItems && map(moreItems, ({ label, value, link }, moreKey) =>
@@ -99,12 +99,12 @@ const ZukitSidebar = ({
 						isLarge
 						onClick={ resetOptions }
 					>
-						{ __('Reset Plugin Options') }
+						{ __('Reset Plugin Options', 'zukit') }
 					</Button>
 				</PanelRow>
 			</PanelBody>
 			{ hasActions &&
-				<PanelBody title={ __('Actions') } initialOpen={ true }>
+				<PanelBody title={ __('Actions', 'zukit') } initialOpen={ true }>
 					{ map(pluginActions, ({ label, value, icon, color, help, depends }, actionKey) => (
 						checkDependency(depends, options, true) &&
 							<Fragment key={ actionKey }>
@@ -131,7 +131,7 @@ const ZukitSidebar = ({
 				</PanelBody>
 			}
 			{ hasPanels &&
-				<PanelBody title={ __('Screen Options') } initialOpen={ false }>
+				<PanelBody title={ __('Screen Options', 'zukit') } initialOpen={ false }>
 					{ map(panels, ({ label, value, help }, panelKey) =>
 						<ToggleControl
 							key={ panelKey }

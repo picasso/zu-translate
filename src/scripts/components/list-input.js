@@ -137,7 +137,7 @@ const ListInput = ({
 							className="__remove"
 							isSecondary
 							icon={ closeIcon }
-							label={ __('Remove') }
+							label={ __('Remove', 'zukit') }
 							onClick={ () => onRemoveItem(val) }
 						/>
 					</div>
@@ -149,14 +149,14 @@ const ListInput = ({
 						isSecondary
 						onClick={ () => setEditMode(true) }
 					>
-						{ __('Modify') }
+						{ __('Modify', 'zukit') }
 					</Button>
 				}
 			</div>
 			{ editMode &&
 				<div className="components-animate__appear is-from-top __input">
 					<TextControl
-						label={ inputLabel || __('Enter new item') }
+						label={ inputLabel || __('Enter new item', 'zukit') }
 						value={ currentItem }
 						onChange={ setCurrentItem }
 						onKeyDown={ onKeyDown }
@@ -167,13 +167,13 @@ const ListInput = ({
 						isSecondary
 						onClick={ onAddItem }
 					>
-						{ __('Add') }
+						{ __('Add', 'zukit') }
 					</Button>
 					<Button
 						className="__reset"
 						isSecondary
 						icon={ closeIcon }
-						label={ __('Reset All') }
+						label={ __('Reset All', 'zukit') }
 						onClick={ onReset }
 					/>
 				</div>
