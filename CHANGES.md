@@ -1,3 +1,14 @@
+#### 0.9.7 / 2020-11-28
+* added translations
+* fixed `Text Domain` for some translation calls
+* implemented loading of translations for both `.MO` and `.JSON` forms
+* created scripts for `JSON` translations
+* added `testComponentWithUpdate` method
+* implemented custom appearance for `Settings Page`
+* added `loading` state to Debug Actions
+* improved `ajax_error` method
+* improved `README` file
+
 #### 0.9.6 / 2020-11-24
 * added `editMode` for `ListInput` component
 * created new `AdvTextControl` component

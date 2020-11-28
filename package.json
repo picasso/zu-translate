@@ -1,6 +1,6 @@
 {
     "name": "zukit",
-    "version": "0.9.6",
+    "version": "0.9.7",
     "repository": {
         "type": "git",
         "url": "https://github.com/picasso/zukit.git"
@@ -21,6 +21,7 @@
         "eslint": "^7.10.0",
         "eslint-plugin-react": "^7.21.3",
         "eslint-plugin-react-hooks": "^4.1.2",
+        "replace-in-file": "^6.1.0",
         "typescript": "^4.0.3"
     },
     "dependencies": {
