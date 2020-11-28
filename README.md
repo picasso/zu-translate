@@ -279,8 +279,40 @@ public function gallery_shortcode($atts, $content = null) {
 
 #### Translations
 
-> &#x2757; Description required
-Описать как подключать translations, Domain Path и прочее
+__Zukit__ supports loading translations for both PHP files (in `.MO` format) and JS files (in `.JSON` format). To do this, you need to add parameters to the `config` method.
+
+If the `domain` key is given, then its value will be used as the `Text Domain`. If the `domain` key is not found in the configuration, then __Zukit__ will use `prefix` as domain. The `path` key must point to the directory containing the translation files. If the `path` key is not found in the configuration, then translations won't be loaded:
+
+```php
+protected function config() {
+    return  [
+        // other config options...         
+
+        // translations
+		'path'    => 'lang',
+		'domain'  => 'myplugin',    
+    ];
+}
+```
+
+------------------------------------------------------
+> &#x2668; Useful Tips
+
+For working with translations, I recommend using the translation editor [Poedit](https://poedit.net). It does an excellent job of creating and updating `.MO `files, but unfortunately (*yet?*) does not allow you to create the `JSON` files required for translation functions under __Gutenberg__. To overcome this problem, I wrote several scripts that automate the creation and correct renaming of files. These scripts require the installation of `WP-CLI` and` replace-in-file` node module to work. The main script to work with is `translate.sh`. If you call it with the `--help` parameter, it will show all the options necessary for operation. You can modify it to fit your needs, if necessary:
+
+```shell
+#  install WP-CLI
+$ curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+$ chmod +x wp-cli.phar
+$ sudo mv wp-cli.phar /usr/local/bin/wp
+
+#  install 'replace-in-file'
+npm install --save-dev replace-in-file
+
+# execute script
+$ sh translate.sh -f lang/it_IT.po -d myplugin
+```
+------------------------------------------------------
 
 #### Snippets
 
@@ -384,20 +416,14 @@ At the moment, you can set the icon that will be displayed in the header, as wel
 ```php
 protected function config() {
     return  [
-        'prefix'    => 'myplugin',
-        'zukit'     => true,         
+        // other config options...         
 
-        // Settings Page Appearance
+        // appearance
         'icon'      => $myplugin_svg,    
         'colors'    => [
             'backdrop'      => '#f0f2f1',
             'header'        => '#b1eed5',
             'title'         => '#016760',
-        ],
-
-        'options'   => [
-            'option1'       => true,
-            'option2'       => false,
         ],
     ];
 }
@@ -606,9 +632,10 @@ export default MypluginSection;
 ### Structure of "Zukit"
 
 - Folder __dist__ contains _production_ versions of js and css files;
+- Folder __lang__ contains files needed for translations;
 - Folder __snippets__ contains a collection of various functions that I have accumulated during my work with WordPress. They are combined into one class for ease of use;
 - Folder __traits__ contains traits that are included in the class `zukit_Plugin`. Used to group functionality in a fine-grained and consistent way;
-- Folder __src__ contains _source_ versions of js and css files.
+- Folder __src__ contains _source_ versions of `JS` and `CSS` files.
 
 <!--
 коды для emoji unicode
