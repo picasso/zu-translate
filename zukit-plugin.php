@@ -25,6 +25,9 @@ class zukit_Plugin extends zukit_Singleton {
 	protected $data = [];
 	protected $addons = [];
 
+	private static $zukit_translations = false;
+	private $translations_loaded = null;
+
 	// Admin basics, menu management and REST API support
 	use zukit_Admin, zukit_AdminMenu, zukit_Ajax, zukit_Debug;
 
@@ -55,14 +58,10 @@ class zukit_Plugin extends zukit_Singleton {
 		$this->prefix = $this->config['prefix'] ?? $this->prefix;
 		$this->options_key = $this->config['options_key'] ?? $this->prefix.'_options';
 
-// _dbug('prefix', $this->prefix);
-// add_action('init', function() { delete_option($this->options_key); }, 8);
-
 		// Load 'options' before any other actions
 		add_action('init', [$this, 'options'], 9);
 		add_action('init', [$this, 'init'], 10);
 		add_action('init', function() { $this->do_addons('init'); }, 11);
-// add_action('init', function() { _dbug('after init', $this->options); }, 12);
 
 		add_action('admin_init', [$this, 'admin_init'], 10);
 		add_action('admin_init', function() { $this->do_addons('admin_init'); }, 11);
@@ -76,7 +75,7 @@ class zukit_Plugin extends zukit_Singleton {
 		add_action('admin_enqueue_scripts', [$this, 'admin_enqueue'], 10, 1);
 		add_action('admin_enqueue_scripts', function($hook) { $this->do_addons('admin_enqueue', $hook); }, 11, 1);
 
-		//  all translations & forms loaded only after the theme
+		// all translations & forms loaded only after the theme
 		add_action('after_setup_theme', [$this, 'load_translations']);
 
 		$this->admin_config($file, $this->config['admin']);
@@ -96,11 +95,35 @@ class zukit_Plugin extends zukit_Singleton {
 	public function admin_init() {}
 
 	public function load_translations() {
-		// load translations if path is provided
+
+		$path_template = '%1$s/%2$s.mo'; // $path . '/' . $locale . '.mo'
+		// load Zukit translations
+		if(self::$zukit_translations === false) {
+			self::$zukit_translations = load_textdomain('zukit', sprintf(
+				$path_template,
+				$this->zukit_dirname('lang'),
+				determine_locale()
+			));
+		}
+		// load plugin/theme translations if path is provided
 		if(!empty($this->config['path'])) {
-			$folder = $this->config['path'];
+			$folder = $this->sprintf_dir('/%1$s', ltrim($this->config['path'], '/'));
 			$domain = $this->config['domain'] ?? $this->prefix;
-			load_theme_textdomain($domain, $this->sprintf_dir('/%1$s', ltrim($folder, '/')));
+			$locale = apply_filters('theme_locale', determine_locale(), $domain);
+
+			$loaded = load_textdomain($domain, sprintf(
+				$path_template,
+				$this->sprintf_dir('/%1$s', ltrim($folder, '/')),
+				$locale
+			));
+
+			if($loaded) {
+				$this->translations_loaded = [
+					'domain'	=> $domain,
+					'folder'	=> $folder,
+				];
+			}
+			_dbug($this->translations_loaded);
 		}
 	}
 
@@ -152,9 +175,6 @@ class zukit_Plugin extends zukit_Singleton {
 	//
 	public function options() {
 		$options = get_option($this->options_key);
-// _dbug('get options', $options);
-// $options = false;
-
 		// Check whether we need to install an option, used during installation of plugin
 		if($options === false) $options = $this->reset_options(false);
 		$this->options = $options;
@@ -260,12 +280,6 @@ class zukit_Plugin extends zukit_Singleton {
 
 	public function is_option($key, $check_value = true, $addon_options = null) {
 		$value = $this->get_option($key, $this->def_value($check_value), $addon_options);
-
-// NOTE: delete
-// if(is_bool($check_value)) $value = filter_var($this->get_option($key, false, $addon_options), FILTER_VALIDATE_BOOLEAN);
-// else if(is_int($check_value)) $value = intval($this->get_option($key, 0, $addon_options));
-// else $value = strval($this->get_option($key, '', $addon_options));
-
 		return $value === $check_value;
 	}
 
@@ -352,12 +366,25 @@ class zukit_Plugin extends zukit_Singleton {
 			];
 			$this->admin_enqueue_script('!zukit', $zukit_params);
 			$this->admin_enqueue_style('!zukit', array_merge($zukit_params, ['deps'	=> $css_deps]));
+			// Parameters: [$handle, $domain, $path]. WordPress will check for a file in that path
+			// with the format ${domain}-${locale}-${handle}.json as the source of translations
+        	wp_set_script_translations('zukit', 'zukit', $this->zukit_dirname('lang'));
 		}
 	}
 
 	public function admin_enqueue($hook) {
 		if($this->should_load_css(false, $hook)) $this->admin_enqueue_style(null, $this->css_params_validated(false));
-		if($this->should_load_js(false, $hook)) $this->admin_enqueue_script(null, $this->js_params_validated(false));
+		if($this->should_load_js(false, $hook)) {
+			$handle = $this->admin_enqueue_script(null, $this->js_params_validated(false));
+			if($this->translations_loaded !== null) {
+				// Parameters: [$handle, $domain, $path]
+				wp_set_script_translations(
+					$handle,
+					$this->translations_loaded['domain'],
+					$this->translations_loaded['folder']
+				);
+			}
+		}
 		$this->enqueue_more(false, $hook);
 	}
 
