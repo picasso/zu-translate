@@ -108,7 +108,7 @@ class zukit_Plugin extends zukit_Singleton {
 		// load plugin/theme translations if path is provided
 		if(!empty($this->config['path'])) {
 			$folder = $this->sprintf_dir('/%1$s', ltrim($this->config['path'], '/'));
-			$domain = $this->config['domain'] ?? $this->prefix;
+			$domain = $this->text_domain();
 			$locale = apply_filters('theme_locale', determine_locale(), $domain);
 
 			$loaded = load_textdomain($domain, sprintf(
@@ -123,8 +123,11 @@ class zukit_Plugin extends zukit_Singleton {
 					'folder'	=> $folder,
 				];
 			}
-			_dbug($this->translations_loaded);
 		}
+	}
+
+	private function text_domain() {
+		return $this->config['domain'] ?? $this->prefix;
 	}
 
 	// Addons management ------------------------------------------------------]

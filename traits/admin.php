@@ -78,12 +78,17 @@ trait zukit_Admin {
 	// Wordpress Admin Page ---------------------------------------------------]
 
 	protected function info() {
+		$domain = $this->text_domain();
+		$link = preg_replace('/.*href="([^\"]+).*/ims', '$1', $this->data['Author']);
+		$desc = trim(preg_replace('/<cite>.+<\/cite>/i', '', $this->data['Description']));
 		return [
 			'version'		=> $this->version,
-			'title'			=> $this->data['Name'],
-			'author'		=> $this->data['AuthorName'],
-			'link'			=> preg_replace('/.*href="([^\"]+).*/ims', '$1', $this->data['Author']),
-			'description'	=> preg_replace('/<cite>.+<\/cite>/i', '', $this->data['Description']),
+			// yes, I know that should not use a variable as a text string
+			// 'Poedit' will pull these strings from the plugin description
+			'title'			=> __($this->data['Name'], $domain),
+			'author'		=> __($this->data['AuthorName'], $domain),
+			'link'			=> __($link, $domain),
+			'description'	=> __($desc, $domain),
 			'icon'			=> $this->config['icon'],
 			'colors'		=> $this->config['colors'],
 			'more' 			=> $this->extend_info(),
