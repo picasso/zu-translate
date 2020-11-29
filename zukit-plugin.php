@@ -113,7 +113,7 @@ class zukit_Plugin extends zukit_Singleton {
 
 			$loaded = load_textdomain($domain, sprintf(
 				$path_template,
-				$this->sprintf_dir('/%1$s', ltrim($folder, '/')),
+				$folder,
 				$locale
 			));
 
