@@ -1,3 +1,6 @@
+#### 0.9.8 / 2020-11-29
+* bug fixing and improvements
+
 #### 0.9.7 / 2020-11-28
 * added translations
 * fixed `Text Domain` for some translation calls
