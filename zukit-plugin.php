@@ -75,7 +75,7 @@ class zukit_Plugin extends zukit_Singleton {
 		add_action('admin_enqueue_scripts', [$this, 'admin_enqueue'], 10, 1);
 		add_action('admin_enqueue_scripts', function($hook) { $this->do_addons('admin_enqueue', $hook); }, 11, 1);
 
-		// all translations & forms loaded only after the theme
+		// all translations loaded only after the theme
 		add_action('after_setup_theme', [$this, 'load_translations']);
 
 		$this->admin_config($file, $this->config['admin']);
