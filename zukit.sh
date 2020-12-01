@@ -66,9 +66,9 @@ git read-tree -mu HEAD
 
 message "### Configure git archive..." 'blue'
 # add 'export-ignore' to .gitattributes
-echo '\n# Zukit ignore stuff\n\nzukit/src export-ignore\nzukit/*.json export-ignore' >> .gitattributes
-echo 'zukit/*.md export-ignore\nzukit/*.sh export-ignore\nzukit/.* export-ignore' >> .gitattributes
-echo 'zukit/translate-2-json.js export-ignore' >> .gitattributes
+echo '\n# Zukit ignore stuff\n\nzukit/src export-ignore\nzukit/package.json export-ignore' >> .gitattributes
+echo 'zukit/package-lock.json export-ignore\nzukit/*.md export-ignore\nzukit/*.sh export-ignore' >> .gitattributes
+echo 'zukit/*.pot export-ignore\nzukit/.* export-ignore\nzukit/translate-2-json.js export-ignore' >> .gitattributes
 
 # mission complete
 message "### done!" 'green'
