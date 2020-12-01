@@ -7,9 +7,6 @@ trait zukit_Admin {
 	// The Zukit's plugin instance is stored in a static property. This property is
 	// an array, because we need to identify the plugin that currently uses the REST API.
 	private static $zukit_items = [];
-
-	protected $min_php_version = '7.0.0';
-	protected $min_wp_version = '5.0.0';
 	protected $ops;
 
 	public function admin_config($file, $options = []) {
@@ -27,32 +24,9 @@ trait zukit_Admin {
 		// if Zukit is requred then add the admin slug and class instance to the static property
 		if($this->config['zukit']) self::$zukit_items[$this->ops['slug']] = $this;
 
-		// Activation Hooks ---------------------------------------------------]
+		// Activation/Deactivation Hooks --------------------------------------]
 
 		register_activation_hook($file, function() {
-			global $wp_version;
-
-			$deactivate = function() { deactivate_plugins(plugin_basename($file)); };
-			$plugin_name = $this->data['Name'];
-
-			if(version_compare(phpversion(), $this->min_php_version, '<')) {
-				add_action('update_option_active_plugins', $deactivate);
-				wp_die(sprintf(
-					'%1$s required PHP at least %3$s.*. %1$s was deactivated. <a href="%2$s">Go Back</a>',
-					$plugin_name,
-					admin_url()),
-					explode('.', $this->min_php_version)[0]
-				);
-			}
-			if(version_compare($wp_version, $this->min_wp_version, '<')) {
-				add_action('update_option_active_plugins', $deactivate);
-				wp_die(sprintf(
-					'%1$s required Wordpress at least %3$s.*. %1$s was deactivated. <a href="%2$s">Go Back</a>',
-					$plugin_name,
-					admin_url()),
-					explode('.', $this->min_wp_version)[0]
-				);
-			}
 			$this->on_activation();
 		});
 

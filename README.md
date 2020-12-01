@@ -40,14 +40,38 @@ The best way to learn a framework is to look at working examples of its use. Thi
 
 - Create a new class inheriting the class `zukit_Plugin`
 ```php
-class my_Class extends zukit_Plugin {
+class my_Plugin extends zukit_Plugin {
 
 }
 ```
 
-> &#x274C; __Attention!__ You should not define a class constructor `__construct` in a new class.
+- Since `zukit_Plugin` is based on the singleton concept, you can access the __instance__ of your class through the static method `instance`. But be sure to pass the path for your plugin/theme there at the first call (the easiest way is to pass the magic constant `__FILE__`). For convenience, I recommend creating a function that makes it easier to access the instance of your class:
 
-- If you need to do something in the class constructor, you need to override the `construct_more` method.
+```php
+function myplugin($file = null) {
+	return my_Plugin::instance($file);
+}
+```
+
+```php
+/*
+Plugin Name: My Plugin
+Description: Wonderful plugin that will change this world.
+Version: 1.0.0
+Author: John Appleseed
+*/
+defined('ABSPATH') || die('No direct script access allowed!');
+
+// some other logic...
+
+// somewhere at the bottom of the my-plugin.php file which contains your plugin description
+myplugin(__FILE__);
+```
+
+- &#x274C; __Attention!__ You should not define a class constructor `__construct` in a new class.
+
+- If you need to do something in the class constructor, you should override the `construct_more` method.
+
 > &#x1F645; __Attention!__ You cannot use the functions for working with `options` (see the "Options" section) in this method, since the `options` there are not yet synchronized with the class methods:
 
 ```php
@@ -313,6 +337,42 @@ npm install --save-dev replace-in-file
 $ sh translate.sh -f lang/it_IT.po -d myplugin
 ```
 ------------------------------------------------------
+
+#### Compatibility check
+
+__Zukit__ is only compatible with WordPress version __5.1__ or older, and PHP version __7.0__ or older. The file `load.php` contains the methods necessary for the check and also loads any required classes. In order to use the built-in compatibility test, it is recommended to initialize the framework and plugin/theme as follows:
+```php
+// loads any required classes
+require_once('zukit/load.php');
+
+// compatibility check for Zukit
+if(Zukit::is_compatible(__FILE__)) {
+
+    // I recommend defining your class in a different file to avoid errors
+    // with non compatible WP or PHP version
+    // load your plugin class
+	require_once('includes/myplugin.php');
+
+    // first call to the instance of your class
+	myplugin(__FILE__);
+}
+
+```
+
+You can change the minimum values ​​of the required versions for your plugin/theme by passing additional parameters to the `is_compatible` method (but these values ​​cannot be less than those required for __Zukit__ to work):
+
+```php
+// compatibility check for Zukit
+if(Zukit::is_compatible(__FILE__), array(
+    'min_wp'    => '5.3.0',
+    'min_php'   => '7.3.0'
+)) {
+    require_once('includes/myplugin.php');
+	myplugin(__FILE__);
+}
+
+```
+
 
 #### Snippets
 

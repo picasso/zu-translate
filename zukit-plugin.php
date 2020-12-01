@@ -9,10 +9,6 @@ require_once('traits/admin-menu.php');
 require_once('traits/ajax.php');
 require_once('traits/debug.php');
 
-if(!function_exists('zu_snippets')) {
-	require_once('snippets/hub.php');
-}
-
 // Basic Plugin Class ---------------------------------------------------------]
 
 class zukit_Plugin extends zukit_Singleton {
@@ -32,6 +28,7 @@ class zukit_Plugin extends zukit_Singleton {
 	use zukit_Admin, zukit_AdminMenu, zukit_Ajax, zukit_Debug;
 
 	function config_singleton($file) {
+
 		if(isset($file)) {
 			$this->dir = untrailingslashit(plugin_dir_path($file));
 			$this->uri = untrailingslashit(plugin_dir_url($file));
