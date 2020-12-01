@@ -5,8 +5,4 @@ text eol=lf
 
 # Archive ignore stuff
 
-zukit/src export-ignore
-zukit/*.json export-ignore
-zukit/*.md export-ignore
-zukit/*.sh export-ignore
-zukit/.* export-ignore
+lang/*.pot export-ignore
