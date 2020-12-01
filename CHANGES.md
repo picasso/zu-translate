@@ -1,3 +1,8 @@
+#### 0.9.9 / 2020-12-01
+* refactoring compatibility check (for PHP and WordPress)
+* improved `export-ignore` generation for archive
+* updated `README` file
+
 #### 0.9.8 / 2020-11-29
 * bug fixing and improvements
 
