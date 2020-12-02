@@ -76,7 +76,7 @@ if(!class_exists('Zukit')) {
 				$message = sprintf('%1$s<br/>The plugin cannot be activated!<br/><br/>
 					<a href="%2$s">Go Back</a>',
 					$notice,
-					admin_url($screen && $screen->id === 'plugins' ? 'plugins.php' : ''),
+					admin_url($screen && $screen->id === 'plugins' ? 'plugins.php' : '')
 				);
 
 				add_action('admin_notices', function() use($file, $notice) {

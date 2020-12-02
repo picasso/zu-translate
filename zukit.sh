@@ -60,7 +60,7 @@ message "### Enable and configure sparse-checkout..." 'blue' true
 # enable sparse-checkout
 git config core.sparsecheckout true
 # configure sparse-checkout by specifying what files are not included
-echo '*\n!zukit/src/**\n!zukit/*.json\n!zukit/*.md\n!zukit/.*' >> .git/info/sparse-checkout
+echo '*\n!zukit/src/**\n!zukit/*.json\n!zukit/*.md\n!zukit/lang/*.pot\n!zukit/.*' >> .git/info/sparse-checkout
 # read tree information into the index and update working tree
 git read-tree -mu HEAD
 
