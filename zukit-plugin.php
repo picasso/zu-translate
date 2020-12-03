@@ -33,7 +33,7 @@ class zukit_Plugin extends zukit_Singleton {
 			$this->dir = untrailingslashit(plugin_dir_path($file));
 			$this->uri = untrailingslashit(plugin_dir_url($file));
 
-			$this->data = get_plugin_data($file);
+			$this->data = Zukit::plugin_data($file);
 			$this->version = $this->data['Version'];
 		}
 
@@ -124,7 +124,7 @@ class zukit_Plugin extends zukit_Singleton {
 	}
 
 	private function text_domain() {
-		return $this->config['domain'] ?? $this->prefix;
+		return $this->config['domain'] ?? $this->data['TextDomain'] ?? $this->prefix;
 	}
 
 	// Addons management ------------------------------------------------------]
@@ -356,7 +356,7 @@ class zukit_Plugin extends zukit_Singleton {
 	public function zukit_enqueue($hook) {
 		if($this->is_zukit_slug($hook)) {
 			// dependencies for Zukit script & styles
-			$js_deps = ['wp-api', 'wp-i18n', 'wp-components', 'wp-element'];
+			$js_deps = ['wp-edit-post'];
 			$css_deps = ['wp-edit-post'];
 			// params for 'zukit' script
 			$zukit_params = [

@@ -53,14 +53,16 @@ trait zukit_Admin {
 
 	protected function info() {
 		$domain = $this->text_domain();
-		$link = preg_replace('/.*href="([^\"]+).*/ims', '$1', $this->data['Author']);
-		$desc = trim(preg_replace('/<cite>.+<\/cite>/i', '', $this->data['Description']));
+		$link = $this->data['AuthorURI'];
+		// !obsolete! preg_replace('/.*href="([^\"]+).*/ims', '$1', $this->data['Author']);
+		$desc = $this->data['Description'];
+		// !obsolete! trim(preg_replace('/<cite>.+<\/cite>/i', '', $this->data['Description']));
 		return [
 			'version'		=> $this->version,
 			// yes, I know that should not use a variable as a text string
 			// 'Poedit' will pull these strings from the plugin description
 			'title'			=> __($this->data['Name'], $domain),
-			'author'		=> __($this->data['AuthorName'], $domain),
+			'author'		=> __($this->data['Author'], $domain),
 			'link'			=> __($link, $domain),
 			'description'	=> __($desc, $domain),
 			'icon'			=> $this->config['icon'],
