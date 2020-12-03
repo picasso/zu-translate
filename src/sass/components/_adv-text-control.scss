@@ -1,6 +1,8 @@
 // Admin Text Control Component -----------------------------------------------]
 
 $advtext-width: 580px;
+$advtext-button-height: 30px;
+$advtext-button-width: 36px; // svg 20px + margin 8px * 2
 
 .#{$advtext-component-class} {
 	display: flex;
@@ -11,13 +13,17 @@ $advtext-width: 580px;
 		width: 100%;
 	}
 	.components-button {
-		margin-bottom: 8px;
-		margin-left: -37px;
-		height: 30px;
+		position: relative;
+		bottom: 8px;
+		right: $advtext-button-width - 1; // to cover border
+
+		height: $advtext-button-height;
+		width: $advtext-button-width;
 		color: $custom-button-text-color;
 		background-color: $custom-button-color;
 		border: 1px solid $custom-button-border-color;
 		border-radius: 0 3px 3px 0;
+		box-shadow: none;
 		&:hover {
 			box-shadow: none !important;
 			background-color: $custom-button-hover-color !important;

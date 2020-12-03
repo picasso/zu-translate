@@ -2,6 +2,11 @@
 
 // class prefixes -------------------------------------------------------------]
 
+$skeleton-class: zukit-skeleton;
+$skeleton-editor-class: zukit-skeleton__editor;
+$skeleton-content-class: zukit-skeleton__content;
+$skeleton-sidebar-class: zukit-skeleton__sidebar;
+
 $selectitem-component-class: zukit-select-item;
 $listinput-component-class: zukit-list-input;
 $advtext-component-class: zukit-text-control;
@@ -20,12 +25,12 @@ $divider-component-class: zukit-divider;
 		display: none;
 	}
 
-	.block-editor-editor-skeleton {
+	.#{$skeleton-class} {
 	    background-color: white;
 
 		// Settings Main Screen -----------------------------------------------]
 
-		.block-editor-editor-skeleton__content {
+		.#{$skeleton-content-class} {
 			background-color: $page-basic-color;
 			.components-editor-notices__dismissible {
 				z-index: 29;
@@ -46,6 +51,15 @@ $divider-component-class: zukit-divider;
 					pointer-events: none;
 					cursor: default;
 					font-weight: 400;
+				}
+			}
+
+			.#{$skeleton-editor-class} {
+				position: relative;
+				padding-top: 50px;
+				flex: 1 1 auto;
+				@supports ((position: -webkit-sticky) or (position: sticky)) {
+				      flex-basis: 100%;
 				}
 			}
 
@@ -71,6 +85,7 @@ $divider-component-class: zukit-divider;
 			.editor-post-title {
 				background-color: rgba($admin-grey-blue-color, 0.3);
 				box-shadow: 0 0 2px rgba(black, 0.3) inset;
+				padding: 0 48px;
 				.editor-post-title__block {
 					padding: 15px 0;
 					margin: 0 auto;
@@ -157,15 +172,14 @@ $divider-component-class: zukit-divider;
 
 		// Settings Sidebar ---------------------------------------------------]
 
-		.block-editor-editor-skeleton__sidebar {
+		.#{$skeleton-sidebar-class} {
 			background-color: $sidebar-color;
 
-			.block-editor-block-card .block-editor-block-icon {
-				margin-top: 1em;
-			}
-
-			.edit-post-sidebar h2 {
+			.block-editor-block-card__title, .components-panel__body-toggle {
 				font-weight: 600;
+			}
+			.block-editor-block-card__title {
+				margin-bottom: 1.5em;
 			}
 
 			.components-panel__body.is-opened {
@@ -203,6 +217,7 @@ $divider-component-class: zukit-divider;
 				font-size: $basic-font-size;
 			    font-weight: 600;
 				transition: background-color $transition-time $transition-function;
+				box-shadow: 0px 0px 0px 1px rgba(black, 0.2) inset;
 
 				background-color: $admin-blue-color;
 				border-color: darken($admin-blue-color, $hover-shadow) !important;
@@ -220,6 +235,7 @@ $divider-component-class: zukit-divider;
 				}
 				&.__auto {
 					width: auto;
+					padding-right: 12px;
 				}
 				.components-spinner {
 					position: absolute;

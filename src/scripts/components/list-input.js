@@ -4,7 +4,7 @@ const { isArray, isEmpty, isNil, map, pull, split, join, includes, has } = lodas
 const { __ } = wp.i18n;
 const { ENTER } = wp.keycodes;
 const { compose } = wp.compose;
-const { BaseControl, Button, TextControl } = wp.components;
+const { BaseControl, Button, TextControl, Tooltip } = wp.components;
 const { useState, useCallback, useMemo } = wp.element;
 const { isEmail, isURL } = wp.url;
 
@@ -133,13 +133,14 @@ const ListInput = ({
 				{ map(items, val =>
 					<div className="__list-item" key={ getKey(val) }>
 						<span>{ val }</span>
-						<Button
-							className="__remove"
-							isSecondary
-							icon={ closeIcon }
-							label={ __('Remove', 'zukit') }
-							onClick={ () => onRemoveItem(val) }
-						/>
+						<Tooltip text={ __('Remove', 'zukit') } position="top center">
+							<Button
+								className="__remove"
+								isSecondary
+								icon={ closeIcon }
+								onClick={ () => onRemoveItem(val) }
+							/>
+						</Tooltip>
 					</div>
 				) }
 				{ !editMode &&
@@ -170,12 +171,13 @@ const ListInput = ({
 						{ __('Add', 'zukit') }
 					</Button>
 					<Button
-						className="__reset"
+						className="__reset __plugin_actions magenta"
 						isSecondary
-						icon={ closeIcon }
-						label={ __('Reset All', 'zukit') }
+						icon="trash"
 						onClick={ onReset }
-					/>
+					>
+						{ __('Reset All', 'zukit') }
+					</Button>
 				</div>
 			}
 		</BaseControl>

@@ -38,6 +38,7 @@ $list-input-close-size: $_button-svg-default-size + $list-input-padding;
 			border: 1px solid $list-input-item-border-color;
 			overflow: hidden;
 			margin: 0 $list-input-padding $list-input-padding 0;
+
 			span {
 				color: $list-input-item-text-color;
 				padding: 0 0 0 $list-input-padding;
@@ -45,15 +46,18 @@ $list-input-close-size: $_button-svg-default-size + $list-input-padding;
 			.__remove {
 				height: $list-input-close-size;
 				width: $list-input-close-size;
+				min-width: $list-input-close-size;
 				padding: 0 half($list-input-padding);
 				margin-left: half($list-input-padding);
 				border: 0 none;
 				border-radius: 0;
 				background-color: transparent;
 				color: $list-input-basic-color !important;
+				box-shadow: none;
 				&:hover {
 					background-color: $list-input-basic-color;
 					color: white !important;
+					box-shadow: none !important;
 				}
 			}
 		}
@@ -74,6 +78,7 @@ $list-input-close-size: $_button-svg-default-size + $list-input-padding;
 			margin: 14px 0 0 10px;
 			height: 30px;
 			width: auto !important;
+			padding-right: 12px;
 		}
 	}
 }

@@ -2,12 +2,13 @@
 
 const { isNil } = lodash;
 const { __ } = wp.i18n;
-const { Button, TextControl } = wp.components;
+const { Button, TextControl, Tooltip } = wp.components;
 const { useCallback, useState } = wp.element;
 
 // Internal dependencies
 
 import { mergeClasses } from './../utils.js';
+import ConditionalWrap from './conditional-wrap.js';
 
 // Zukit Text Control Component
 
@@ -63,13 +64,18 @@ const AdvTextControl = ({
 				onChange={ onValidatedChange }
 			/>
 			{ (isPassword || !withoutClear) &&
-				<Button
-					className="__exclude"
-					showTooltip={ showTooltip }
-					label={ controlTooltip }
-					icon={ controlIcon }
-					onClick={ onClick }
-				/>
+				<ConditionalWrap
+					wrap={ Tooltip }
+					condition={ showTooltip }
+					text={ controlTooltip }
+					position="top center"
+				>
+					<Button
+						className="__exclude"
+						icon={ controlIcon }
+						onClick={ onClick }
+					/>
+				</ConditionalWrap>
 			}
 		</div>
 	);

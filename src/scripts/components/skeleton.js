@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { keys, has, get, includes, forEach, omit, reduce, first, castArray } = lodash;
+const { keys, has, get, includes, isEmpty, forEach, omit, reduce, first, castArray } = lodash;
 const { __ } = wp.i18n;
 const { compose } = wp.compose;
 const { RawHTML } = wp.element;
@@ -19,6 +19,34 @@ import ZukitSidebar from './sidebar.js';
 // Zukit Skeleton Component
 
 const cprefix = 'zukit-skeleton';
+
+function editorClasses(element, more = '') {
+	const layout = 'edit-post-layout is-mode-visual is-sidebar-opened';
+	const prefix50 = 'block-editor-editor-skeleton';
+	const prefix55 = 'interface-interface-skeleton';
+	const prefixZu = 'zukit-skeleton';
+
+	let classes = `${prefix50}__${element} ${prefix55}__${element} ${prefixZu}__${element}`;
+	if(isEmpty(element)) classes = `${prefix50} ${prefix55} ${prefixZu} ${layout}`;
+	else if(element === 'editor') classes = `${prefixZu}__${element}`;
+
+	return (`${classes} ${more}`).trim();
+}
+
+// const editorClasses = {
+// 	skeleton: 'block-editor-editor-skeleton',
+// 	body: 'block-editor-editor-skeleton__body',
+// 	content: 'block-editor-editor-skeleton__content',
+// 	sidebar: 'block-editor-editor-skeleton__sidebar',
+// };
+//
+// const editorClasses55 = {
+// 	skeleton: 'interface-interface-skeleton',
+// 	body: 'interface-interface-skeleton__body',
+// 	content: 'interface-interface-skeleton__content',
+// 	sidebar: 'interface-interface-skeleton__sidebar',
+// };
+
 
 const ZukitSkeleton = ({
 		id,
@@ -102,10 +130,10 @@ const ZukitSkeleton = ({
 	const titleColor = get(info, 'colors.title');
 
 	return (
-		<div className={ `${cprefix} edit-post-layout is-mode-visual is-sidebar-opened block-editor-editor-skeleton` }>
-			<div className="block-editor-editor-skeleton__body">
+		<div className={ editorClasses(null, cprefix) }>
+			<div className={ editorClasses('body') }>
 				<div
-					className="block-editor-editor-skeleton__content"
+					className={ editorClasses('content') }
 					role="region"
 					aria-label="Settings content"
 					tabIndex="-1"
@@ -114,7 +142,7 @@ const ZukitSkeleton = ({
 					<div className="components-editor-notices__dismissible">
 						{ noticeUI }
 					</div>
-					<div className="edit-post-visual-editor editor-styles-wrapper" tabIndex="-1">
+					<div className={ editorClasses('editor', 'editor-styles-wrapper') } tabIndex="-1">
 						<div className="block-editor-block-list__layout">
 							<div className="wp-block block-editor-block-list__block">
 								<div className="editor-post-title" style={ headerColor && { backgroundColor: headerColor } }>
@@ -133,13 +161,13 @@ const ZukitSkeleton = ({
 					</div>
 				</div>
 				<div
-					className="block-editor-editor-skeleton__sidebar"
+					className={ editorClasses('sidebar') }
 					role="region"
 					aria-label="Plugin settings"
 					tabIndex="-1"
 				>
 					<div>
-						<div className="edit-post-sidebar">
+						<div className="interface-complementary-area edit-post-sidebar">
 							<ZukitSidebar
 								id={ id }
 								icon={ pluginIcon }
