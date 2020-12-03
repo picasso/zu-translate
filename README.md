@@ -320,7 +320,7 @@ protected function config() {
 ```
 
 ------------------------------------------------------
-> &#x2668; Useful Tips
+&#x2668; Useful Tips
 
 For working with translations, I recommend using the translation editor [Poedit](https://poedit.net). It does an excellent job of creating and updating `.MO `files, but unfortunately (*yet?*) does not allow you to create the `JSON` files required for translation functions under __Gutenberg__. To overcome this problem, I wrote several scripts that automate the creation and correct renaming of files. These scripts require the installation of `WP-CLI` and` replace-in-file` node module to work. The main script to work with is `translate.sh`. If you call it with the `--help` parameter, it will show all the options necessary for operation. You can modify it to fit your needs, if necessary:
 
@@ -359,7 +359,7 @@ if(Zukit::is_compatible(__FILE__)) {
 
 ```
 
-You can change the minimum values ​​of the required versions for your plugin/theme by passing additional parameters to the `is_compatible` method (but these values ​​cannot be less than those required for __Zukit__ to work):
+You can change the minimum values ​​of the required versions for your plugin/theme by passing additional parameters to the `is_compatible` method (but these values ​​cannot be less than those required for __Zukit__ to work) or define them in your plugin/theme header (see below):
 
 ```php
 // compatibility check for Zukit
@@ -371,6 +371,14 @@ if(Zukit::is_compatible(__FILE__), array(
 	myplugin(__FILE__);
 }
 
+/*
+Plugin Name: My Plugin
+Description: Wonderful plugin that will change this world.
+Version: 1.0.0
+Author: John Appleseed
+Requires at least: 5.4.0
+Requires PHP: 7.2.0
+*/
 ```
 
 
@@ -568,7 +576,9 @@ public function reset_cached() {
 
 #### Panels
 
-It is recommended to use the built-in panel control mechanism to create groups of options or sections to display settings and data. To do this, you need to use the `ZukitPanel` component instead of the `Panel` component that is included in Gutenberg. You also need to pass the `panels` object to the `renderPage` function when creating the page. The object should contain the panel title, default value and panel dependency on plugin/theme option (optional). If the dependency is specified, the panel will be automatically hidden if the option value is `false`. Using the panel mechanism will allow you to hide and show panels with toggles in the sidebar and also store their state in the database:
+It is recommended to use the built-in panel control mechanism to create groups of options or sections to display settings and data. To do this, you need to use the `ZukitPanel` component instead of the `Panel` component that is included in Gutenberg. You also need to pass the `panels` object to the `renderPage` function when creating the page. The object should contain the panel title, default value and panel dependency on plugin/theme option (optional). If the dependency is specified, the panel will be automatically hidden if the option value is `false`. Using the panel system will allow you to hide and show panels with toggles in the sidebar and also store their state in the database.
+
+&#x2757; Please note that if you use the `depends` key specifying the option that the panel depends on, then you must pass the `options` as one of params for `ZukitPanel` component, otherwise the check algorithm will not work correctly (see example):
 ```js
 // WordPress dependencies
 
@@ -600,7 +610,7 @@ const EditMyplugin = ({
 
 	return (
         <>
-            <ZukitPanel id="section1" initialOpen={ false }>
+            <ZukitPanel id="section1" options={ options } initialOpen={ false }>
                 <RangeControl
                     label={ __('Tree Animation Speed, ms', 'myplugin') }
                     value={ options.anim_speed }
