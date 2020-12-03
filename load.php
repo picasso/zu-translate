@@ -25,13 +25,40 @@ if(!class_exists('Zukit')) {
 	        _doing_it_wrong(__FUNCTION__, 'Unserializing instances of this class is forbidden');
 	    }
 
-		public static function at_least($params) {
-			$params = array_merge(self::$requires, $params);
+		public static function at_least($file, $params) {
+			$data = self::plugin_data($file);
+			$params = array_merge(
+				self::$requires,
+				array_filter(array('min_php' => $data['RequiresPHP'], 'min_wp' => $data['RequiresWP'])),
+				$params
+			);
+
 			if(version_compare(self::$requires['min_php'], $params['min_php'], '<')) {
 				self::$requires['min_php'] = $params['min_php'];
 			}
 			if(version_compare(self::$requires['min_wp'], $params['min_wp'], '<')) {
 				self::$requires['min_wp'] = $params['min_wp'];
+			}
+		}
+
+		public static function plugin_data($plugin_file) {
+			if(!function_exists('get_plugin_data')) {
+				$default_headers = array(
+			        'Name'        => 'Plugin Name',
+			        'PluginURI'   => 'Plugin URI',
+			        'Version'     => 'Version',
+			        'Description' => 'Description',
+			        'Author'      => 'Author',
+			        'AuthorURI'   => 'Author URI',
+			        'TextDomain'  => 'Text Domain',
+			        'DomainPath'  => 'Domain Path',
+			        'Network'     => 'Network',
+			        'RequiresWP'  => 'Requires at least',
+			        'RequiresPHP' => 'Requires PHP',
+			    );
+				return get_file_data($plugin_file, $default_headers, 'plugin');
+		    } else {
+				return get_plugin_data($plugin_file, false, false);
 			}
 		}
 
@@ -58,11 +85,11 @@ if(!class_exists('Zukit')) {
 
 		public static function is_compatible($file, $params = []) {
 
-			self::at_least($params);
+			self::at_least($file, $params);
 			$not_compat = self::not_compat();
 
 			if($not_compat['php'] || $not_compat['wp']) {
-				$data = get_file_data($file, array('Name' => 'Plugin Name'), 'plugin');
+				$data = self::plugin_data($file);
 				$screen = function_exists('get_current_screen') ? get_current_screen() : null;
 
 				$notice = sprintf($not_compat['php'] ?
