@@ -5,6 +5,7 @@ const { createContext, useContext, useCallback, useReducer } = wp.element;
 
 // Internal dependencies
 
+import { checkDependency } from './../utils.js';
 import { ajaxUpdateOptions } from './../fetch.js';
 
 // The state update logic with the useReducer() -------------------------------]
@@ -66,6 +67,8 @@ export function usePanels(initialPanels, createNotice) {
 				return get(panels, `${action.id}.value`);
 			case 'title':
 				return get(panels, `${action.id}.label`);
+			case 'falsely':
+				return !checkDependency(get(panels, action.id), action.options);
 			default:
 				return panels;
 		}

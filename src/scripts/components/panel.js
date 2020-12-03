@@ -14,11 +14,13 @@ const ZukitPanel = ({
 		className,
 		title,
 		children,
+		options = {},
 		...props
 }) => {
 
 	const getPanel = usePanelsContext();
 	if(getPanel({ type: 'hidden', id })) return null;
+	if(getPanel({ type: 'falsely', id, options })) return null;
 
 	return (
 		<PanelBody
