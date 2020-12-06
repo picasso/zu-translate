@@ -1,3 +1,13 @@
+#### 1.0.0 / 2020-12-06
+* adapted to changes in WP 5.5
+* refactoring use of plugin data
+* added `falsely` type for `getPanel`
+* implemented support for `depends` key in __Panels__
+* improved compatibility check
+* improved translations loading
+* added basic debug log methods
+* bug fixing
+
 #### 0.9.9 / 2020-12-01
 * refactoring compatibility check (for PHP and WordPress)
 * improved `export-ignore` generation for archive

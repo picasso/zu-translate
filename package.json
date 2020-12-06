@@ -1,6 +1,6 @@
 {
     "name": "zukit",
-    "version": "0.9.9",
+    "version": "1.0.0",
     "repository": {
         "type": "git",
         "url": "https://github.com/picasso/zukit.git"
