@@ -23,6 +23,7 @@ class zukit_Plugin extends zukit_Singleton {
 
 	private static $zukit_translations = false;
 	private $translations_loaded = null;
+	private $is_plugin = true;
 
 	// Admin basics, menu management and REST API support
 	use zukit_Admin, zukit_AdminMenu, zukit_Ajax, zukit_Debug;
@@ -30,8 +31,12 @@ class zukit_Plugin extends zukit_Singleton {
 	function config_singleton($file) {
 
 		if(isset($file)) {
-			$this->dir = untrailingslashit(plugin_dir_path($file));
-			$this->uri = untrailingslashit(plugin_dir_url($file));
+			$this->is_plugin = strpos($file, 'wp-content/plugins/') !== false;
+
+			if($this->is_plugin) {
+				$this->dir = untrailingslashit(plugin_dir_path($file));
+				$this->uri = untrailingslashit(plugin_dir_url($file));
+			}
 
 			$this->data = Zukit::plugin_data($file);
 			$this->version = $this->data['Version'];
@@ -72,7 +77,7 @@ class zukit_Plugin extends zukit_Singleton {
 		add_action('admin_enqueue_scripts', [$this, 'admin_enqueue'], 10, 1);
 		add_action('admin_enqueue_scripts', function($hook) { $this->do_addons('admin_enqueue', $hook); }, 11, 1);
 
-		// all translations loaded only after the theme
+		// all translations loaded only 'after_setup_theme'
 		add_action('after_setup_theme', [$this, 'load_translations']);
 
 		$this->admin_config($file, $this->config['admin']);
@@ -91,6 +96,17 @@ class zukit_Plugin extends zukit_Singleton {
 	public function init() {}
 	public function admin_init() {}
 
+	// Translations -----------------------------------------------------------]
+
+	private function text_domain() {
+		return $this->config['domain'] ?? $this->data['TextDomain'] ?? $this->prefix;
+	}
+
+	private function text_path() {
+		$path = empty($this->config['path']) ? $this->data['DomainPath'] : $this->config['path'];
+		return empty($path) ? null : $this->sprintf_dir('/%1$s', trim($path, '/'));
+	}
+
 	public function load_translations() {
 
 		$path_template = '%1$s/%2$s.mo'; // $path . '/' . $locale . '.mo'
@@ -103,8 +119,8 @@ class zukit_Plugin extends zukit_Singleton {
 			));
 		}
 		// load plugin/theme translations if path is provided
-		if(!empty($this->config['path'])) {
-			$folder = $this->sprintf_dir('/%1$s', ltrim($this->config['path'], '/'));
+		$folder = $this->text_path();
+		if(!empty($folder)) {
 			$domain = $this->text_domain();
 			$locale = apply_filters('theme_locale', determine_locale(), $domain);
 
@@ -119,13 +135,12 @@ class zukit_Plugin extends zukit_Singleton {
 					'domain'	=> $domain,
 					'folder'	=> $folder,
 				];
+				$this->translations_loaded();
 			}
 		}
 	}
 
-	private function text_domain() {
-		return $this->config['domain'] ?? $this->data['TextDomain'] ?? $this->prefix;
-	}
+	protected function translations_loaded() {}
 
 	// Addons management ------------------------------------------------------]
 
