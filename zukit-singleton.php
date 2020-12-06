@@ -23,6 +23,9 @@ class zukit_Singleton {
     // We needed the ability to async or defer our scripts
     private $async_defer = [];
 
+    // To filter log messages to one class only
+    private static $log_filter = null;
+
     // The zukit_Singleton's constructor should always be private to prevent direct
     // construction calls with the `new` operator.
     private function __construct($params) {
@@ -66,29 +69,6 @@ class zukit_Singleton {
 
     protected function config_singleton($params) {}
     protected function construct_more() {}
-
-    // Basic error handling ---------------------------------------------------]
-
-    public function log_error($error, $context = null) {
-        $log = PHP_EOL.'* * * without context';
-        if(is_string($context)) $log = PHP_EOL.'* * * '.$context;
-		else if(!empty($context)) $log = preg_replace(
-            '/\)/', '',
-            preg_replace(
-                '/array\s*\(/i', '',
-                preg_replace(
-                    '/(?<!=>)\s+?\'/', PHP_EOL.'* * * \'',
-                    preg_replace(
-                        '/,/', '',
-                        var_export($context, true)
-                    )
-                )
-            )
-        );
-        $log .= PHP_EOL.str_repeat('=', strlen($log) - 1);
-        $log .= PHP_EOL.var_export($error, true);
-		error_log($log);
-	}
 
     // Scripts management -----------------------------------------------------]
 
@@ -180,8 +160,6 @@ class zukit_Singleton {
 
         extract($this->get_filepath_and_src($is_absolute, $is_style, $is_frontend, $file), EXTR_OVERWRITE);
 
-// _dbug(static::class, $is_absolute, $handle, $register_only, $data, $filepath, $src, $deps, $bottom);
-
 		if(is_null($filepath) || file_exists($filepath)) {
 			$version = $this->get_version($filepath);
             if($register_only) {
@@ -256,5 +234,53 @@ class zukit_Singleton {
     private function filename_version($filename) {
     	if(file_exists($filename)) return filemtime($filename);
     	return sprintf('%s', time());
+    }
+
+    // Basic error handling ---------------------------------------------------]
+
+    public static function log_with_context($context, $error) {
+        $log = PHP_EOL.'* * * without context';
+        if(is_string($context)) $log = PHP_EOL.'* * * '.$context;
+        else if(!empty($context)) $log = preg_replace(
+            '/\)/', '',
+            preg_replace(
+                '/array\s*\(/i', '',
+                preg_replace(
+                    '/(?<!=>)\s+?\'/', PHP_EOL.'* * * \'',
+                    preg_replace(
+                        '/,/', '',
+                        var_export($context, true)
+                    )
+                )
+            )
+        );
+        $log .= PHP_EOL.str_repeat('=', strlen($log) - 1);
+        $log .= PHP_EOL.var_export($error, true).PHP_EOL;
+        error_log($log);
+    }
+
+    public static function log_only($class = null) {
+        if($class === false) self::$log_filter = null;
+        else if($class === null) self::$log_filter = static::class;
+        else self::$log_filter = $class;
+    }
+
+    public static function log(...$params) {
+        // filter when $log_filter is not 'null'
+        if(self::$log_filter !== null && self::$log_filter !== static::class) return;
+
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        $context = sprintf(
+            'debug %4$s:%3$s() [%1$s:%2$s]',
+            explode('wp-content', $backtrace[0]['file'])[1] ?? '?',
+            $backtrace[0]['line'],
+            $backtrace[0]['function'],
+            static::class
+        );
+        self::log_with_context($context, $params);
+    }
+
+    public function log_error($error, $context = null) {
+        self::log_with_context($context, $error);
     }
 }
