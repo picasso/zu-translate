@@ -1,0 +1,62 @@
+// Admin Loader Component -----------------------------------------------------]
+
+$loader-padding: 8px;
+$loader-none-transform: uppercase;
+
+.wp-block.is-selected {
+	.zu-loader {
+		z-index: 1;
+		color: $red-bright-color;
+		fill: currentColor;
+	}
+}
+
+.#{$loader-component-class} {
+	.components-button-group {
+		justify-content: flex-start;
+	}
+	.#{$selectitem-component-class}.__3columns {
+		.#{$selectitem-component-class}__button-wrapper {
+			position: relative;
+			width: calc(36% - 12px);
+			margin: 4px 2px;
+
+			&:after {
+				content: '';
+				display: block;
+				padding-bottom: 100%;
+			}
+			.components-button {
+				position: absolute;
+				width: calc(100% - #{twice($admin-button-wrapper-padding)});
+				height: calc(100% - #{twice($admin-button-wrapper-padding)});
+				top: $admin-button-wrapper-padding;
+				left: $admin-button-wrapper-padding;
+			}
+			.zukit-select-item__none span {
+				text-transform: $loader-none-transform;
+				letter-spacing: 0.8px;
+			}
+
+			.zu-loader {
+				width: 100%;
+				height: 100%;
+				padding: $loader-padding;
+			}
+			.zu-loader {
+				display: flex;
+				justify-content: center;
+				svg {
+					width: 100%;
+					height: 100%;
+				}
+
+				#loader-6 {
+					width: 90%;
+					height: auto;
+					align-self: center;
+				}
+			}
+		}
+	}
+}

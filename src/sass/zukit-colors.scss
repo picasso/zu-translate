@@ -1,0 +1,78 @@
+// Vars Definition ------------------------------------------------------------]
+
+@import "zukit-basic";
+
+.js_red_color { color: $red_color; }
+.js_green_color { color: $green_color; }
+.js_blue_color { color: $blue_color; }
+.js_violet_color { color: $violet_color; }
+.js_orange_color { color: $orange_color; }
+.js_orange_bright_color { color: $orange_bright_color; }
+.js_red_bright_color { color: $red-bright-color; }
+
+// Additional colors ----------------------------------------------------------]
+
+.js_dark_blue_grey { color: $dark_blue_grey; }
+.js_dark_grey { color: $dark_grey; }
+.js_light_grey { color: $light_grey; }
+.js_light_grey_more { color: $light_grey_more; }
+.js_light_yellow { color: $light_yellow; }
+.js_dark_yellow { color: $dark_yellow; }
+.js_black_blue { color: $black_blue; }
+
+.js_gold_green_color { color: $gold_green_color; }
+
+// Wordpress basics -----------------------------------------------------------]
+
+.js_wp_alert_yellow { color: $wp_alert_yellow; }
+.js_wp_alert_red { color: $wp_alert_red; }
+.js_wp_alert_green { color: $wp_alert_green; }
+.js_wp_gray_900 { color: $wp_gray_900; }
+.js_wp_gray_700 { color: $wp_gray_700; }
+.js_wp_gray_600 { color: $wp_gray_600; }
+.js_wp_gray_400 { color: $wp_gray_400; }
+.js_wp_gray_200 { color: $wp_gray_200; }
+.js_wp_blue_medium_100 { color: $wp_blue_medium_100; }
+.js_wp_blue_medium_500 { color: $wp_blue_medium_500; }
+.js_wp_light_gray_500 { color: $wp_light_gray_500; }
+
+.js_wp_admin_blue_color { color: $wp_admin_blue_color; }
+.js_wp_link_blue { color: $wp-link-blue; }
+
+// Social colors --------------------------------------------------------------]
+
+.js_facebook_color { color: $facebook_color; }
+.js_twitter_color { color: $twitter_color; }
+.js_googleplus_color { color: $googleplus_color; }
+.js_instagram_color { color: $instagram_color; }
+.js_youtube_color { color: $youtube_color; }
+.js_pinterest_color { color: $pinterest_color; }
+.js_vk_color { color: $vk_color; }
+.js_rss_feed_color { color: $rss_feed_color; }
+.js_at_color { color: $at_color; }
+.js_flickr_pink_color { color: $flickr_pink_color; }
+.js_flickr_blue_color { color: $flickr_blue_color; }
+
+// Admin colors ---------------------------------------------------------------]
+
+.js_admin_grey_color { color: $admin_grey_color; }
+.js_admin_light_yellow { color: $admin_light_yellow; }
+.js_admin_light_brown { color: $admin_light_brown; }
+.js_admin_dark_brown { color: $admin_dark_brown; }
+.js_admin_magenta_color { color: $admin_magenta_color; }
+.js_admin_error_color { color: $admin_error_color; }
+.js_admin_error_bg_color { color: $admin_error_bg_color; }
+.js_admin_green_color { color: $admin_green_color; }
+.js_admin_gold_color { color: $admin_gold_color; }
+
+.js_admin_grey_blue_color { color: $admin_grey_blue_color; }
+.js_admin_light_blue { color: $admin_light_blue; }
+.js_admin_dark { color: $admin_dark; }
+.js_admin_border_color { color: $admin_border_color; }
+.js_admin_disable_border_color { color: $admin_disable_border_color; }
+.js_admin_disable_background_color { color: $admin_disable_background_color; }
+.js_admin_disable_text_color { color: $admin_disable_text_color; }
+
+.js_admin_type_label_color { color: $admin_type_label_color; }
+.js_admin_type_label_bg_color { color: $admin_type_label_bg_color; }
+.js_admin_type_label_link_color { color: $admin_type_label_link_color; }
