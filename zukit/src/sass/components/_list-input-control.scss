@@ -1,0 +1,85 @@
+// Admin Divider Component ----------------------------------------------------]
+
+$list-input-border-radius: 10px;
+$list-input-basic-color: $wp-admin-blue-color;
+$list-input-item-color: rgba($list-input-basic-color, 0.1);
+$list-input-item-border-color: rgba($list-input-basic-color, 0.7);
+$list-input-item-text-color: darken($list-input-basic-color, 10);
+$list-input-padding: 10px;
+$_button-svg-default-size: 20px;
+$list-input-close-size: $_button-svg-default-size + $list-input-padding;
+
+.#{$listinput-component-class} {
+	display: flex;
+	flex-direction: column;
+
+	.__desc {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		.components-base-control__label {
+			font-weight: 500;
+		}
+	}
+
+	.__list {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		flex-wrap: wrap;
+		margin-top: 1em;
+
+		.__list-item {
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+			background-color: $list-input-item-color;
+			border-radius: $list-input-border-radius;
+			border: 1px solid $list-input-item-border-color;
+			overflow: hidden;
+			margin: 0 $list-input-padding $list-input-padding 0;
+
+			span:not(.dashicons) {
+				color: $list-input-item-text-color;
+				padding: 0 0 0 $list-input-padding;
+			}
+			.__remove {
+				height: $list-input-close-size;
+				width: $list-input-close-size;
+				min-width: $list-input-close-size;
+				padding: 0 half($list-input-padding);
+				margin-left: half($list-input-padding);
+				border: 0 none;
+				border-radius: 0;
+				background-color: transparent;
+				color: $list-input-basic-color !important;
+				box-shadow: none;
+				&:hover {
+					background-color: $list-input-basic-color;
+					color: white !important;
+					box-shadow: none !important;
+				}
+			}
+		}
+
+		.__edit {
+			height: $list-input-close-size;
+			margin-bottom: $list-input-padding;
+		}
+	}
+
+	.__input {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		margin-top: 1em;
+
+		.components-button {
+			margin: 14px 0 0 10px;
+			height: 30px;
+			width: auto !important;
+			padding-right: 12px;
+			box-shadow: none;
+		}
+	}
+}

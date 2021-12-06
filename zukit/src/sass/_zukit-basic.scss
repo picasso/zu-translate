@@ -1,0 +1,116 @@
+@import "variables";
+
+$brand-color: $violet-color;
+
+$admin-grey-color: #e5e5e5;
+$admin-light-yellow: #ffffa5;
+$admin-light-brown: #f2d592; //#d5b464;
+$admin-dark-brown: #7f6c3c;
+
+$admin-magenta-color: #e01765;
+$admin-error-color: #cc2027;
+$admin-error-bg-color: #f2c1c2;
+
+$admin-green-color: #1a937d;
+$admin-blue-color: $some-blue;
+$admin-gold-color: #e8a723;
+$admin-red-color: $some-red;
+
+$hover-darken: 10;
+$hover-shadow: 15;
+
+$admin-colors: (
+	'green': $admin-green-color,
+	'blue': $admin-blue-color,
+	'gold': $admin-gold-color,
+	'red': $admin-red-color,
+	'magenta': $admin-magenta-color,
+	'light-yellow': $admin-light-yellow,
+	'light-brown': $admin-light-brown,
+	'error': $admin-error-color,
+	'admin-blue': $wp-admin-blue-color
+);
+
+// colors ---------------------------------------------------------------------]
+
+$page-basic-color: rgba($admin-grey-color, 0.3);
+$settings-color: white;
+$sidebar-color: white;
+$settings-border-color: $admin-border-color;
+$toggle-help-color: #006287; //rgba($dark-blue-grey, 0.5);
+$help-color-opacity: 0.1;
+$help-border-radius: 5px;
+$custom-button-color: rgba($wp-admin-blue-color, 0.1);
+$custom-button-border-color: rgba($wp-admin-blue-color, 0.7);
+$custom-button-text-color: darken($wp-admin-blue-color, 10);
+$custom-button-hover-color: $wp-admin-blue-color;
+$custom-button-hover-text-color: white;
+
+// sizes ----------------------------------------------------------------------]
+
+$settings-max-width: 1020px; //none;
+$settings-left-width: 200px;
+$settings-left-min-width: $settings-left-width + 60px;
+$settings-sidebar-icon-size: 30px;
+
+$basic-font-family: 'Open Sans',-apple-system,Roboto,Ubuntu,sans-serif;
+$basic-font-size: 14px;
+$panel-title-font-size: 15px;
+$panel-title-font-weight: 600;
+$plugin-title-size: 40px;
+$plugin-icon-width: 100px;
+$plugin-icon-height: 80px;
+
+$select-item-size: 80px;
+
+// class prefixes -------------------------------------------------------------]
+
+$selectitem-component-class: zukit-select-item;
+$listinput-component-class: zukit-list-input;
+$advtext-component-class: zukit-text-control;
+$loader-component-class: zukit-loader-control;
+$modal-component-class: zukit-modal;
+
+// simple markdown ------------------------------------------------------------]
+
+%markdown_basic {
+	letter-spacing: 0.5px;
+	font-weight: 500;
+	padding: 0 3px 1px;
+	margin: 0 2px;
+	border-radius: $admin-border-radius;
+}
+
+%markdown_code {
+	color: darken($admin-magenta-color, 10%);
+	background-color: rgba($admin-magenta-color, 0.05);
+}
+
+%markdown_em {
+	color: darken($wp-admin-blue-color, 10%);
+	background-color: rgba($wp-admin-blue-color, 0.1);
+}
+
+%markdown_strong {
+	letter-spacing: 0.5px;
+}
+
+%markdown_green {
+	color: darken($green-color, 10%);
+	background-color: rgba($green-color, 0.1);
+}
+
+%markdown_red {
+	color: darken($red-color, 10%);
+	background-color: rgba($red-color, 0.1);
+}
+
+%markdown_red_on_red {
+	color: darken($red-color, 30%);
+	background-color: rgba($orange-bright-color, 0.2);
+}
+
+%markdown_gold {
+	color: darken($orange-bright-color, 10%);
+	background-color: rgba($orange-bright-color, 0.1);
+}

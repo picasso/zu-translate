@@ -1,0 +1,30 @@
+{
+    "env": {
+      "browser": true,
+      "es6": true
+    },
+    "globals": {
+        "lodash": true,
+        "wp": true,
+        "jQuery": true,
+        "Zubug": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 9,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "plugin:react-hooks/recommended",
+        "plugin:@wordpress/eslint-plugin/react"
+    ],
+    "rules": {
+		"@wordpress/no-unused-vars-before-return": "off",
+        "react/jsx-indent": "off",
+        "react/jsx-tag-spacing": "off"
+    }
+}

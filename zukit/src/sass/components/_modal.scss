@@ -1,0 +1,64 @@
+// Modal Component ------------------------------------------------------------]
+
+$modal-accent-color: #002233;
+$modal-text-color: rgba(black, 0.5);
+$modal-strong-color: rgba($modal-accent-color, 0.7);
+$modal-em-color: rgba($modal-accent-color, 0.6);
+
+.#{$modal-component-class} {
+	&.components-modal__frame {
+		.components-modal__header {
+			h1 {
+				font-size: 2em;
+			}
+		}
+		p {
+			font-size: 15px;
+			margin: 0;
+			line-height: 1.5;
+			color: $modal-text-color;
+            text-shadow: 0 0 1px rgba(black, 0.1);
+			a {
+				text-decoration: none;
+				margin-left: 0.2em;
+			}
+			strong {
+				color: $modal-strong-color;
+			}
+			em {
+				color: $modal-em-color;
+			}
+		}
+		.__content-wrapper {
+			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+		}
+		.__button-wrapper {
+			margin-top: 32px;
+			display: flex;
+			justify-content: flex-end;
+			.components-button {
+				margin-left: 16px;
+			}
+		}
+        .__icon {
+            font-size: 0;
+            line-height: 1;
+            margin-right: 16px;
+            &, svg {
+                width: 24px * 2;
+                height: auto;
+            }
+        }
+        @each $color-name, $color-value in $admin-colors {
+            .__#{$color-name} {
+                color: $color-value;
+            }
+        }
+		.components-external-link__icon {
+			margin: 0 -0.2em 0 0;
+			vertical-align: top;
+		}
+	}
+}
