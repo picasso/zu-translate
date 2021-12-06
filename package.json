@@ -1,0 +1,32 @@
+{
+    "name": "zutranslate",
+    "version": "0.9.6",
+    "testedWP": "5.8.2",
+    "requiresPHP": ">=7.2.0",
+    "author": "Dmitry Rudakov",
+    "description": "Additional functionality and the Gutenberg support for 'qTranslate-XT' plugin",
+    "license": "GPL-2.0-or-later",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/picasso/zutranslate.git"
+    },
+    "keywords": [
+        "wordpress",
+        "translate",
+        "plugin",
+        "gutenberg",
+        "responsive"
+    ],
+    "scripts": {},
+    "devDependencies": {
+        "@types/marked": "^4.0.1",
+        "@wordpress/eslint-plugin": "^9.3.0",
+        "eslint": "^8.2.0",
+        "eslint-plugin-react": "^7.26.1",
+        "eslint-plugin-react-hooks": "^4.2.0",
+        "marked": "^4.0.4",
+        "prettier": "^2.4.1",
+        "replace-in-file": "^6.3.2",
+        "typescript": "^4.5.2"
+    }
+}

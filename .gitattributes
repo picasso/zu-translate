@@ -1,7 +1,33 @@
-* text=auto
+text eol=lf
+
+# Plugin ignore stuff
+#####################
 
 .gitattributes export-ignore
 .gitignore export-ignore
+apple-touch-icon.png export-ignore
+/*.json export-ignore
+/*.md export-ignore
 /sass export-ignore
 /scripts export-ignore
 /sources export-ignore
+/lang/*.pot export-ignore
+zukit.sh
+
+# GitHub ignore stuff
+#####################
+
+/.wordpress-org export-ignore
+/.github export-ignore
+
+# Zukit ignore stuff
+#####################
+
+zukit/src export-ignore
+zukit/package.json export-ignore
+zukit/package-lock.json export-ignore
+zukit/*.md export-ignore
+zukit/*.sh export-ignore
+zukit/*.pot export-ignore
+zukit/.* export-ignore
+zukit/translate-2-json.js export-ignore
