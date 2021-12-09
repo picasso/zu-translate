@@ -5,85 +5,85 @@ const { __ } = wp.i18n;
 
 // Internal dependencies
 
-// import { tests } from './tests.js';
+import { simpleMarkdown, pluginInacive, qtxUrl } from './hooks/utils.js';
+
+// 'The plugin extend functionality of qTranslate-XT plugin.'
+// 'Customization & settings for Language Switcher.'
+
+const inacive = __('This plugin only *complements* the functionality of the **qTranslate-XT** plugin.\nThe [qTranslate-XT]($link1) version `3.10 or above` should be installed and activated (now it **was not found** among active plugins).', 'zu-translate');
 
 const options = {
-	use_recaptcha: {
-		label: 	__('Use Google reCAPTCHA?', 'zu-contact'),
-		help:	__('Loads Google recaptcha script if required.', 'zu-contact'),
+	flags: {
+		label: 	__('Show flags in buttons?', 'zu-translate'),
+		help:	__('Display country flag on language switching buttons in admin mode.', 'zu-translate'),
 	},
-	// client_validate: {
-	// 	label: 	__('Use client validation instead of server?', 'zu-contact'),
-	// 	help:	__('Add scripts for validation on client (without AJAX).', 'zu-contact'),
+	gutenberg: {
+		label: 	__('Support qTranslate-XT for WordPress Block Editor', 'zu-translate'),
+		help:	__('Only blocks known to this plugin will support switching languages in the Block Editor.', 'zu-translate'),
+	},
+
+	media_details: {
+		label: 	__('Add Language Switcher in Media Details?', 'zu-translate'),
+		help:	__('When activated you will not be able to edit the fields when viewing the modal dialog, only on `Edit Media` page.', 'zu-translate'),
+	},
+	// NOTE: not yet restored after refactoring
+	// yseo: {
+	// 	label: 	__('Include additional support for Yoast SEO Plugin?', 'zu-translate'),
+	// 	help:	__('The Yoast SEO should be installed and activated.', 'zu-translate'),
 	// },
-	custom_css: {
-		label: 	__('Use plugin CSS?', 'zu-contact'),
-		help:	__('If switched off the plugin stylesheet won\'t be loaded.', 'zu-contact'),
+};
+
+// NOTE: not yet restored after refactoring
+const switcher = {
+	ls_frontend: {
+		label: __('Swither on Front-End?', 'zu-translate'),
+		help:	__('???', 'zu-translate'),
 	},
-	me_or_us: {
-		label: 	__('Use "Me" instead of "Us"?', 'zu-contact'),
-		help:	__('If switched off - "Us" will be used in the form subheading.', 'zu-contact'),
+	ls_menu: {
+		label: __('Swither in Menu?', 'zu-translate'),
+		help: __('The switcher should be added in menu to be displayed.', 'zu-translate'),
 	},
+	ls_display: {
+		// [
+		// 	'lang' 	=> 'Language Name',
+		// 	'code' 	=> 'Language Code',
+		// ],
+		label: __('Display in Menu', 'zu-translate'),
+		help: __('How the language will be dispayed in menu', 'zu-translate'),
+	},
+	// custom_css: {
+	// 	label: 	__('Use plugin CSS?', 'zu-translate'),
+	// 	help:	__('If switched off the plugin stylesheet won\'t be loaded.', 'zu-translate'),
+	// },
 };
 
-const notify = {
-	label: 	__('Notify emails', 'zu-contact'),
-	input: 	__('Enter an email to add to the list', 'zu-contact'),
-	help:	__('List of emails to be notified when a form entry occurs.', 'zu-contact'),
-};
-
-const mailer = {
-	server: __('Enter SMTP server name', 'zu-contact'),
-	ssl: __('SSL Required', 'zu-contact'),
-	ssl_help: __('When switched on - SSL encryption system will be used (TLS instead).', 'zu-contact'),
-	port: __('Server port', 'zu-contact'),
-	auth: __('Authentication Required', 'zu-contact'),
-	auth_help: __('If authentication required you should provide Username and Password.', 'zu-contact'),
-	username: __('Username (this is usually your email address)', 'zu-contact'),
-	password: __('Password', 'zu-contact'),
-	from: __('"From" email address (usually you should own the domain you are sending from)', 'zu-contact'),
-	note: __('In order for the notifications to work, you need to have transactional emails configured in your copy of WordPress. This is usually done by your ISP, but if notifications are not sent, then I strongly recommend that you use one of the plugins that can be easily found on the Internet (for example, $links). As a last resort, you can configure access to the SMPT server manually using the fields below, but you must understand exactly what you are doing. To avoid possible conflicts with the plugin, I recommend to reset all SMPT server settings with "Reset Server Settings" button.', 'zu-contact'),
-	or: __('or', 'zu-contact'),
-	resetAll: __('Reset Settings', 'zu-contact'),
-};
-
-const recaptcha = {
-	sitekey: __('Site key', 'zu-contact'),
-	secret: __('Secret key', 'zu-contact'),
-	note: __('For getting started, you need to register your site here: $links Choose the option "reCAPTCHA v2" which gives an "I’m not a robot" Checkbox. Once you entered all needed details you will get your Site key and Secret key.', 'zu-contact'),
-	theme: __('The color theme of the widget', 'zu-contact'),
-	size: __('The size of the widget', 'zu-contact'),
-	themeOptions: [
-		{ value: 'light', label: __('Light Theme', 'zu-contact') },
-		{ value: 'dark', label: __('Dark Theme', 'zu-contact') },
-	],
-	sizeOptions: [
-		{ value: 'compact', label: __('Compact Widget Size', 'zu-contact') },
-		{ value: 'normal', label: __('Normal Widget Size', 'zu-contact') },
-	],
-	resetAll: mailer.resetAll,
+const gutenberg = {
+	blocks: __('Supported blocks', 'zu-translate'),
+	compress: __('Compress language data to reduce page size', 'zu-translate'),
+	// themeOptions: [
+	// 	{ value: 'light', label: __('Light Theme', 'zu-translate') },
+	// 	{ value: 'dark', label: __('Dark Theme', 'zu-translate') },
+	// ],
+	resetAll: __('Reset All Rules', 'zu-translate'),
 };
 
 const panels = {
-	recaptcha_keys: {
+	gutenberg: {
 		value: true,
-		label: 	__('Google reCAPTCHA', 'zu-contact'),
+		label: 	__('Block Editor Support', 'zu-translate'),
 		// Это позволит исключить эту панель когда значение option is false
-		depends: 'use_recaptcha',
+		depends: 'gutenberg',
 	},
-	mailer: {
+	switcher: {
 		value: false,
-		label: 	__('Mail Server Settings', 'zu-contact'),
+		label: 	__('Language Switcher', 'zu-translate'),
 	},
 };
 
 export const zutranslate = {
 	options,
 	panels,
-	notify,
-	mailer,
-	recaptcha,
-	// 'undef' is used to silence eslint rule when 'tests' is defined
-	// eslint-disable-next-line no-undef
-	tests: (typeof tests !== 'undefined') ? tests : (typeof undef !== 'undefined') ? undef : null,
+	switcher,
+	gutenberg,
+	inacive: pluginInacive ? simpleMarkdown(inacive, { br: true, links: qtxUrl }) : false,
 }

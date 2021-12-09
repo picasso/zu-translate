@@ -1,20 +1,21 @@
 // WordPress dependencies
 
-const { isFunction } = lodash;
-const { useCallback } = wp.element;
+// const { isFunction } = lodash;
+// const { useCallback } = wp.element;
 
 // Zukit dependencies
 
 const { renderPage, toggleOption } = wp.zukit.render;
-const { ListInputControl, ZukitPanel, ZukitDivider } = wp.zukit.components;
+const { ZukitPanel, ZukitDivider } = wp.zukit.components;
+// const { simpleMarkdown } = wp.zukit.utils;
 
 // Internal dependencies
 
 import { zutranslate } from './data.js';
-import ZutranslateMailer from './mailer.js';
-import ZutranslateRecaptcha from './recaptcha.js';
+// import { pluginInacive } from './hooks/utils.js';
+import ZutranslateBESupport from './besupport.js';
 
-const EditZutranslate = ({
+const ZutranslateEdit = ({
 		// id,
 		// info,
 		title,
@@ -26,45 +27,45 @@ const EditZutranslate = ({
 		// noticeOperations,
 }) => {
 
-	const { options: optionsData, notify, mailer, recaptcha, tests } = zutranslate;
+	const { options: optionsData, gutenberg, inacive } = zutranslate; // switcher,
 
-	// init 'tests' if found
-	if(isFunction(tests)) tests();
+	// const onNotifyChange = useCallback(value => {
+	// 	updateOptions({ notify: value })
+	// }, [updateOptions]);
 
-	const onNotifyChange = useCallback(value => {
-		updateOptions({ notify: value })
-	}, [updateOptions]);
+	if(inacive) {
+		return (
+			<div className="__note">
+				{ inacive }
+			</div>
+		);
+	}
 
 	return (
 		<>
 			<ZukitPanel title={ title }>
 				{ toggleOption(optionsData, options, updateOptions) }
 				<ZukitDivider/>
-				<ListInputControl
-					strict="email"
-					label={ notify.label }
-					inputLabel={ notify.input }
-					help={ notify.help }
-					value={ options.notify }
-					onChange={ onNotifyChange }
-				/>
 			</ZukitPanel>
-			<ZutranslateRecaptcha
-				data={ recaptcha }
-				options={ options }
-				updateOptions={ updateOptions }
-			/>
-			<ZutranslateMailer
-				data={ mailer }
+			<ZutranslateBESupport
+				data={ gutenberg }
 				options={ options }
 				updateOptions={ updateOptions }
 			/>
 		</>
-
 	);
 };
 
+// <ListInputControl
+// 	strict="email"
+// 	label={ notify.label }
+// 	inputLabel={ notify.input }
+// 	help={ notify.help }
+// 	value={ options.notify }
+// 	onChange={ onNotifyChange }
+// />
+
 renderPage('zutranslate', {
-	edit: EditZutranslate,
+	edit: ZutranslateEdit,
 	panels: zutranslate.panels,
 });

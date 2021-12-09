@@ -1,18 +1,19 @@
 <?php
 /*
 Plugin Name: Zu Translate
-Plugin URI: https://wordpress.org/plugins/zu-translate/
+Plugin URI: https://github.com/picasso/zu-translate
 GitHub Plugin URI: https://github.com/picasso/zu-translate
-Description: Extension for qTranslate-XT
-Version: 0.9.6
+Description: Enhances "qTranslate-XT" with some features and Gutenberg support (WordPress Block Editor).
+Version: 0.9.9
 Author: Dmitry Rudakov
-Author URI: https://dmitryrudakov.ru/about/
+Author URI: https://github.com/picasso
 Text Domain: zu-translate
 Domain Path: /lang/
 Requires at least: 5.8.0
 Requires PHP: 7.2.0
 */
 
+// Plugin URI: https://wordpress.org/plugins/zu-translate/
 // Prohibit direct script loading
 defined('ABSPATH') || die('No direct script access allowed!');
 

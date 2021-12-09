@@ -2,7 +2,8 @@
 // Includes all traits --------------------------------------------------------]
 
 include_once('traits/ajax.php');
-include_once('traits/helpers.php');
+include_once('traits/qtx.php');
+include_once('traits/gutenberg.php');
 
 class zu_Translate extends zukit_Plugin  {
 
@@ -12,8 +13,8 @@ class zu_Translate extends zukit_Plugin  {
 	private $sizes = null;
 	// private $clean = null;
 
-	// Helpers, REST API, ??
-	use zu_TranslateHelpers, zu_TranslateAjax;
+	// qT-XT helpers, REST API and 'Gutenberg' support
+	use zu_TranslateQT, zu_TranslateAjax, zu_TranslateGutenberg;
 
 	protected function config() {
 		return  [
@@ -27,55 +28,59 @@ class zu_Translate extends zukit_Plugin  {
 
 			'appearance'		=> [
 				'colors'			=> [
-					'backdrop'			=> '#f0f4fd',
-					'header'			=> '#b0c5fd',
-					'title'				=> '#283965',
+					'backdrop'			=> '#fceff1',
+					'header'			=> '#fbb0b8',
+					'title'				=> '#662930',
 				],
 			],
 
 			'options'			=> [
-				'qtxseo'				=> false,
 				'flags'					=> false,
+				'gutenberg'				=> true,
+				'supported'				=> 'default',	// see 'traits/gutenberg.php'
+				'excluded'				=> false, 		// see 'traits/gutenberg.php'
+
+				'yseo'					=> false,
 				'media_details'			=> false,
 				'ls_frontend'			=> true,
 				'ls_menu'				=> true,
 				'ls_display'			=> 'lang',
-				// 'disable_cache'			=> false,
 			],
 
-			'blocks'			=> [
-				'namespace'			=> 'zu',
-				'blocks'			=> ['form', 'field', 'recaptcha'],
-				'frontend_blocks'	=> false,
-				'script'			=> [
-					'data'	=> [$this, 'ajax_data'],
-				]
-			],
+			// some data for the Settings Page
+	         'settings_script'	=> [
+	             'data'  				=> [$this, 'ajax_data'],
+	         ],
+
+			// 'blocks'			=> [
+			// 	'namespace'			=> 'zu',
+			// 	'blocks'			=> ['form', 'field', 'recaptcha'],
+			// 	'frontend_blocks'	=> false,
+			// 	'script'			=> [
+			// 		'data'	=> [$this, 'ajax_data'],
+			// 	]
+			// ],
 		];
 	}
 
+	protected function extend_metadata($metadata) {
+		$metadata['description'] = 'Enhances **qTranslate-XT** with some features and `Gutenberg` support (WordPress Block Editor).';
+		return $metadata;
+	}
+
 	protected function extend_info() {
-		// $stats = $this->folders ? $this->folders->stats() : [];
-		// return [
-		// 	'folders' 		=> [
-		// 			'label'		=> __('Folders', 'zu-media'),
-		// 			'value'		=> empty($stats) ? null : $stats['folders'],
-		// 			'depends' 	=> 'folders',
-		// 	],
-		// 	'galleries' 	=> [
-		// 			'label'		=> __('Galleries', 'zu-media'),
-		// 			'value'		=> empty($stats) ? null : $stats['galleries'],
-		// 	],
-		// 	'images'		=> [
-		// 			'label'		=> __('Images', 'zu-media'),
-		// 			'value'		=> count($this->get_attachments()),
-		// 	],
-		// 	'memory'		=> [
-		// 			'label'		=> __('Cached Data', 'zu-media'),
-		// 			'value'		=> $this->get_cached_memory($stats),
-		// 			'depends' 	=> ['folders', 'disable_cache'],
-		// 	],
-		// ];
+		return array_merge([
+			// 	'images'		=> [
+			// 			'label'		=> __('Images', 'zu-media'),
+			// 			'value'		=> count($this->get_attachments()),
+			// 	],
+			// 	'memory'		=> [
+			// 			'label'		=> __('Cached Data', 'zu-media'),
+			// 			'value'		=> $this->get_cached_memory($stats),
+			// 			'depends' 	=> ['folders', 'disable_cache'],
+			// 	],
+			], $this->qtx_info()
+		);
 	}
 
 	protected function extend_actions() {
@@ -151,15 +156,10 @@ class zu_Translate extends zukit_Plugin  {
 		// 	$this->dominant = $this->register_addon(new zu_TranslateDominant());
 		// }
 
-		// Register or create new taxonomies ----------------------------------]
-
-		if($this->is_option('media_ratio')) $this->init_media_ratio();
-		if($this->is_option('add_location')) $this->register_location();
-
 		// Some internal 'inits' ----------------------------------------------]
 
-		$this->init_cachekeys();
-		$this->init_baseurl();
+		$this->init_qtx_support();
+		$this->init_gutenberg_support();
 		$this->register_snippets();
 	}
 
@@ -170,17 +170,17 @@ class zu_Translate extends zukit_Plugin  {
 		return [
 			'reorder'	=>	[
 				[
-					'menu'			=> 	'options-media.php',
-					'new_index'		=>	$this->from_split_index(2),
+					'menu'				=> 	'qtranslate-xt',
+					'after_index2'		=>	'zuplus-settings',
 				],
 				[
-					'menu'			=> 	$this->admin_slug(),
-					'new_index'		=>	$this->from_split_index(3),
+					'menu'				=> 	'zutranslate-settings',
+					'after_index'		=>	'qtranslate-xt',
 				],
 			],
 			'separator'	=>	[
 				[
-					'new_index'		=>	$this->from_split_index(1),
+					'before_index'		=> 	'qtranslate-xt',
 				],
 			],
 		];
@@ -189,7 +189,7 @@ class zu_Translate extends zukit_Plugin  {
 	// Script enqueue ---------------------------------------------------------]
 
 	protected function should_load_css($is_frontend, $hook) {
-		return $is_frontend === false && $this->ends_with_slug($hook);
+		return false; //$is_frontend === false && $this->ends_with_slug($hook);
 	}
 
 	protected function should_load_js($is_frontend, $hook) {
@@ -200,9 +200,20 @@ class zu_Translate extends zukit_Plugin  {
 		// always add styles only for Settings Page (needed for Folders Preview)
 		// we cannot do this in the add-on, since if it is not created (because
 		// the 'folders' option is disabled), then the styles will not be loaded
-		if(!$is_frontend && $this->ends_with_slug($hook)) {
-			$this->admin_enqueue_style('zumedia-folders');
-		}
+
+		// if(!$is_frontend && $this->ends_with_slug($hook)) {
+		// 	$this->admin_enqueue_style('zumedia-folders');
+		// }
+	}
+
+	public function ajax_data($is_frontend = true) {
+		return $is_frontend ? null : array_merge([
+				'locale'	=> get_locale(),
+				'disabled'	=> !$this->is_multilang(),
+			],
+			$this->qtx_data(),
+			$this->gutenberg_data()
+		);
 	}
 
 	// Public snippets --------------------------------------------------------]

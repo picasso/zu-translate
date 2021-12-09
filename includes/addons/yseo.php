@@ -1,5 +1,7 @@
 <?php
 // qTranslate-XT admin support & utils
+// NOTE: еще не портировано после перехода на 'Zukit'
+
 class zu_TranslateQTXT extends zukit_Addon {
 
 	private $qtx_seo = null;
