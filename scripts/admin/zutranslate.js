@@ -15,6 +15,8 @@ import { zutranslate } from './data.js';
 // import { pluginInacive } from './hooks/utils.js';
 import ZutranslateBESupport from './besupport.js';
 
+const { options: optionsData, gutenberg, inacive } = zutranslate; // switcher,
+
 const ZutranslateEdit = ({
 		// id,
 		// info,
@@ -26,8 +28,6 @@ const ZutranslateEdit = ({
 		// ajaxAction,
 		// noticeOperations,
 }) => {
-
-	const { options: optionsData, gutenberg, inacive } = zutranslate; // switcher,
 
 	// const onNotifyChange = useCallback(value => {
 	// 	updateOptions({ notify: value })

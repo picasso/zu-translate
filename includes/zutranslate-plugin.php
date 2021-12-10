@@ -49,17 +49,17 @@ class zu_Translate extends zukit_Plugin  {
 
 			// some data for the Settings Page
 	         'settings_script'	=> [
-	             'data'  				=> [$this, 'ajax_data'],
+	             'data'  				=> [$this, 'settings_js_data'],
 	         ],
 
-			// 'blocks'			=> [
-			// 	'namespace'			=> 'zu',
-			// 	'blocks'			=> ['form', 'field', 'recaptcha'],
-			// 	'frontend_blocks'	=> false,
-			// 	'script'			=> [
-			// 		'data'	=> [$this, 'ajax_data'],
-			// 	]
-			// ],
+			'blocks'			=> [
+				'namespace'			=> 'zu',
+				'blocks'			=> ['translate'],
+				'frontend_blocks'	=> false,
+				'script'			=> [
+					'data'				=> [$this, 'blocks_js_data'],
+				]
+			],
 		];
 	}
 
@@ -206,7 +206,7 @@ class zu_Translate extends zukit_Plugin  {
 		// }
 	}
 
-	public function ajax_data($is_frontend = true) {
+	public function settings_js_data($is_frontend = true) {
 		return $is_frontend ? null : array_merge([
 				'locale'	=> get_locale(),
 				'disabled'	=> !$this->is_multilang(),
@@ -215,6 +215,11 @@ class zu_Translate extends zukit_Plugin  {
 			$this->gutenberg_data()
 		);
 	}
+
+	public function blocks_js_data() {
+		return $this->gutenberg_data();
+	}
+
 
 	// Public snippets --------------------------------------------------------]
 

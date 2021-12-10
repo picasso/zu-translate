@@ -8,12 +8,12 @@ const { select, subscribe } = wp.data; //
 
 // Internal dependencies
 
-import { isSupportedBlock } from './utils.js';
+import { isSupported } from './utils.js';
 import withRawEditControls from './raw-edit.js';
 
 function addRawAttribute(settings, name) {
 	if(!isNil(settings.attributes)) {
-		if(isSupportedBlock(name)) {
+		if(isSupported(name)) {
 			// Zubug.data({ settings });
 			settings.attributes = assign({}, settings.attributes, {
 				qtxRaw: {
@@ -54,7 +54,7 @@ subscribe(() => {
 // 		rawContent,
 // 		lang,
 // 	} = attributes;
-// 	if(isSupportedBlock(blockType?.name)) {
+// 	if(isSupported(blockType?.name)) {
 // 		Zubug.data({ extraProps, blockType, attributes });
 // 	}
 //
@@ -72,7 +72,7 @@ subscribe(() => {
 // addFilter('blocks.getSaveContent.extraProps', 'zu/paragraph', applyExtraProps);
 
 // function getBlockAttributes(attributes, blockType, param3, param4) {
-// 	if(isSupportedBlock(blockType?.name)) {
+// 	if(isSupported(blockType?.name)) {
 // 		const { content, rawContent, lang } = attributes;
 // 		const translated = rawContent ? getLangContent(rawContent, lang) : content;
 // 		attributes.content = translated;
@@ -85,7 +85,7 @@ subscribe(() => {
 
 // function getSaveElement(elem, blockType, attributes) {
 // 	const blockName = blockType?.name;
-// 	if(isSupportedBlock(blockName)) {
+// 	if(isSupported(blockName)) {
 // 		// Zubug.info('called');
 // 		if(attributes.isXT) {
 // 			// const fallback = () => elem;

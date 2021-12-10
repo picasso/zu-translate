@@ -3,9 +3,14 @@
 // const { map, has } = lodash;
 const { __ } = wp.i18n;
 
-// Internal dependencies
+// Zukit dependencies
 
-import { simpleMarkdown, pluginInacive, qtxUrl } from './hooks/utils.js';
+const { simpleMarkdown } = wp.zukit.utils;
+const { externalDataSettings } = wp.zukit.render;
+
+// Settings page strings and assets
+
+const { disabled: pluginInacive, qtxlink: qtxUrl } = externalDataSettings('zutranslate', {});
 
 // 'The plugin extend functionality of qTranslate-XT plugin.'
 // 'Customization & settings for Language Switcher.'

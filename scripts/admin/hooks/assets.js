@@ -14,16 +14,16 @@ const { language_config: config } = window.qTranslateConfig ?? {};
 // 	['none']
 // );
 
-export function transformLangValue(value) {
+export function transformLangValue(value, label, style) {
 	return (
-		<span className="__lang">{ value }</span>
+		<span className="__lang" style={ style }>{ label }</span>
 	);
 }
 
-const assets = {
+export const assets = {
 	langOptions: map(config, (data, key) => ({ value: key, label: data.name })),
 	// [{ value: 'block', label: 'Block' }, { value: 'line', label: 'Line' }],
 	// colors: quoteColors,
 };
 
-export default assets;
+// export default assets;

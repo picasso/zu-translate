@@ -16,7 +16,7 @@ const { SelectItemControl } = wp.zukit.components;
 
 // Internal dependencies
 
-import { isSupported, getTranslatedValues, hasRaw, switchContent, updateRawContent } from './utils.js'; // hasTranslations,
+import { isSupported, getTranslatedValues, hasRaw, switchContent, createRawContent, updateRawContent } from './utils.js'; // hasTranslations,
 import { assets, transformLangValue } from './assets.js';
 // getTranslatedBlocks,
 
@@ -39,47 +39,48 @@ const withRawEditControls = createHigherOrderComponent(BlockEdit => {
 		// Zubug.useMU();
 
 		const rawRef = useRef(null);
-		if(rawRef.current === null) rawRef.current = { lang: qtxLang, raw: qtxRaw };
-
+		if(rawRef.current === null) {
+			rawRef.current = { lang: qtxLang, raw: qtxRaw };
+			Zubug.data({ lang: qtxLang, raw: qtxRaw }, 'Raw loaded');
+		}
 		const [translatedAtts, translatedValues] = getTranslatedValues(name, attributes);
 
 		// конвертировать content в рав если требуется при маунтинг
-		// useEffect(() => {
-		// 	if(!hasRaw(rawRef) && hasTranslations(content)) {
-		// 		const translated = getLangContent(content, rawRef.current.lang);
-		// 		setAttributes({
-		// 			qtxLang: rawRef.current.lang,
-		// 			qtxRaw: content,
-		// 			content: translated,
-		// 		});
-		// 		Zubug.data({ qtxLang: rawRef.current.lang, qtxRaw: content, content: translated }, 'created XT');
-		// 	}
-		// // we used a spread element in the dependency array -> we can't statically verify the correct dependencies
-		// // eslint-disable-next-line react-hooks/exhaustive-deps
-		// }, [...translatedValues, setAttributes]);
+		useEffect(() => {
+			if(!hasRaw(rawRef)) {
+				const [ raw, update ] = createRawContent(qtxLang, translatedValues, translatedAtts);
+				rawRef.current.raw = raw;
+				setAttributes({ qtxLang, qtxRaw: raw, ...update });
+				Zubug.data({ lang: qtxLang, raw, update }, 'Raw created');
+			}
+		// we used a spread element in the dependency array -> we can't statically verify the correct dependencies
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		}, []);
 
 		// After each change in one of the attributes that require the translation, we update 'qtxRaw'
 		useEffect(() => {
-			Zubug.info('content updated', { rawRef });
+			// Zubug.info('attributes changed', translatedValues, rawRef);
 			if(hasRaw(rawRef)) {
 				const { raw, lang } = rawRef.current;
 				const updatedRaw = updateRawContent(raw, lang, translatedValues);
-				Zubug.info('Raw updated', { updatedRaw });
-				rawRef.current.raw = updatedRaw;
-				setAttributes({ qtxRaw: updatedRaw });
+				if(updatedRaw !== rawRef.current.raw) {
+					rawRef.current.raw = updatedRaw;
+					setAttributes({ qtxRaw: updatedRaw });
+					Zubug.data({ updatedRaw }, 'Raw updated');
+				}
 			}
 		// we used a spread element in the dependency array -> we can't statically verify the correct dependencies
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [...translatedValues, setAttributes]);
 
 		// Replace the values of all 'translated' attributes for the required language
-		const replaceContent = useCallback(() => {
+		const replaceContent = useCallback(lang => {
 			const { raw } = rawRef.current;
-			const lang = qtxLang === 'en' ? 'ru' : 'en';
+			// const lang = qtxLang === 'en' ? 'ru' : 'en';
 			const atts = switchContent(raw, lang, translatedAtts);
 			rawRef.current.lang = lang;
 			setAttributes({ qtxLang: lang, ...atts });
-		}, [qtxLang, translatedAtts, setAttributes]);
+		}, [translatedAtts, setAttributes]);
 
 		return (
 			<>
@@ -94,7 +95,6 @@ const withRawEditControls = createHigherOrderComponent(BlockEdit => {
 								selectedItem={ qtxLang }
 								onClick={ replaceContent }
 								transformValue={ transformLangValue }
-								// buttonStyle={ colorStyle }
 							/>
 						</PanelBody>
 					</InspectorControls>
