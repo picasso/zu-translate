@@ -1,26 +1,23 @@
 // WordPress dependencies
 
 // const { pick, isNil, assign } = lodash;
-const { __ } = wp.i18n;
+// const { __ } = wp.i18n;
 // const { addFilter } = wp.hooks;
 const { createHigherOrderComponent } = wp.compose;
-const { PanelBody } = wp.components;
+// const { PanelBody } = wp.components;
 const { InspectorControls } = wp.blockEditor;
 const { useEffect, useCallback, useRef } = wp.element; // cloneElement, useState, useEffect, useLayoutEffect
 // const { select, subscribe } = wp.data; //
 
 // Zukit dependencies
 
-const { SelectItemControl } = wp.zukit.components;
+// const { SelectItemControl } = wp.zukit.components;
 // const { useRefInit } = wp.zukit.data;
 
 // Internal dependencies
 
-import { isSupported, getTranslatedValues, hasRaw, switchContent, createRawContent, updateRawContent } from './utils.js'; // hasTranslations,
-import { assets, transformLangValue } from './assets.js';
-// getTranslatedBlocks,
-
-const rawPrefix = 'components-zu-raw-edit';
+import { isSupported, getTranslatedValues, hasRaw, switchContent, createRawContent, updateRawContent } from './../utils.js';
+import LangControl from './../components/lang-control.js';
 
 const withRawEditControls = createHigherOrderComponent(BlockEdit => {
 	return (props) => {
@@ -41,7 +38,7 @@ const withRawEditControls = createHigherOrderComponent(BlockEdit => {
 		const rawRef = useRef(null);
 		if(rawRef.current === null) {
 			rawRef.current = { lang: qtxLang, raw: qtxRaw };
-			Zubug.data({ lang: qtxLang, raw: qtxRaw }, 'Raw loaded');
+			// Zubug.data({ lang: qtxLang, raw: qtxRaw }, 'Raw loaded');
 		}
 		const [translatedAtts, translatedValues] = getTranslatedValues(name, attributes);
 
@@ -87,16 +84,10 @@ const withRawEditControls = createHigherOrderComponent(BlockEdit => {
 				<BlockEdit { ...props }/>
 				{ isSelected && isSupported(name) &&
 					<InspectorControls>
-						<PanelBody title={ __('Language') }>
-							<SelectItemControl
-								className={ rawPrefix }
-								withLabels
-								options={ assets.langOptions }
-								selectedItem={ qtxLang }
-								onClick={ replaceContent }
-								transformValue={ transformLangValue }
-							/>
-						</PanelBody>
+						<LangControl.Panel
+							lang={ qtxLang }
+							onClick={ replaceContent }
+						/>
 					</InspectorControls>
 				}
 			</>
