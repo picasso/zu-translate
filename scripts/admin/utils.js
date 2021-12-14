@@ -140,12 +140,17 @@ export function switchContent(raw, lang, translatedAtts) {
         if(activateDebug) Zubug.data({ lang, raw: rawItems[index], attr, value });
         return attributes;
     }, {});
-
-    // setAttributes({
-    //     qtxLang: rawRef.current.lang,
-    //     content: getLangContent(rawRef.current.raw, rawRef.current.lang),
-    // });
 }
+
+export function getPostTitle() {
+    return getInputValue('.editor-post-title__input');
+}
+
+export function changePostTitle(title) {
+    changeInputValue('.editor-post-title__input', title, true);
+}
+
+// internal helpers -----------------------------------------------------------]
 
 function splitRawContent(raw) {
     const del = testDelimters(raw);
@@ -180,4 +185,19 @@ function testDelimters(s) {
 
 function marker(del, lang = null, text = null, split = false) {
 	return `${del[0]}${split ? ',' : ':'}${lang ?? ''}${del[1]}${text ?? ''}`;
+}
+
+function getInputValue(selector) {
+	return document.querySelector(selector)?.value ?? null;
+}
+
+function changeInputValue(selector, value, textarea = false) {
+    const el = document.querySelector(selector);
+    if(el) {
+        const prototype = textarea ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+        nativeInputValueSetter.call(el, value);
+        const ev = new Event('input', { bubbles: true});
+        el.dispatchEvent(ev);
+    }
 }

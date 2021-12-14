@@ -8,7 +8,7 @@ const { select, subscribe } = wp.data; //
 
 // Internal dependencies
 
-import { isSupported } from './utils.js';
+import { isSupported } from './../utils.js';
 import withRawEditControls from './raw-edit.js';
 
 function addRawAttribute(settings, name) {
@@ -27,6 +27,19 @@ function addRawAttribute(settings, name) {
 	}
 	return settings;
 }
+
+// const filterBlocks = (settings) => {
+//     console.log(settings.name)
+//     // we need to pass along the settings object
+//     // even if we haven't modified them!
+//     return settings;
+// }
+//
+// addFilter(
+//     'blocks.registerBlockType', // hook name, very important!
+//     'zu/test', // your name, very arbitrary!
+//     filterBlocks // function to run
+// );
 
 addFilter('blocks.registerBlockType', 'zu/paragraph', addRawAttribute);
 addFilter('editor.BlockEdit', 'zu/paragraph', withRawEditControls);
