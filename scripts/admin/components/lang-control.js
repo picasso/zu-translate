@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { map } = lodash; // split, padEnd, trimEnd
+const { map, pick } = lodash;
 const { __ } = wp.i18n;
 const { PanelBody } = wp.components; // , TextControl, Dropdown, Button
 
@@ -13,6 +13,7 @@ const { SelectItemControl } = wp.zukit.components;
 
 // Internal dependencies
 
+import PanelTitleIndicator from './panel-indicator.js';
 const { language_config: config } = window.qTranslateConfig ?? {};
 const langOptions = map(config, (data, key) => ({ value: key, label: data.name }));
 
@@ -28,9 +29,10 @@ function transformLangValue(value, label, style) {
 
 const LangControl = ({
 	title,
-	lang = 'en',
+	lang,
 	onClick,
 	withPanel,
+	...additionalProps
 }) => {
 
 	const langControl = (
@@ -44,11 +46,36 @@ const LangControl = ({
 		/>
 	);
 
-	return !withPanel ? langControl : (
-		<PanelBody title={ title || __('Language') }>
-			{ langControl }
-		</PanelBody>
-	);
+	if(withPanel) {
+		const titleWithIndicator = (
+			<PanelTitleIndicator
+				// isColor
+				title={ title ?? __('Language', 'zu-translate') }
+				value={ lang }
+			/>
+		);
+		const panelProps =pick(additionalProps, [
+			'buttonProps',
+			'className',
+			'icon',
+			'opened',
+			'scrollAfterOpen',
+			'initialOpen',
+			'onToggle'
+		]);
+		Zubug.data({ titleWithIndicator, panelProps, lang });
+		return (
+			<PanelBody
+				title={ titleWithIndicator }
+				// onToggle={ onPanelToggle }
+				// initialOpen={ initialOpen }
+				{ ...panelProps }
+			>
+				{ langControl }
+			</PanelBody>
+		);
+	}
+	return langControl;
 }
 
 LangControl.Panel = props => <LangControl withPanel { ...props }/>;

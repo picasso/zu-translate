@@ -7,7 +7,7 @@ const _ = lodash;
 export const {
     externalData,
     getExternalData,
-    // mergeClasses,
+    mergeClasses,
     // isNum,
     // toBool,
 	// toRange,
