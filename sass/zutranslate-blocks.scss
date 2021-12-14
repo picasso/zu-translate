@@ -1,0 +1,69 @@
+// Admin Components -----------------------------------------------------------]
+
+$violet-color: #bc2a8d;
+
+$admin-blue: #007cba;
+$admin-light-blue: #b2d5e7; // equal rgba($admin-blue, 0.3) on white
+$admin-dark: #555d66;
+$admin-disable-border-color: #ddd;
+$admin-disable-background-color: #f7f7f7;
+$admin-disable-text-color: #a0a5aa;
+
+$admin-block-accent-color: $violet-color;
+
+$admin-control-highlight-color: $admin-blue;
+$admin-control-font-family: Ubuntu,'Open Sans';
+$admin-control-selected-color: rgba($admin-control-highlight-color, 0.3);
+$admin-control-text-color: $admin-dark;
+
+$admin-control-hover-color: rgba($admin-control-highlight-color, 0.7);
+$admin-control-hover-text-color: white;
+
+$transition-time: .3s !default;
+$transition-short-time: .1s !default;
+$transition-medium-time: .6s !default;
+$transition-long-time: 1s !default;
+$transition-function: ease-out !default;
+$transition-soft: ease-in !default;
+$transition-cubic: cubic-bezier(0.33, 0, 0.2, 1) !default;
+
+// Lang Control Component -----------------------------------------------------]
+
+$select-item-class: zukit-select-item;
+$lang-control-class: components-zu-lang-control;
+
+
+$lang-control-height: 50px;
+$lang-control-selected-color: rgba($violet-color, 0.3);
+$lang-control-text-color: $violet-color; // $admin-dark; // 
+
+.#{$lang-control-class} {
+	// .#{$select-item-class} {
+	.#{$select-item-class}__button-wrapper{
+		&.is-selected {
+			box-shadow: none;
+			.components-button {
+				background-color: $lang-control-selected-color;
+				color: $lang-control-text-color;
+			}
+		}
+	}
+
+	.components-button.components-button {
+		height: $lang-control-height;
+		background-color: rgba($admin-blue, 0.1);
+		transition-property: background-color, color;
+		transition-duration: $transition-time;
+		transition-timing-function: $transition-function;
+		&:hover {
+			background-color: $admin-control-hover-color !important;
+			color: $admin-control-hover-text-color !important;
+		}
+		span {
+			width: 100%;
+			letter-spacing: 1px;
+			font-weight: 500;
+			font-family: $admin-control-font-family;
+		}
+	}
+}

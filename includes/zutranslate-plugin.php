@@ -56,6 +56,7 @@ class zu_Translate extends zukit_Plugin  {
 				'namespace'			=> 'zu',
 				'blocks'			=> ['translate'],
 				'frontend_blocks'	=> false,
+				'load_css'          => true,
 				'script'			=> [
 					'data'				=> [$this, 'blocks_js_data'],
 				]

@@ -1,0 +1,20 @@
+.components-zu-lang-control .zukit-select-item__button-wrapper.is-selected {
+  box-shadow: none; }
+  .components-zu-lang-control .zukit-select-item__button-wrapper.is-selected .components-button {
+    background-color: rgba(188, 42, 141, 0.3);
+    color: #bc2a8d; }
+
+.components-zu-lang-control .components-button.components-button {
+  height: 50px;
+  background-color: rgba(0, 124, 186, 0.1);
+  transition-property: background-color, color;
+  transition-duration: 0.3s;
+  transition-timing-function: ease-out; }
+  .components-zu-lang-control .components-button.components-button:hover {
+    background-color: rgba(0, 124, 186, 0.7) !important;
+    color: white !important; }
+  .components-zu-lang-control .components-button.components-button span {
+    width: 100%;
+    letter-spacing: 1px;
+    font-weight: 500;
+    font-family: Ubuntu, "Open Sans"; }
