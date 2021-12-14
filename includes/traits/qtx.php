@@ -85,6 +85,12 @@ trait zu_TranslateQT {
 		return $lang_urls;
 	}
 
+	protected function get_url_param($param = null) {
+		global $q_config;
+		return $param ? ($q_config['url_info'][$param] ?? null) : ($q_config['url_info'] ?? null);
+	}
+
+
 	// return array of content for all languages
 	protected function  get_content($raw_content) {
 		global $q_config;
