@@ -23,6 +23,7 @@ function addRawAttribute(settings, name) {
 					type: 'string',
 				},
 			});
+			// Zubug.info(`added attributes to {${name}}`);
 		}
 	}
 	return settings;

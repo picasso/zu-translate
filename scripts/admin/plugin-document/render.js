@@ -1,12 +1,12 @@
 // WordPress dependencies
 
 // const $ = jQuery;
-// const { split, map, padEnd, trimEnd } = lodash;
+const { reduce, has } = lodash;
 
 // const { __ } = wp.i18n;
-// const { compose } = wp.compose;
+const { compose } = wp.compose;
 // const { PanelRow, TextControl, Dropdown, Button } = wp.components;
-const { useSelect } = wp.data;
+const { useSelect, withSelect, withDispatch } = wp.data;
 const { useState, useCallback } = wp.element;
 
 // Zukit dependencies
@@ -42,11 +42,46 @@ import { updateRawContent, getLangContent, getPostTitle, changePostTitle } from 
 
 // Copyright Edit Component
 
+// innerBlocks
+
+function collectAllRelatedBlocks(blocks) {
+	return reduce(blocks, (collected, {clientId, innerBlocks, attributes}) => {
+		// const { clientId, }
+		if(has(attributes, 'qtxLang')) collected.push(clientId);
+		if(innerBlocks.length) {
+			const innerIds = collectAllRelatedBlocks(innerBlocks);
+			collected.push(...innerIds);
+		}
+		return collected;
+	}, []);
+}
+
+function switchAllRelatedBlocks(lang, getBlocks, updateBlockAttributes, clientId = null) {
+	const allBlocks = getBlocks();
+	const blockIds = collectAllRelatedBlocks(allBlocks);
+	Zubug.data({ allBlocks, blockIds });
+
+	// reduce(allBlocks, (acc, {clientId, attributes}) => {
+	// 	// const { clientId, }
+	// 	if(has(attributes, 'qtxLang')) acc.push(clientId);
+	// 	return acc;
+	// }, []);
+
+	blockIds.forEach(blockClientId => {
+		// do not update own attributes
+		if(blockClientId !== clientId) {
+			// Update Row Block layout
+			updateBlockAttributes(blockClientId, { qtxLang: lang } );
+		}
+	});
+}
+
 const LangControlSetting = ({
-	lang2,
-	// meta,
-	// setMetaValue,
+	getBlocks,
+	updateBlockAttributes,
 }) => {
+
+	Zubug.data({ allBlocks: getBlocks() });
 
 	const [title, lang] = useSelect(select => {
 		const { getEditedPostAttribute } = select('core/editor'); // , getCurrentPost
@@ -56,10 +91,15 @@ const LangControlSetting = ({
 		return [title, lang];
 	}, []);
 
+	// const blocks = useSelect(select => {
+	// 	const { getBlocks } = select('core/block-editor');
+	// 	return getBlocks;
+	// }, []);
+
 	const [ editLang, setEditLang ] = useState(lang);
 	const [ rawTitle, setRawTitle ] = useState(title);
 
-Zubug.data({ rawTitle, editLang, lang2 });
+// Zubug.data({ rawTitle, editLang, lang2 });
 	// const [author = '?', year = 2001] = split(meta, ':')
 
 	// переключаем язык, сохраняем последнее редактированное значение в raw
@@ -75,7 +115,8 @@ Zubug.data({ rawTitle, editLang, lang2 });
 		Zubug.data({ newRaw, newTitle });
 		// return lang;
 		// setMetaValue(`${value}:${year}`)
-	}, [rawTitle, editLang]);
+		switchAllRelatedBlocks(value, getBlocks, updateBlockAttributes);
+	}, [rawTitle, editLang, getBlocks, updateBlockAttributes]);
 
 	return (
 		<LangControl
@@ -85,8 +126,17 @@ Zubug.data({ rawTitle, editLang, lang2 });
 	);
 }
 
-export default withSidebar(metadata)(LangControlSetting);
+// export default withSidebar(metadata)(LangControlSetting);
 
-// export default compose([
-// 	withSidebar(metadata),
-// ])(CopyrightEdit);
+export default compose([
+	withSidebar(metadata),
+	withSelect(select => {
+		return {
+			getBlocks: select('core/block-editor').getBlocks,
+		};
+	}),
+	withDispatch(dispatch => {
+		const { updateBlockAttributes } = dispatch('core/block-editor');
+		return { updateBlockAttributes };
+	}),
+])(LangControlSetting);
