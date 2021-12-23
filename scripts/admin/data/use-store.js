@@ -64,7 +64,8 @@ export function getRaw(key) {
 // Custom hook which get dispatch method for 'lang' change
 export function changeLang(value) {
     const { changeLang } = dispatch(ZUTRANSLATE_STORE);
-    changeLang(value);
+	const currentLang = getLang();
+    if(value !== currentLang) changeLang(value);
 }
 
 // set the initial values for RAW attributes
