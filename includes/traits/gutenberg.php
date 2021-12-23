@@ -26,7 +26,7 @@ trait zu_TranslateGutenberg {
 				$this->supported_data = $supported;
 				$this->supported_blocks = array_keys($supported);
 				add_filter('the_posts', [$this, 'pre_render_posts'], 0, 2);
-				add_action('rest_api_init', [$this, 'qt_rest_api_init']);
+				add_action('rest_api_init', [$this, 'rest_api_init']);
 				// add_filter('render_block', [$this, 'translate_render'], 10, 2);
 
 				// pro tempora!
@@ -36,19 +36,19 @@ trait zu_TranslateGutenberg {
 	}
 
 
-	public function qt_rest_api_init() {
+	public function rest_api_init() {
 		$post_types = $this->enabled_post_types();
 // zu_log($post_types);
 		foreach($post_types as $post_type) {
-			add_filter("rest_prepare_{$post_type}", [$this, 'qt_rest_prepare'], 99, 3);
+			add_filter("rest_prepare_{$post_type}", [$this, 'rest_prepare'], 99, 3);
 		}
-		add_filter('rest_request_before_callbacks', [$this, 'qt_rest_request_before_callbacks'], 99, 3);
-		// add_filter('rest_request_after_callbacks', [$this, 'qy_rest_request_after_callbacks'], 99, 3);
+		// add_filter('rest_request_before_callbacks', [$this, 'qt_rest_request_before_callbacks'], 99, 3);
+		add_filter('rest_request_after_callbacks', [$this, 'request_after_callbacks'], 99, 3);
 	}
 
 	// Prepare the REST request for a post being edited
 	// Set the raw content and the 'qtx_editor_lang' field for the current language.
-	public function qt_rest_prepare($response, $post, $request) {
+	public function rest_prepare($response, $post, $request) {
 // zu_logc('rest_prepare', $this->request_info($request, $response));
 		if($this->is_eligible_request($request, 'GET', $post)) {
 
@@ -56,6 +56,18 @@ trait zu_TranslateGutenberg {
 // // if(!use_block_editor_for_post($post)) return $response;
 			$url_lang = $this->get_url_param('language');
 			$response = $this->select_raw_response_language($response, $url_lang);
+		}
+		return $response;
+	}
+
+	// ??? Restore the raw content of the post just updated and set the 'qtx_editor_lang', as for the prepare step
+	public function request_after_callbacks($response, $handler, $request) {
+		if($this->is_eligible_request($request, ['PUT', 'POST'])) {
+			$editor_lang = $request->get_param('editor_lang');
+	zu_logc('request_after_callbacks', $this->request_info($request, $response), $editor_lang);
+			if(isset($editor_lang)) {
+				$response = $this->select_raw_response_language($response, $editor_lang);
+			}
 		}
 		return $response;
 	}
@@ -87,26 +99,28 @@ trait zu_TranslateGutenberg {
 			$response_data['excerpt']['raw'] = qtranxf_use($lang, $response_data['excerpt']['raw'], false, true);
 			$update_data = true;
 		}
-
 		if($update_data) {
 			$response_data['qtx_editor_lang'] = $lang;
 			$response->set_data($response_data);
 		}
-
 		return $response;
 	}
 
 	private function request_info($request, $response) {
+		$data = $response ? $response->get_data() : null;
+		if($data) unset($data['content']);
+		$params = $request->get_params();
+		unset($params['content']);
 		return [
 			'method'		=> $request->get_method(),
-			'params'		=> $request->get_params(),
+			'params'		=> $params,
 			'body'			=> $request->get_body(),
 			'body_params'	=> $request->get_body_params(),
 			'route'			=> $request->get_route(),
 			// 'attributes'	=> $request->get_attributes(),
 			'content_type'	=> $request->get_content_type(),
-			'response'		=> $response ?? null,
-			'data'			=> $response ? $response->get_data() : null,
+			// 'response'		=> $response ?? null,
+			'data'			=> $data,
 		];
 	}
 
@@ -164,21 +178,6 @@ trait zu_TranslateGutenberg {
 	   return $response;
    }
 
-	// Restore the raw content of the post just updated and set the 'qtx_editor_lang', as for the prepare step
-   public function qt_rest_request_after_callbacks($response, $handler, $request) {
-       // if($request->get_param('context') !== 'edit' || $request->get_method() !== 'PUT' && $request->get_method() !== 'POST') {
-       //     return $response;
-       // }
-	   //
-       // $editor_lang = $request->get_param('qtx_editor_lang');
-       // if(! isset($editor_lang)) {
-       //     return $response;
-       // }
-	   //
-       // $response = $this->select_raw_response_language($response, $editor_lang);
-
-       return $response;
-   }
 
 
 	private function enabled_post_types() {
