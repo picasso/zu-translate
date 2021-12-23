@@ -17,6 +17,8 @@ const { useEffect, useCallback, useRef } = wp.element; // cloneElement, useState
 // Internal dependencies
 
 import { isSupported, getTranslatedValues, hasRaw, switchContent, createRawContent, updateRawContent } from './../utils.js';
+import { changeLang, useForceUpdater, useOnLangChange } from './../data/use-store.js';
+
 import LangControl from './../components/lang-control.js';
 
 const BlockEditLang = (props) => {
@@ -32,13 +34,22 @@ const BlockEditLang = (props) => {
 	} = attributes;
 
 	// Zubug.useMU();
-
-	const prevLang = usePrevious(qtxLang);
 	const rawRef = useRef(null);
 	if(rawRef.current === null) {
 		rawRef.current = { lang: qtxLang, raw: qtxRaw };
 		// Zubug.data({ lang: qtxLang, raw: qtxRaw }, 'Raw loaded');
 	}
+
+	const forceUpdate = useForceUpdater();
+	const editorLang = useOnLangChange(lang => {
+		const { raw } = rawRef.current;
+		const atts = switchContent(raw, lang, translatedAtts);
+		rawRef.current.lang = lang;
+		setAttributes({ qtxLang: lang, ...atts });
+		Zubug.data({ atts, lang, ref: rawRef.current });
+	});
+
+	const prevLang = usePrevious(qtxLang);
 	const [translatedAtts, translatedValues] = getTranslatedValues(name, attributes);
 
 	// конвертировать content в рав если требуется при маунтинг
@@ -70,13 +81,15 @@ const BlockEditLang = (props) => {
 
 	// Replace the values of all 'translated' attributes for the required language
 	const replaceContent = useCallback(lang => {
-		const { raw } = rawRef.current;
-		// const lang = qtxLang === 'en' ? 'ru' : 'en';
-		const atts = switchContent(raw, lang, translatedAtts);
-		rawRef.current.lang = lang;
-		setAttributes({ qtxLang: lang, ...atts });
+		// const { raw } = rawRef.current;
+		// // const lang = qtxLang === 'en' ? 'ru' : 'en';
+		// const atts = switchContent(raw, lang, translatedAtts);
+		// rawRef.current.lang = lang;
+		// setAttributes({ qtxLang: lang, ...atts });
+		changeLang(lang);
+		forceUpdate();
 		Zubug.info(`Language switched {${lang}}`);
-	}, [translatedAtts, setAttributes]);
+	}, [forceUpdate]); // translatedAtts, setAttributes
 
 	useEffect(() => {
 		if(qtxLang !== prevLang) replaceContent(qtxLang);
@@ -85,7 +98,7 @@ const BlockEditLang = (props) => {
 	return (
 		<InspectorControls>
 			<LangControl.Panel
-				lang={ qtxLang }
+				lang={ editorLang }
 				onClick={ replaceContent }
 			/>
 		</InspectorControls>
