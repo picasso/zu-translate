@@ -4,52 +4,25 @@ const _ = lodash;
 
 // Zukit dependencies
 
-export const {
-    externalData,
-    getExternalData,
-    mergeClasses,
-    // isNum,
-    // toBool,
-	// toRange,
-	// getKey,
-	// isWrongId,
-	// getIds,
-	// svgRef,
+export const { externalData, getExternalData, mergeClasses, toJSON, simpleMarkdown } = wp.zukit.utils;
 
-    toJSON,
-    // uniqueValue,
-    // compareVersions,
-    simpleMarkdown,
-
-    // getColor,
-    getColorOptions,
-    // hexToRGBA,
-    // brandAssets,
-	// emptyGif,
-    //
-    // registerCollection,
-    // registerCategory,
- } = wp.zukit.utils;
-
- // Import debug object and make it available from global scope
-  window.Zubug = { ...(wp.zukit.debug  || {}) };
+// Import debug object and make it available from global scope
+window.Zubug = { ...(wp.zukit.debug  || {}) };
 
 // Internal dependencies
-
-// = '[:en]In the "**Adaptive Columns**" mode, the gallery is trying to maintain a certain *width of the column* and in the event of a shortage of space, the number of columns will be reduced.[:ru]В режиме «** Adaptive Columns **» галерея пытается поддерживать определенную * ширину столбца * и в случае нехватки пространства, количество столбцов будет уменьшено.[:]',
 
 import { qtranxj_split, qtranxj_get_split_blocks, qtranxj_split_blocks } from './qblocks.js';
 
 const activateDebug = false;
 
-externalData('zutranslate_blocks_data');
 // перед вызовами 'getExternalData' нужно один раз вызвать 'externalData'
+externalData('zutranslate_blocks_data');
+
 const supportedData = getExternalData('supported', {});
+export const editorLang = getExternalData('lang', 'en');
 
 const delimiters = ['[]', '{}', '<!-- -->'];
-// const blockName = 'core/paragraph';
 const supportedBlocks = _.keys(supportedData);
-// const blockDel = splitInHalf(delimiters[0]);
 
 
 export function getTranslatedAtts(name) {
@@ -142,13 +115,28 @@ export function switchContent(raw, lang, translatedAtts) {
     }, {});
 }
 
-export function getPostTitle() {
-    return getInputValue('.editor-post-title__input');
+export function getInputValue(selector) {
+	return document.querySelector(selector)?.value ?? null;
 }
 
-export function changePostTitle(title) {
-    changeInputValue('.editor-post-title__input', title, true);
+export function changeInputValue(selector, value, textarea = false) {
+    const el = document.querySelector(selector);
+    if(el) {
+        const prototype = textarea ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+        nativeInputValueSetter.call(el, value);
+        const ev = new Event('input', { bubbles: true});
+        el.dispatchEvent(ev);
+    }
 }
+//
+// export function getPostTitle() {
+//     return getInputValue('.editor-post-title__input');
+// }
+//
+// export function changePostTitle(title) {
+//     changeInputValue('.editor-post-title__input', title, true);
+// }
 
 // internal helpers -----------------------------------------------------------]
 
@@ -185,19 +173,4 @@ function testDelimters(s) {
 
 function marker(del, lang = null, text = null, split = false) {
 	return `${del[0]}${split ? ',' : ':'}${lang ?? ''}${del[1]}${text ?? ''}`;
-}
-
-function getInputValue(selector) {
-	return document.querySelector(selector)?.value ?? null;
-}
-
-function changeInputValue(selector, value, textarea = false) {
-    const el = document.querySelector(selector);
-    if(el) {
-        const prototype = textarea ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
-        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
-        nativeInputValueSetter.call(el, value);
-        const ev = new Event('input', { bubbles: true});
-        el.dispatchEvent(ev);
-    }
 }

@@ -92,7 +92,6 @@ const BlockEditLang = (props) => {
 	);
 }
 
-
 const withRawEditControls = createHigherOrderComponent(BlockEdit => {
 	return (props) => {
 		const {
@@ -107,10 +106,4 @@ const withRawEditControls = createHigherOrderComponent(BlockEdit => {
 		);
 	};
 }, 'withRawEditControls');
-
-// export default compose([
-// 	withColors('quoteColor'),
-// 	withNotices,
-// ])(QuoteEdit);
-
 export default withRawEditControls;
