@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { keys, forEach, includes, some, has, set } = lodash;
+const { keys, forEach, castArray, includes, some, has, set } = lodash;
 const { usePrevious } = wp.compose;
 const { useReducer, useEffect  } = wp.element; // useCallback, useRef
 const { select, dispatch, useSelect, useDispatch } = wp.data; // subscribe,
@@ -8,7 +8,7 @@ const { apiFetch } = wp;
 
 // Internal dependencies
 
-import { getLangContent, getInputValue, changeInputValue } from './../utils.js';
+import { getLangContent, getInputValue, changeInputValue, addInputListener } from './../utils.js';
 import { ZUTRANSLATE_STORE } from './raw-store.js';
 
 const supportedAtts = {
@@ -72,35 +72,36 @@ export function changeLang(value) {
 export function setRawAttributes() {
 	const { getEditedPostAttribute } = select('core/editor');
 	const { setRaw } = dispatch(ZUTRANSLATE_STORE);
-	forEach(supportedKeys, attr => {
+	forEach(supportedAtts, (selector, attr) => {
 		const value = getEditedPostAttribute(`${attr}_raw`);
 		setRaw(attr, value);
+		addInputListener(selector, () => updateRawAttributes(attr));
 	});
 }
 
 // update RAW attributes before changing language
-export function updateRawAttributes() {
+// (if 'onlyAtts' is not null - update RAW for these attributes only)
+export function updateRawAttributes(onlyAtts = null) {
 	const { updateRaw } = dispatch(ZUTRANSLATE_STORE);
+	onlyAtts = onlyAtts === null ? null : castArray(onlyAtts);
 	forEach(supportedAtts, (selector, attr) => {
-		const value = getInputValue(selector);
-		updateRaw(attr, value);
+		if(onlyAtts === null || includes(onlyAtts, attr)) {
+			const value = getInputValue(selector);
+			updateRaw(attr, value);
+		}
 	});
 }
 
+// select content for the language from the RAW value and set it in the INPUT element
 export function switchRawAttributes(lang) {
 	forEach(supportedAtts, (selector, attr) => {
 		const rawValue = getRaw(attr);
-		const renderedValue = getLangContent(rawValue, lang);
-		changeInputValue(selector, renderedValue, true);
+		if(rawValue !== undefined) {
+			const renderedValue = getLangContent(rawValue, lang);
+			changeInputValue(selector, renderedValue, true);
+		}
 	});
 }
-
-// const editedTitle = getPostTitle();
-// const newRaw = updateRawContent(rawTitle, editLang, [editedTitle]);
-// if(newRaw !== rawTitle) setRawTitle(newRaw);
-// const newTitle = getLangContent(newRaw, value);
-// if(editedTitle !== newTitle) changePostTitle(newTitle);
-//
 
 
 export function useForceUpdater() {
@@ -114,7 +115,7 @@ export function useOnLangChange(callback) {
 
 	// ????
 	useEffect(() => {
-		if(prev !== editorLang) callback(editorLang);
+		if(prev !== undefined && prev !== editorLang) callback(editorLang);
 	}, [prev, editorLang, callback]);
 
 	return editorLang;
