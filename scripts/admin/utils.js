@@ -29,10 +29,14 @@ export function getTranslatedAtts(name) {
 	return _.castArray(_.get(supportedData, [name, 'atts']));
 }
 
-export function getTranslatedValues(name, attributes) {
+export function getTranslated(name, attributes) {
 	const translatedKeys = getTranslatedAtts(name);
-	const translatedAtts = _.pick(attributes, translatedKeys);
-	return [_.join(translatedKeys, ','), _.values(translatedAtts)];
+	const translatedAtts = _.reduce(translatedKeys, (values, attr) => {
+		values.push(_.get(attributes, attr, ''));
+        return values;
+    }, []);
+	// _.pick(attributes, translatedKeys);
+	return [_.join(translatedKeys, ','), translatedAtts];
 }
 
 
@@ -59,10 +63,18 @@ export function getLangContent(raw, lang) {
 	return blocks[lang] ?? '';
 }
 
-export function createRawContent(lang, values, translatedAtts) {
+export function createRawContent(lang, values, translatedAtts, maybeFixRaw = false) {
     if(values) {
         const separator = marker(testDelimters(), null, null, true);
         const rawItems = _.fill(_.range(0, values.length), '');
+		// if RAW was created for wrong amount of attributes
+		if(maybeFixRaw) {
+			const items = _.split(maybeFixRaw, separator);
+			if(values.length !== items.length) {
+				maybeFixRaw = fixRawContent(lang, values, separator, maybeFixRaw);
+			}
+			return [ maybeFixRaw, {} ];
+		}
         const prevRaw = _.reduce(values, (foundRaw, value) => {
             return foundRaw === false ? (hasTranslations(value) ? value : false) : foundRaw;
         }, false);
@@ -129,16 +141,42 @@ export function changeInputValue(selector, value, textarea = false) {
         el.dispatchEvent(ev);
     }
 }
-//
-// export function getPostTitle() {
-//     return getInputValue('.editor-post-title__input');
-// }
-//
-// export function changePostTitle(title) {
-//     changeInputValue('.editor-post-title__input', title, true);
-// }
+
+export function addInputListener(selector, callback) {
+	const el = document.querySelector(selector);
+	// React chose to make 'onChange' behave like 'onInput' does
+	// it does fire when there's a change, just not until the input also loses focus
+    if(el) el.addEventListener('input', callback);
+}
 
 // internal helpers -----------------------------------------------------------]
+
+// if RAW was created for wrong amount of attributes
+function fixRawContent(lang, values, separator, currentRaw) {
+	let raw = emptyRawContent(values.length, separator);
+	_.forEach(values, (val, index) => {
+		if(val !== '' && val !== undefined) {
+			if(_.includes(currentRaw, val)) {
+				const rawItems = _.split(raw, separator);
+				rawItems[index] = currentRaw;
+				raw = _.join(rawItems, separator);
+			} else {
+				raw = updateRawContent(raw, lang, values);
+			}
+		}
+	});
+	return raw;
+}
+
+function emptyRawContent(items) {
+	const del = testDelimters('');
+	const separator = marker(del, null, null, true);
+	const blocks = getTranslatedBlocks('');
+	const withMarkers = _.map(blocks, (text, ln) => marker(del, ln, text));
+	const emptyRaw = _.join([...withMarkers, marker(del)], '');
+	const rawItems = _.fill(_.range(0, items), emptyRaw);
+    return _.join(rawItems, separator);
+}
 
 function splitRawContent(raw) {
     const del = testDelimters(raw);
