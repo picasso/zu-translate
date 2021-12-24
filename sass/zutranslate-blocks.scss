@@ -35,7 +35,7 @@ $lang-control-class: components-zu-lang-control;
 
 $lang-control-height: 50px;
 $lang-control-selected-color: rgba($violet-color, 0.3);
-$lang-control-text-color: $violet-color; // $admin-dark; // 
+$lang-control-text-color: $violet-color; // $admin-dark; //
 
 .#{$lang-control-class} {
 	// .#{$select-item-class} {
@@ -45,6 +45,16 @@ $lang-control-text-color: $violet-color; // $admin-dark; //
 			.components-button {
 				background-color: $lang-control-selected-color;
 				color: $lang-control-text-color;
+				position: relative;;
+				svg {
+					position: absolute;
+					top: -13px;
+					left: 5px;
+					background-color: $violet-color;
+					border-radius: 50%;
+					padding: 4px;
+					fill: white;
+				}
 			}
 		}
 	}

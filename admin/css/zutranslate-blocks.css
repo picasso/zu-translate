@@ -2,7 +2,16 @@
   box-shadow: none; }
   .components-zu-lang-control .zukit-select-item__button-wrapper.is-selected .components-button {
     background-color: rgba(188, 42, 141, 0.3);
-    color: #bc2a8d; }
+    color: #bc2a8d;
+    position: relative; }
+    .components-zu-lang-control .zukit-select-item__button-wrapper.is-selected .components-button svg {
+      position: absolute;
+      top: -13px;
+      left: 5px;
+      background-color: #bc2a8d;
+      border-radius: 50%;
+      padding: 4px;
+      fill: white; }
 
 .components-zu-lang-control .components-button.components-button {
   height: 50px;
