@@ -15,7 +15,7 @@ const { useCallback, useEffect } = wp.element;
 import metadata from './metadata.js';
 import withSidebar from './../components/with-sidebar.js';
 import LangControl from './../components/lang-control.js';
-import { changeLang, setRawAttributes, updateRawAttributes, switchRawAttributes, useForceUpdater, useOnLangChange } from './../data/use-store.js';
+import { changeLang, setRawAttributes, switchRawAttributes, useForceUpdater, useOnLangChange } from './../data/use-store.js';
 
 // LangControlSetting Edit Component
 
@@ -37,12 +37,6 @@ export function switchAllRelatedBlocks(lang, getBlocks, updateBlockAttributes, c
 	const blockIds = collectAllRelatedBlocks(allBlocks);
 	Zubug.data({ allBlocks, blockIds });
 
-	// reduce(allBlocks, (acc, {clientId, attributes}) => {
-	// 	// const { clientId, }
-	// 	if(has(attributes, 'qtxLang')) acc.push(clientId);
-	// 	return acc;
-	// }, []);
-
 	blockIds.forEach(blockClientId => {
 		// do not update own attributes
 		if(blockClientId !== clientId) {
@@ -58,11 +52,10 @@ const LangControlSetting = (
 // }
 ) => {
 
-	// const editLang = getLang();
 	const forceUpdate = useForceUpdater();
-	const editorLang = useOnLangChange(switchRawAttributes);
+	const editorLang = useOnLangChange(switchRawAttributes); //'() => {}); // switchRawAttributes
 
-	// установить начальные значени RAW аттрибутов при маунтинг
+	// set the initial RAW attributes on mounting the component
 	useEffect(() => {
 		setRawAttributes();
 	}, []);
@@ -70,7 +63,7 @@ const LangControlSetting = (
 	// переключаем язык, сохраняем последнее редактированное значение в raw
 	// и меняем контент элемента на значение соответсвующее новому языку
 	const setLanguage = useCallback(value => {
-		updateRawAttributes();
+		// updateRawAttributes();
 		changeLang(value);
 		forceUpdate();
 		// switchAllRelatedBlocks(value, getBlocks, updateBlockAttributes);

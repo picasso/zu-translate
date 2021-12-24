@@ -4,9 +4,9 @@
 // const { __ } = wp.i18n;
 // const { addFilter } = wp.hooks;
 const { createHigherOrderComponent } = wp.compose;
-const { usePrevious } = wp.compose;
+// const { usePrevious } = wp.compose;
 const { InspectorControls } = wp.blockEditor;
-const { useEffect, useCallback, useRef } = wp.element; // cloneElement, useState, useEffect, useLayoutEffect
+const { useEffect, useCallback, useRef, useMemo } = wp.element; // cloneElement, useState, useEffect, useLayoutEffect
 // const { select, subscribe } = wp.data; //
 
 // Zukit dependencies
@@ -16,9 +16,8 @@ const { useEffect, useCallback, useRef } = wp.element; // cloneElement, useState
 
 // Internal dependencies
 
-import { isSupported, getTranslatedValues, hasRaw, switchContent, createRawContent, updateRawContent } from './../utils.js';
+import { isSupported, getTranslated, hasRaw, switchContent, createRawContent, updateRawContent } from './../utils.js';
 import { changeLang, useForceUpdater, useOnLangChange } from './../data/use-store.js';
-
 import LangControl from './../components/lang-control.js';
 
 const BlockEditLang = (props) => {
@@ -40,17 +39,25 @@ const BlockEditLang = (props) => {
 		// Zubug.data({ lang: qtxLang, raw: qtxRaw }, 'Raw loaded');
 	}
 
-	const forceUpdate = useForceUpdater();
-	const editorLang = useOnLangChange(lang => {
+	const [translatedAtts, translatedValues] = getTranslated(name, attributes);
+
+	// Replace the values of all 'translated' attributes for the required language
+	const replaceContent = useCallback(lang => {
 		const { raw } = rawRef.current;
 		const atts = switchContent(raw, lang, translatedAtts);
 		rawRef.current.lang = lang;
 		setAttributes({ qtxLang: lang, ...atts });
-		Zubug.data({ atts, lang, ref: rawRef.current });
-	});
+		Zubug.data({ atts, lang, ref: rawRef.current, translatedAtts });
+	}, [translatedAtts, setAttributes]);
 
-	const prevLang = usePrevious(qtxLang);
-	const [translatedAtts, translatedValues] = getTranslatedValues(name, attributes);
+	const onChangeLang = useCallback(lang => {
+		changeLang(lang);
+		forceUpdate();
+		Zubug.info(`Language switched {${lang}}`);
+	}, [forceUpdate]);
+
+	const forceUpdate = useForceUpdater();
+	const editorLang = useOnLangChange(replaceContent);
 
 	// конвертировать content в рав если требуется при маунтинг
 	useEffect(() => {
@@ -58,7 +65,17 @@ const BlockEditLang = (props) => {
 			const [ raw, update ] = createRawContent(qtxLang, translatedValues, translatedAtts);
 			rawRef.current.raw = raw;
 			setAttributes({ qtxLang, qtxRaw: raw, ...update });
-			Zubug.data({ lang: qtxLang, raw, update }, 'Raw created');
+			Zubug.data({ lang: qtxLang, raw, update, translatedValues, translatedAtts }, 'Raw created');
+		} else {
+			const { raw } = rawRef.current;
+			const [ fixedRaw ] = createRawContent(qtxLang, translatedValues, translatedAtts, raw);
+			Zubug.data({
+				raw: rawRef.current.raw,
+				fixedRaw: raw !== fixedRaw ? fixedRaw : null,
+				translatedValues,
+				translatedAtts
+			}, raw !== fixedRaw ? 'Raw fixed!' : 'Raw existed!');
+			if(raw !== fixedRaw) rawRef.current.raw = fixedRaw;
 		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
@@ -69,52 +86,43 @@ const BlockEditLang = (props) => {
 		if(hasRaw(rawRef)) {
 			const { raw, lang } = rawRef.current;
 			const updatedRaw = updateRawContent(raw, lang, translatedValues);
+			Zubug.data({ translatedValues, updatedRaw });
 			if(updatedRaw !== rawRef.current.raw) {
 				rawRef.current.raw = updatedRaw;
 				setAttributes({ qtxRaw: updatedRaw });
-				Zubug.data({ updatedRaw }, 'Raw updated');
+				Zubug.data({ updatedRaw, translatedValues }, 'Raw updated');
 			}
 		}
 	// we used a spread element in the dependency array -> we can't statically verify the correct dependencies
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [...translatedValues, setAttributes]);
 
-	// Replace the values of all 'translated' attributes for the required language
-	const replaceContent = useCallback(lang => {
-		// const { raw } = rawRef.current;
-		// // const lang = qtxLang === 'en' ? 'ru' : 'en';
-		// const atts = switchContent(raw, lang, translatedAtts);
-		// rawRef.current.lang = lang;
-		// setAttributes({ qtxLang: lang, ...atts });
-		changeLang(lang);
-		forceUpdate();
-		Zubug.info(`Language switched {${lang}}`);
-	}, [forceUpdate]); // translatedAtts, setAttributes
+	// const prevLang = usePrevious(qtxLang);
+	// useEffect(() => {
+	// 	if(qtxLang !== prevLang) replaceContent(qtxLang);
+	// }, [qtxLang, prevLang, replaceContent]);
 
-	useEffect(() => {
-		if(qtxLang !== prevLang) replaceContent(qtxLang);
-	}, [qtxLang, prevLang, replaceContent]);
-
-	return (
+	return useMemo(() => (
 		<InspectorControls>
 			<LangControl.Panel
 				lang={ editorLang }
-				onClick={ replaceContent }
+				onClick={ onChangeLang }
 			/>
 		</InspectorControls>
-	);
+	), [editorLang, onChangeLang]);
 }
 
 const withRawEditControls = createHigherOrderComponent(BlockEdit => {
 	return (props) => {
 		const {
 			name,
+			clientId,
 			// isSelected,
 		} = props;
 		return (
 			<>
 				<BlockEdit { ...props }/>
-				{ isSupported(name) && <BlockEditLang { ...props }/> }
+				{ isSupported(name) && clientId && <BlockEditLang { ...props }/> }
 			</>
 		);
 	};
