@@ -42,7 +42,7 @@ trait zu_TranslateGutenberg {
 		foreach($post_types as $post_type) {
 			add_filter("rest_prepare_{$post_type}", [$this, 'rest_prepare'], 99, 3);
 		}
-		// add_filter('rest_request_before_callbacks', [$this, 'qt_rest_request_before_callbacks'], 99, 3);
+		// add_filter('rest_request_before_callbacks', [$this, 'request_before_callbacks'], 99, 3);
 		add_filter('rest_request_after_callbacks', [$this, 'request_after_callbacks'], 99, 3);
 	}
 
@@ -60,11 +60,15 @@ trait zu_TranslateGutenberg {
 		return $response;
 	}
 
+	public function request_before_callbacks($response, $handler, $request) {
+zu_logc('request_before_callbacks', $this->request_info($request, $response));
+	}
+
 	// ??? Restore the raw content of the post just updated and set the 'qtx_editor_lang', as for the prepare step
 	public function request_after_callbacks($response, $handler, $request) {
 		if($this->is_eligible_request($request, ['PUT', 'POST'])) {
 			$editor_lang = $request->get_param('editor_lang');
-	zu_logc('request_after_callbacks', $this->request_info($request, $response), $editor_lang);
+// zu_logc('request_after_callbacks', $this->request_info($request, $response), $editor_lang);
 			if(isset($editor_lang)) {
 				$response = $this->select_raw_response_language($response, $editor_lang);
 			}
@@ -238,30 +242,6 @@ trait zu_TranslateGutenberg {
 // zu_logc('restore_block_raw', $rawContent, $lang, $blocks, $last_edited_content);
 		return str_replace($last_edited_content, $rawContent, $content);
 	}
-
-// 	public function translate_render($content, $block) {
-// 		if(in_array($block['blockName'], $this->supported_blocks)) {
-// 			// $content = '<div class="wp-block-paragraph">';
-// 			// $content .= $block_content;
-// 			// $content .= '</div>';
-// // zu_log($content, $block);
-// 			return $this->get_translated_content($content, $block);
-// 		}
-// 		return $content;
-// 	}
-
-	// private function get_translated_content($content, $block) {
-	// 	$atts = $block['attrs'] ?? null;
-	// 	$rawContent = $atts['qtxRaw' ?? 'qtxRaw'] ?? false;
-	// 	if($rawContent) {
-	// 		$lang = $atts['qtxLang'];
-	// 		$blocks = qtranxf_split($rawContent);
-	// 		$selected_content = $blocks[$lang] ?? '';
-	// 		zu_log($rawContent, $lang, $blocks, $selected_content);
-	// 		return str_replace($selected_content, $rawContent, $content);
-	// 	}
-	// 	return $content;
-	// }
 
 	private function gutenberg_data() {
 		return [
