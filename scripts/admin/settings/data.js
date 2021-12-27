@@ -63,13 +63,14 @@ const switcher = {
 };
 
 const gutenberg = {
-	blocks: __('Supported blocks', 'zu-translate'),
+	note: __('Only blocks known to this plugin will support switching languages in the Block Editor.', 'zu-translate'),
+	blockTitle: __('Supported blocks', 'zu-translate'),
 	compress: __('Compress language data to reduce page size', 'zu-translate'),
 	// themeOptions: [
 	// 	{ value: 'light', label: __('Light Theme', 'zu-translate') },
 	// 	{ value: 'dark', label: __('Dark Theme', 'zu-translate') },
 	// ],
-	resetAll: __('Reset All Rules', 'zu-translate'),
+	resetAll: __('Reset Block Editor Settings', 'zu-translate'),
 };
 
 const panels = {

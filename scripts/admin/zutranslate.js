@@ -11,9 +11,9 @@ const { ZukitPanel, ZukitDivider } = wp.zukit.components;
 
 // Internal dependencies
 
-import { zutranslate } from './data.js';
+import { zutranslate } from './settings/data.js';
 // import { pluginInacive } from './hooks/utils.js';
-import ZutranslateBESupport from './besupport.js';
+import ZutranslateBlockEditor from './settings/block-editor.js';
 
 const { options: optionsData, gutenberg, inacive } = zutranslate; // switcher,
 
@@ -47,7 +47,7 @@ const ZutranslateEdit = ({
 				{ toggleOption(optionsData, options, updateOptions) }
 				<ZukitDivider/>
 			</ZukitPanel>
-			<ZutranslateBESupport
+			<ZutranslateBlockEditor
 				data={ gutenberg }
 				options={ options }
 				updateOptions={ updateOptions }
@@ -55,15 +55,6 @@ const ZutranslateEdit = ({
 		</>
 	);
 };
-
-// <ListInputControl
-// 	strict="email"
-// 	label={ notify.label }
-// 	inputLabel={ notify.input }
-// 	help={ notify.help }
-// 	value={ options.notify }
-// 	onChange={ onNotifyChange }
-// />
 
 renderPage('zutranslate', {
 	edit: ZutranslateEdit,
