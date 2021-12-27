@@ -112,7 +112,7 @@ const BlockEditLang = (props) => {
 	), [editorLang, onChangeLang]);
 }
 
-const withRawEditControls = createHigherOrderComponent(BlockEdit => {
+const withRawEditControl = createHigherOrderComponent(BlockEdit => {
 	return (props) => {
 		const {
 			name,
@@ -126,5 +126,5 @@ const withRawEditControls = createHigherOrderComponent(BlockEdit => {
 			</>
 		);
 	};
-}, 'withRawEditControls');
-export default withRawEditControls;
+}, 'withRawEditControl');
+export default withRawEditControl;

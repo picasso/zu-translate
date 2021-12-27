@@ -45,7 +45,8 @@ $lang-control-text-color: $violet-color; // $admin-dark; //
 			.components-button {
 				background-color: $lang-control-selected-color;
 				color: $lang-control-text-color;
-				position: relative;;
+				position: relative;
+				opacity: 0.6;
 				svg {
 					position: absolute;
 					top: -13px;
@@ -54,6 +55,9 @@ $lang-control-text-color: $violet-color; // $admin-dark; //
 					border-radius: 50%;
 					padding: 4px;
 					fill: white;
+				}
+				span {
+					font-weight: 300;
 				}
 			}
 		}
@@ -65,15 +69,15 @@ $lang-control-text-color: $violet-color; // $admin-dark; //
 		transition-property: background-color, color;
 		transition-duration: $transition-time;
 		transition-timing-function: $transition-function;
-		&:hover {
-			background-color: $admin-control-hover-color !important;
-			color: $admin-control-hover-text-color !important;
-		}
 		span {
 			width: 100%;
 			letter-spacing: 1px;
-			font-weight: 500;
+			font-weight: 400;
 			font-family: $admin-control-font-family;
+		}
+		&:hover {
+			background-color: $admin-control-hover-color !important;
+			color: $admin-control-hover-text-color !important;
 		}
 	}
 }
