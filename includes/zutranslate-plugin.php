@@ -190,7 +190,7 @@ class zu_Translate extends zukit_Plugin  {
 	// Script enqueue ---------------------------------------------------------]
 
 	protected function should_load_css($is_frontend, $hook) {
-		return false; //$is_frontend === false && $this->ends_with_slug($hook);
+		return $is_frontend === false && $this->ends_with_slug($hook);
 	}
 
 	protected function should_load_js($is_frontend, $hook) {

@@ -1,0 +1,30 @@
+// Admin Components -----------------------------------------------------------]
+
+$violet-color: #bc2a8d;
+$help-color: #b6895e;
+
+
+.components-base-control__help {
+	color: $help-color !important;
+	font-style: normal !important;
+	em {
+		background-color: rgba($help-color, 0.2) !important;
+		color: $help-color !important;
+		font-style: normal !important;
+	}
+}
+
+.__supported {
+	display: flex;
+	flex-wrap: wrap;
+	column-gap: 30px;
+
+	.components-checkbox-control {
+		.components-base-control__field {
+			margin-bottom: 4px;
+		}
+		.components-base-control__help.components-base-control__help {
+			margin-left: 0;
+		}
+	}
+}
