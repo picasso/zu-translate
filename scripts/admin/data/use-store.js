@@ -30,8 +30,8 @@ export const useUpdateRaw = () => {
 
 // Custom hook which get dispatch method for 'lang' change
 export const useChangeLang = () => {
-    const { changeLang } = useDispatch(ZUTRANSLATE_STORE);
-    return changeLang;
+    const { setLang } = useDispatch(ZUTRANSLATE_STORE);
+    return setLang;
 };
 
 // Custom hook which returns 'raw' by 'key'
@@ -61,17 +61,21 @@ export function getRaw(key) {
 	return select(ZUTRANSLATE_STORE).getRaw(key);
 }
 
-// Custom hook which get dispatch method for 'lang' change
+// custom hook which get dispatch method for 'lang' change
 export function changeLang(value) {
-    const { changeLang } = dispatch(ZUTRANSLATE_STORE);
+    const { setLang } = dispatch(ZUTRANSLATE_STORE);
 	const currentLang = getLang();
-    if(value !== currentLang) changeLang(value);
+    if(value !== currentLang) setLang(value);
 }
 
 // set the initial values for RAW attributes
 export function setRawAttributes() {
 	const { getEditedPostAttribute } = select('core/editor');
-	const { setRaw } = dispatch(ZUTRANSLATE_STORE);
+	const { setRaw, setLang } = dispatch(ZUTRANSLATE_STORE);
+
+	const lang = getEditedPostAttribute('editor_lang');
+	setLang(lang);
+
 	forEach(supportedAtts, (selector, attr) => {
 		const value = getEditedPostAttribute(`${attr}_raw`);
 		setRaw(attr, value);
@@ -106,14 +110,14 @@ export function switchRawAttributes(lang) {
 export function useOnLangChange(callback) {
 	const editorLang = getLang();
 	const prev = usePrevious(editorLang);
-
-	// ????
+	// if the previous language value is defined and not equal to the current value - call the 'callback' function
 	useEffect(() => {
 		if(prev !== undefined && prev !== editorLang) callback(editorLang);
 	}, [prev, editorLang, callback]);
-
 	return editorLang;
 }
+
+
 
 // Custom hook to notify on form removal (also collect form names)
 // export const useOnFormRemove = (clientId, postId, name, updateForm) => {

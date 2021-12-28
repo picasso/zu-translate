@@ -1,4 +1,4 @@
-// // WordPress dependencies
+// WordPress dependencies
 
 const { isEqual, get } = lodash;
 const { registerStore } = wp.data;
@@ -12,7 +12,7 @@ import { editorLang, updateRawContent } from './../utils.js';
 export const ZUTRANSLATE_STORE = 'zutranslate/core';
 
 const TYPES = {
-    CHANGE_LANG: 'CHANGE_LANG',
+    SET_LANG: 'SET_LANG',
     SET_RAW: 'SET_RAW',
     UPDATE_RAW: 'UPDATE_RAW',
 }
@@ -48,7 +48,7 @@ function storeReducer(state = initialState, action) {
             };
             break;
 
-        case TYPES.CHANGE_LANG:
+        case TYPES.SET_LANG:
             interim = {
                 ...state,
                 lang: value,
@@ -75,9 +75,9 @@ const storeActions = {
 			value,
 		};
     },
-    changeLang(value) {
+    setLang(value) {
         return {
-			type: TYPES.CHANGE_LANG,
+			type: TYPES.SET_LANG,
 			value,
 		};
     },

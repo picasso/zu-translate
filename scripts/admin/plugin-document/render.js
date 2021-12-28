@@ -25,21 +25,20 @@ const LangControlSetting = ({
 }) => {
 
 	const forceUpdate = useForceUpdater();
-	const editorLang = useOnLangChange(switchRawAttributes); //'() => {}); // switchRawAttributes
+	const editorLang = useOnLangChange(switchRawAttributes);
 
 	// set the initial RAW attributes on mounting the component
 	useEffect(() => {
 		setRawAttributes();
 	}, []);
 
-	// переключаем язык, сохраняем последнее редактированное значение в raw
-	// и меняем контент элемента на значение соответсвующее новому языку
+	// switch the language, call the update of the component and its parent -
+	// since the update does not happen by itself because we do not store the language value in the component state
+	// (changing the content of the element to the value corresponding to the new language will occur in 'useOnLangChange' hook)
 	const setLanguage = useCallback(value => {
-		// updateRawAttributes();
 		changeLang(value);
 		forceUpdate();
 		forceUpdateParent();
-		// switchAllRelatedBlocks(value, getBlocks, updateBlockAttributes);
 	}, [forceUpdate, forceUpdateParent]);
 
 	return (

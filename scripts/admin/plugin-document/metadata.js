@@ -6,7 +6,7 @@ const { __ } = wp.i18n;
 // name,
 // title,
 // icon,
-// slot     kind of SlotFills which will be used:
+// slot         kind of SlotFills which will be used:
 //              'setting'       - PluginDocumentSettingPanel
 //              'sidebar'       - PluginSidebar
 //              'status'        - PluginPostStatusInfo
@@ -17,14 +17,11 @@ const { __ } = wp.i18n;
 // moreIcon,
 // allowEmptyValues,        when false and metaValues are empty (undefined or null) - nothing will be rendered
 // initialOpen
-// metaKeys     string|array
-//                          if metaKeys is null or missing - meta data will not be requested and functions for updating them will not be created
 
 const metadata = {
     slot: 'setting',
     name: 'zu-language',
-    title: __('Language'),
-    metaKeys: null,
+    title: __('Language', 'zu-translate'),
 };
 
 export default metadata;

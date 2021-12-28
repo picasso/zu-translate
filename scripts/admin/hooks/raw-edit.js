@@ -11,7 +11,6 @@ const { useEffect, useCallback, useRef, useMemo } = wp.element; // cloneElement,
 
 // Zukit dependencies
 
-// const { SelectItemControl } = wp.zukit.components;
 const { useForceUpdater } = wp.zukit.data;
 
 // Internal dependencies
@@ -57,8 +56,12 @@ const BlockEditLang = (props) => {
 	const forceUpdate = useForceUpdater();
 	const editorLang = useOnLangChange(replaceContent);
 
+
 	// конвертировать content в рав если требуется при маунтинг
 	useEffect(() => {
+		// synchronize the first time 'qtxLang' attribute and 'editorLang'
+		if(qtxLang !== editorLang) replaceContent(editorLang);
+		
 		if(!hasRaw(rawRef)) {
 			const [ raw, update ] = createRawContent(qtxLang, translatedValues, translatedAtts);
 			rawRef.current.raw = raw;
