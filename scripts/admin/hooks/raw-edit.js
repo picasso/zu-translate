@@ -12,12 +12,12 @@ const { useEffect, useCallback, useRef, useMemo } = wp.element; // cloneElement,
 // Zukit dependencies
 
 // const { SelectItemControl } = wp.zukit.components;
-// const { useRefInit } = wp.zukit.data;
+const { useForceUpdater } = wp.zukit.data;
 
 // Internal dependencies
 
 import { isSupported, getTranslated, hasRaw, switchContent, createRawContent, updateRawContent } from './../utils.js';
-import { changeLang, useForceUpdater, useOnLangChange } from './../data/use-store.js';
+import { changeLang, useOnLangChange } from './../data/use-store.js';
 import LangControl from './../components/lang-control.js';
 
 const BlockEditLang = (props) => {
@@ -32,11 +32,9 @@ const BlockEditLang = (props) => {
 		qtxLang = 'en',
 	} = attributes;
 
-	// Zubug.useMU();
 	const rawRef = useRef(null);
 	if(rawRef.current === null) {
 		rawRef.current = { lang: qtxLang, raw: qtxRaw };
-		// Zubug.data({ lang: qtxLang, raw: qtxRaw }, 'Raw loaded');
 	}
 
 	const [translatedAtts, translatedValues] = getTranslated(name, attributes);
@@ -117,7 +115,6 @@ const withRawEditControl = createHigherOrderComponent(BlockEdit => {
 		const {
 			name,
 			clientId,
-			// isSelected,
 		} = props;
 		return (
 			<>

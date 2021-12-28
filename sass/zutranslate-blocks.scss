@@ -32,13 +32,12 @@ $transition-cubic: cubic-bezier(0.33, 0, 0.2, 1) !default;
 $select-item-class: zukit-select-item;
 $lang-control-class: components-zu-lang-control;
 
-
 $lang-control-height: 50px;
 $lang-control-selected-color: rgba($violet-color, 0.3);
-$lang-control-text-color: $violet-color; // $admin-dark; //
+$lang-control-text-color: $violet-color;
 
 .#{$lang-control-class} {
-	// .#{$select-item-class} {
+	margin-top: 12px;
 	.#{$select-item-class}__button-wrapper{
 		&.is-selected {
 			box-shadow: none;
