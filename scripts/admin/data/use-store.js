@@ -1,57 +1,18 @@
 // WordPress dependencies
 
-const { keys, forEach, castArray, includes, some, has, set } = lodash;
+const { keys, forEach, includes, some, has, set } = lodash;
 const { usePrevious } = wp.compose;
 const { useEffect  } = wp.element; // useCallback, useRef
-const { select, dispatch, useSelect, useDispatch } = wp.data; // subscribe,
+const { select, dispatch } = wp.data; // subscribe,
 const { apiFetch } = wp;
 
 // Internal dependencies
 
-import { getLangContent, getInputValue, changeInputValue, addInputListener } from './../utils.js';
-import { ZUTRANSLATE_STORE } from './raw-store.js';
-
-const supportedAtts = {
-	title: '.editor-post-title__input',
-	excerpt: '.editor-post-excerpt__textarea .components-textarea-control__input',
-};
-
-const supportedKeys = keys(supportedAtts);
+import { ZUTRANSLATE_STORE, supportedKeys } from './raw-store.js';
 
 const activateDebug = false;
 
-// Custom hooks & helpers -----------------------------------------------------]
-
-// Custom hook which get dispatch method for 'Raw' data update
-export const useUpdateRaw = () => {
-    const { updateRaw } = useDispatch(ZUTRANSLATE_STORE);
-    return updateRaw;
-};
-
-// Custom hook which get dispatch method for 'lang' change
-export const useChangeLang = () => {
-    const { setLang } = useDispatch(ZUTRANSLATE_STORE);
-    return setLang;
-};
-
-// Custom hook which returns 'raw' by 'key'
-export const useGetRaw = (key) => {
-	const { value = null } = useSelect(select => {
-		return { value: select(ZUTRANSLATE_STORE).getRaw(key) };
-	}, []);
-	return value;
-};
-
-// Custom hook which returns 'raw' by 'key'
-export const useGetLang = () => {
-	const { value = null } = useSelect(select => {
-		return { value: select(ZUTRANSLATE_STORE).getLang() };
-	}, []);
-	return value;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
+// Custom hooks & helpers for 'store' -----------------------------------------]
 
 export function getLang() {
 	return select(ZUTRANSLATE_STORE).getLang();
@@ -61,50 +22,30 @@ export function getRaw(key) {
 	return select(ZUTRANSLATE_STORE).getRaw(key);
 }
 
+export function getHooks() {
+	return select(ZUTRANSLATE_STORE).getHooks();
+}
+
+export function setRaw(attribute, value) {
+	const { setRaw: setRawValue } = dispatch(ZUTRANSLATE_STORE);
+	setRawValue(attribute, value);
+}
+
+export function updateRaw(attribute, value) {
+	const { updateRaw: updateRawValue } = dispatch(ZUTRANSLATE_STORE);
+	updateRawValue(attribute, value);
+}
+
+export function addHook(id, hook) {
+	const { setHook } = dispatch(ZUTRANSLATE_STORE);
+	setHook(id, hook);
+}
+
 // custom hook which get dispatch method for 'lang' change
 export function changeLang(value) {
     const { setLang } = dispatch(ZUTRANSLATE_STORE);
 	const currentLang = getLang();
     if(value !== currentLang) setLang(value);
-}
-
-// set the initial values for RAW attributes
-export function setRawAttributes() {
-	const { getEditedPostAttribute } = select('core/editor');
-	const { setRaw, setLang } = dispatch(ZUTRANSLATE_STORE);
-
-	const lang = getEditedPostAttribute('editor_lang');
-	setLang(lang);
-
-	forEach(supportedAtts, (selector, attr) => {
-		const value = getEditedPostAttribute(`${attr}_raw`);
-		setRaw(attr, value);
-		addInputListener(selector, () => updateRawAttributes(attr));
-	});
-}
-
-// update RAW attributes before changing language
-// (if 'onlyAtts' is not null - update RAW for these attributes only)
-export function updateRawAttributes(onlyAtts = null) {
-	const { updateRaw } = dispatch(ZUTRANSLATE_STORE);
-	onlyAtts = onlyAtts === null ? null : castArray(onlyAtts);
-	forEach(supportedAtts, (selector, attr) => {
-		if(onlyAtts === null || includes(onlyAtts, attr)) {
-			const value = getInputValue(selector);
-			updateRaw(attr, value);
-		}
-	});
-}
-
-// select content for the language from the RAW value and set it in the INPUT element
-export function switchRawAttributes(lang) {
-	forEach(supportedAtts, (selector, attr) => {
-		const rawValue = getRaw(attr);
-		if(rawValue !== undefined) {
-			const renderedValue = getLangContent(rawValue, lang);
-			changeInputValue(selector, renderedValue, true);
-		}
-	});
 }
 
 export function useOnLangChange(callback) {
@@ -117,29 +58,15 @@ export function useOnLangChange(callback) {
 	return editorLang;
 }
 
-
-
-// Custom hook to notify on form removal (also collect form names)
-// export const useOnFormRemove = (clientId, postId, name, updateForm) => {
-//
-// 	const formRef = useRef({ clientId, postId, name, updateForm });
-//
-// 	// 'updateForm' will be called on form removing only
-// 	useEffect(() => {
-// 		return () => {
-// 			const { clientId, name, updateForm } = formRef.current || {};
-// 			updateForm(name, TYPES.PURGE_FORM);
-// 			// delete form name from common list
-// 			updateName(clientId, name, true);
-// 		}
-// 	}, []);
-//
-// 	// in order to maintain a list of all the names for the forms on the page
-// 	useEffect(() => {
-// 		updateName(clientId, name);
-// 		formRef.current = { clientId, postId, name, updateForm };
-// 	}, [clientId, postId, name, updateForm]);
-// }
+export function useLangHook(clientId, updater) {
+	useEffect(() => {
+		const { setHook, removeHook } = dispatch(ZUTRANSLATE_STORE);
+		setHook(clientId, updater);
+		return () => removeHook(clientId);
+	// 'clientId' and 'updater' never change, 'useEffect' will be called only on mounting and unmounting the component
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+}
 
 // Hook on the post saving ----------------------------------------------------]
 

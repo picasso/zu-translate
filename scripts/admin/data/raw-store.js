@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { isEqual, get } = lodash;
+const { keys, isEqual, get, omit } = lodash;
 const { registerStore } = wp.data;
 
 // Internal dependencies
@@ -9,17 +9,26 @@ import { editorLang, updateRawContent } from './../utils.js';
 
 // Create and register Zu Translate store -------------------------------------]
 
+export const supportedAtts = {
+	title: '.editor-post-title__input',
+	excerpt: '.editor-post-excerpt__textarea .components-textarea-control__input',
+};
+
+export const supportedKeys = keys(supportedAtts);
+
 export const ZUTRANSLATE_STORE = 'zutranslate/core';
 
 const TYPES = {
     SET_LANG: 'SET_LANG',
     SET_RAW: 'SET_RAW',
     UPDATE_RAW: 'UPDATE_RAW',
+    SET_HOOK: 'SET_HOOK',
+    REMOVE_HOOK: 'REMOVE_HOOK',
 }
 
 const initialState = {
     lang: editorLang,
-    dirty: false,
+    hooks: {},
 };
 
 const activateDebug = false;
@@ -54,6 +63,23 @@ function storeReducer(state = initialState, action) {
                 lang: value,
             };
             break;
+
+        case TYPES.SET_HOOK:
+            interim = {
+                ...state,
+                hooks: {
+                    ...state.hooks,
+                    [key]: value,
+                },
+            };
+            break;
+
+        case TYPES.REMOVE_HOOK:
+            interim = {
+                ...state,
+                hooks: omit(state.hooks, key),
+            };
+            break;
     }
 
     if(activateDebug) Zubug.data({ state, type, key, value, isEqual: isEqual(state, interim) });
@@ -81,6 +107,19 @@ const storeActions = {
 			value,
 		};
     },
+    setHook(id, hook) {
+        return {
+			type: TYPES.SET_HOOK,
+            key: id,
+			value: hook,
+		};
+    },
+    removeHook(id) {
+        return {
+			type: TYPES.REMOVE_HOOK,
+            key: id,
+		};
+    },
 };
 
 registerStore(ZUTRANSLATE_STORE, {
@@ -92,6 +131,9 @@ registerStore(ZUTRANSLATE_STORE, {
         },
         getLang(state) {
             return get(state, 'lang');
+        },
+        getHooks(state) {
+            return get(state, 'hooks');
         },
     },
     controls: {},

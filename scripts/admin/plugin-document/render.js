@@ -14,22 +14,33 @@ const { useForceUpdater } = wp.zukit.data;
 
 import metadata from './metadata.js';
 import LangControl from './../components/lang-control.js';
-import { changeLang, getLang, setRawAttributes, switchRawAttributes, useOnLangChange } from './../data/use-store.js';
+import { changeLang, getLang, useOnLangChange } from './../data/use-store.js';
+import { setRawAttributes, switchRawAttributes, registerRootUpdater, syncBlocks } from './../data/raw-helpers.js';
 
 // LangControlSetting Component
 
+const rootClientId = 'rawRoot';
+
 const LangControlSetting = ({
 	forceUpdate: forceUpdateParent,
-	// getBlocks,
-	// updateBlockAttributes,
 }) => {
 
 	const forceUpdate = useForceUpdater();
 	const editorLang = useOnLangChange(switchRawAttributes);
 
-	// set the initial RAW attributes on mounting the component
+	// combine two functions for updates to one
+	// const forceUpdateAll = useCallback(() => {
+	// 	forceUpdate();
+	// 	forceUpdateParent();
+	// // 'forceUpdate' and 'forceUpdateParent' never change
+	// // eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, []);
+
 	useEffect(() => {
+		// set the initial RAW attributes on mounting the component
 		setRawAttributes();
+		// register 'rootUpdater' for subsequent language synchronization
+		registerRootUpdater();
 	}, []);
 
 	// switch the language, call the update of the component and its parent -
@@ -39,7 +50,10 @@ const LangControlSetting = ({
 		changeLang(value);
 		forceUpdate();
 		forceUpdateParent();
-	}, [forceUpdate, forceUpdateParent]);
+		syncBlocks(rootClientId);
+	// 'forceUpdateAll' never change
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<LangControl
