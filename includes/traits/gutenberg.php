@@ -93,7 +93,6 @@ zu_logc('request_before_callbacks', $this->debug_request_info($request, $respons
 		$response_data = $response->get_data();
 		$update_data = false;
 		if(isset($response_data['title']['raw'])) {
-		// if( isset( $response_data['content'] ) && is_array( $response_data['content'] ) && isset( $response_data['content']['raw'] ) ) {
 			$response_data['title_raw'] = $response_data['title']['raw'];
 			$response_data['title']['raw'] = qtranxf_use($lang, $response_data['title']['raw'], false, true);
 			$update_data = true;
@@ -104,6 +103,7 @@ zu_logc('request_before_callbacks', $this->debug_request_info($request, $respons
 			$update_data = true;
 		}
 		if($update_data) {
+			// NOTE: нужно ли 'editor_lang' сейчас??
 			$response_data['editor_lang'] = $lang;
 			$response->set_data($response_data);
 		}
@@ -162,7 +162,7 @@ zu_logc('request_before_callbacks', $this->debug_request_info($request, $respons
 	   // }
 
 	   return $response;
-   }
+	}
 
 
 
@@ -177,14 +177,9 @@ zu_logc('request_before_callbacks', $this->debug_request_info($request, $respons
 		return $enabled_post_types;
 	}
 
-	// public function test_content($content) {
-	// 	zu_logc('the_content', $content);
-	// 	return $content;
-	// }
-
 	public function pre_render_posts($posts, $query) {
 		if(!is_array($posts)) return $posts;
-		if($query->query_vars['post_type'] === 'nav_menu_item')  return $posts;
+		if($query->query_vars['post_type'] === 'nav_menu_item') return $posts;
 		foreach($posts as $post) {
 			$result = $this->restore_post_content($post);
 			if($result) zu_logc('the_posts', $post);
@@ -228,6 +223,7 @@ zu_logc('request_before_callbacks', $this->debug_request_info($request, $respons
 	private function gutenberg_data() {
 		return [
 			'supported' => $this->supported_data ?? [],
+			'lang'		=> $this->get_url_param('language'),
 		];
 	}
 
@@ -242,9 +238,8 @@ zu_logc('request_before_callbacks', $this->debug_request_info($request, $respons
 			'body'			=> $request->get_body(),
 			'body_params'	=> $request->get_body_params(),
 			'route'			=> $request->get_route(),
-			// 'attributes'	=> $request->get_attributes(),
 			'content_type'	=> $request->get_content_type(),
-			// 'response'		=> $response ?? null,
+			'response'		=> $response ?? null,
 			'data'			=> $data,
 		];
 	}
