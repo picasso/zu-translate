@@ -2,7 +2,7 @@
 
 const { keys, forEach, castArray, includes, some, has, set } = lodash;
 const { usePrevious } = wp.compose;
-const { useReducer, useEffect  } = wp.element; // useCallback, useRef
+const { useEffect  } = wp.element; // useCallback, useRef
 const { select, dispatch, useSelect, useDispatch } = wp.data; // subscribe,
 const { apiFetch } = wp;
 
@@ -101,12 +101,6 @@ export function switchRawAttributes(lang) {
 			changeInputValue(selector, renderedValue, true);
 		}
 	});
-}
-
-
-export function useForceUpdater() {
-	const [, forceUpdate] = useReducer(z => z + 1, 0);
-	return forceUpdate;
 }
 
 export function useOnLangChange(callback) {

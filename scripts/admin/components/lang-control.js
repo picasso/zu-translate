@@ -10,11 +10,10 @@ window.Zubug = { ...(wp.zukit.debug  || {}) };
 
 // Zukit dependencies
 
-const { SelectItemControl } = wp.zukit.components;
+const { SelectItemControl, TitleIndicator } = wp.zukit.components;
 
 // Internal dependencies
 
-import PanelTitleIndicator from './panel-indicator.js';
 const { language_config: config } = window.qTranslateConfig ?? {};
 const langOptions = map(config, (data, key) => ({ value: key, label: data.name }));
 
@@ -31,25 +30,29 @@ export const tick = (
 </SVG>
 );
 
-// function transformLangValue(value, label, style) {
-// 	return (
-// 		<span className="__lang" style={ style }>{ label }tick</span>
-// 	);
-// }
+const LangIndicator = ({
+	title,
+	lang,
+	colored,
+}) => {
+	return (
+		<TitleIndicator
+			title={ title ?? __('Language', 'zu-translate') }
+			value={ lang }
+			colored={ colored }
+		/>
+	);
+}
 
-// Zubug.data({ langOptions });
-
-const LangControl = (props
-// 	{
-// 	title,
-// 	lang,
-// 	onClick,
-// 	withPanel,
-// 	...additionalProps
-// }
-) => {
-	const { title, lang, onClick, withPanel, ...additionalProps } = props;
-	Zubug.useTrace(props);
+const LangControl = ({
+	title,
+	lang,
+	onClick,
+	withPanel,
+	...additionalProps
+}) => {
+	// const { title, lang, onClick, withPanel, ...additionalProps } = props;
+	// Zubug.useTrace(props);
 
 	const langValue = useCallback((value, label, style) => {
 		return (
@@ -66,7 +69,6 @@ const LangControl = (props
 	const langControl = (
 		<SelectItemControl
 			className={ langPrefix }
-			// withLabels
 			options={ langOptions }
 			selectedItem={ lang }
 			onClick={ onClick }
@@ -75,13 +77,7 @@ const LangControl = (props
 	);
 
 	if(withPanel) {
-		const titleWithIndicator = (
-			<PanelTitleIndicator
-				// isColor
-				title={ title ?? __('Language', 'zu-translate') }
-				value={ lang }
-			/>
-		);
+		const titleWithIndicator = <LangIndicator title={ title } lang={ lang }/>;
 		const panelProps =pick(additionalProps, [
 			'buttonProps',
 			'className',
@@ -91,12 +87,9 @@ const LangControl = (props
 			'initialOpen',
 			'onToggle'
 		]);
-// Zubug.data({ titleWithIndicator, panelProps, lang });
 		return (
 			<PanelBody
 				title={ titleWithIndicator }
-				// onToggle={ onPanelToggle }
-				// initialOpen={ initialOpen }
 				{ ...panelProps }
 			>
 				{ langControl }
@@ -107,9 +100,5 @@ const LangControl = (props
 }
 
 LangControl.Panel = props => <LangControl withPanel { ...props }/>;
+LangControl.Indicator = LangIndicator;
 export default LangControl;
-
-
-// "prettier": "^2.4.1",
-// "typescript": "^4.5.2"
-// "@wordpress/eslint-plugin": "^7.4.0",
