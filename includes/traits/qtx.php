@@ -48,9 +48,16 @@ trait zu_TranslateQT {
 		return $this->is_multilang;
 	}
 
-	protected function get_lang() {
+	protected function get_lang($detailed = false) {
 		global $q_config;
-		return $this->is_multilang() ? $q_config['language'] : '';
+		if(!$this->is_multilang()) return $detailed ? [] : '';
+		$code = $q_config['language'];
+		return $detailed ? [
+			'code'		=> $code,
+			'locale'	=> $q_config['locale'][$code],
+			'name'		=> $q_config['language_name'][$code],
+			'flag'		=> $this->sprintf_uri('%s%s', $q_config['flag_location'] ?? '', $q_config['flag'][$code]),
+		] : $code;
 	}
 
 	protected function get_all_languages($sorted = true) {
@@ -89,6 +96,9 @@ trait zu_TranslateQT {
 		global $q_config;
 		return $param ? ($q_config['url_info'][$param] ?? null) : ($q_config['url_info'] ?? null);
 	}
+
+
+	////////////////////////////////////////////////////////////////////////////
 
 
 	// return array of content for all languages
@@ -156,6 +166,8 @@ trait zu_TranslateQT {
 		return $raw_content;
 	}
 
+	////////////////////////////////////////////////////////////////////////////
+
 	private function qtx_data() {
 		global $q_config;
 		return $this->is_multilang() ? [
@@ -181,7 +193,7 @@ trait zu_TranslateQT {
 			],
 			'qtx_languages'	=> [
 					'label'		=> __('Enabled languages', 'zu-translate'),
-					'value'		=> implode(' ', array_map(function($l) { return '`'.strtoupper($l).'`'; }, $languages)),
+					'value'		=> implode(' ', array_map(function($l) { return sprintf('`%s`', strtoupper($l)); }, $languages)),
 			],
 		];
 	}
