@@ -6,6 +6,7 @@ trait zu_TranslateGutenberg {
 
 	private $supported_blocks = null;
 	private $supported_data = null;
+	private $multicontent_separator = '[,]';
 	private $default_blocks = [
 		'core/paragraph'		=> ['name' => 'Paragraph', 'atts' => 'content'],
 		'core/heading'			=> ['name' => 'Heading', 'atts' => 'content'],
@@ -27,14 +28,12 @@ trait zu_TranslateGutenberg {
 				$this->supported_blocks = array_keys($supported);
 				add_filter('the_posts', [$this, 'pre_render_posts'], 0, 2);
 				add_action('rest_api_init', [$this, 'rest_api_init']);
-				// add_filter('render_block', [$this, 'translate_render'], 10, 2);
 
 				// pro tempora!
 				$this->qtx_gutenberg_reset();
 			}
 		}
 	}
-
 
 	public function rest_api_init() {
 		$post_types = $this->enabled_post_types();
@@ -46,23 +45,19 @@ trait zu_TranslateGutenberg {
 		add_filter('rest_request_after_callbacks', [$this, 'request_after_callbacks'], 99, 3);
 	}
 
-	// Prepare the REST request for a post being edited
-	// Set the raw content and the 'qtx_editor_lang' field for the current language.
+	// prepare the REST request for a post being edited
+	// set the raw content // NOTE: ??? and the 'qtx_editor_lang' field for the current language.
 	public function rest_prepare($response, $post, $request) {
-// zu_logc('rest_prepare', $this->debug_request_info($request, $response));
 		if($this->is_eligible_request($request, 'GET', $post)) {
-
-// // zu_log($q_config, use_block_editor_for_post($post));
-// // if(!use_block_editor_for_post($post)) return $response;
 			$url_lang = $this->get_url_param('language');
-			$response = $this->select_raw_response_language($response, $url_lang);
+			$response = $this->modify_rest_response($response, $url_lang);
 		}
 		return $response;
 	}
 
-	public function request_before_callbacks($response, $handler, $request) {
-zu_logc('request_before_callbacks', $this->debug_request_info($request, $response));
-	}
+// 	public function request_before_callbacks($response, $handler, $request) {
+// zu_logc('request_before_callbacks', $this->debug_request_info($request, $response));
+// 	}
 
 	// ??? Restore the raw content of the post just updated and set the 'qtx_editor_lang', as for the prepare step
 	public function request_after_callbacks($response, $handler, $request) {
@@ -70,11 +65,24 @@ zu_logc('request_before_callbacks', $this->debug_request_info($request, $respons
 			$editor_lang = $request->get_param('editor_lang');
 // zu_logc('request_after_callbacks', $this->debug_request_info($request, $response), $editor_lang);
 			if(isset($editor_lang)) {
-				$response = $this->select_raw_response_language($response, $editor_lang);
+				$response = $this->modify_rest_response($response, $editor_lang);
 			}
 		}
 		return $response;
 	}
+
+	// replace the latest editable content on RAW content for all attributes
+	public function pre_render_posts($posts, $query) {
+		if(!is_array($posts)) return $posts;
+		if($query->query_vars['post_type'] === 'nav_menu_item') return $posts;
+		foreach($posts as $post) {
+			$result = $this->restore_post_content($post);
+			if($result) zu_logc('the_posts', $post);
+	    }
+		return $posts;
+	}
+
+	// internal helpers -------------------------------------------------------]
 
 	private function is_eligible_request($request, $method = 'GET', $post = null) {
 		$context = 'edit';
@@ -88,8 +96,8 @@ zu_logc('request_before_callbacks', $this->debug_request_info($request, $respons
 		return in_array($request->get_method(), $method);
 	}
 
-	// Replace the multi-language raw content with only the current language used for edition and set 'qtx_editor_lang'
-	private function select_raw_response_language($response, $lang) {
+	// replace the multi-language raw content with only the current language used for edition and set 'qtx_editor_lang'
+	private function modify_rest_response($response, $lang) {
 		$response_data = $response->get_data();
 		$update_data = false;
 		if(isset($response_data['title']['raw'])) {
@@ -110,94 +118,17 @@ zu_logc('request_before_callbacks', $this->debug_request_info($request, $respons
 		return $response;
 	}
 
-	public function qt_rest_request_before_callbacks($response, $handler, $request) {
-
-		// zu_logc('rest_request_before_callbacks', $this->debug_request_info($request, $response));
-
-		if($this->is_eligible_request($request, ['POST', 'PUT'])) {
-		}
-
-		// if($request->get_method() !== 'PUT' && $request->get_method() !== 'POST') {
-		//    return $response;
-	   // }
-	   //
-	   // $editor_lang = $request->get_param('qtx_editor_lang');
-	   // if(!isset($editor_lang)) {
-		//    return $response;
-	   // }
-	   //
-	   // $request_body = json_decode($request->get_body(), true);
-	   // $post = get_post($request->get_param('id'), ARRAY_A);
-	   //
-	   // $fields = ['title', 'content', 'excerpt'];
-	   // foreach($fields as $field) {
-		//    if(! isset($request_body[ $field ])) {
-		// 	   continue; // only the changed fields are set in the REST request
-		//    }
-	   //
-		//    // split original values with empty strings by default
-		//    $original_value = $post[ 'post_' . $field ];
-		//    $split = qtranxf_split($original_value);
-	   //
-		//    // replace current language with the new value
-		//    $split[ $editor_lang ] = $request_body[ $field ];
-	   //
-		//    // remove auto-draft default title for other languages (not the correct translation)
-		//    if($field === 'title' && $post['post_status'] === 'auto-draft') {
-		// 	   global $q_config;
-		// 	   foreach ($q_config['enabled_languages'] as $lang) {
-		// 		   if($lang !== $editor_lang) {
-		// 			   $split[ $lang ] = '';
-		// 		   }
-		// 	   }
-		//    }
-	   //
-		//    // TODO handle custom separator
-		//    //$sep = '[';
-		//    //$new_data = qtranxf_collect_translations_deep($split, $sep);
-		//    //$new_data = qtranxf_join_texts($split, $sep);
-		//    $new_data = qtranxf_join_b($split);
-	   //
-		//    $request->set_param($field, $new_data);
-	   // }
-
-	   return $response;
-	}
-
-
-
-	private function enabled_post_types() {
-		global $q_config;
-		$enabled_post_types = [];
-		$post_types = get_post_types(['show_in_rest' => true]);
-			foreach($post_types as $post_type) {
-				$post_type_excluded = in_array($post_type, $q_config['post_type_excluded'] ?? []);
-				if(!$post_type_excluded) $enabled_post_types[] = $post_type;
-			}
-		return $enabled_post_types;
-	}
-
-	public function pre_render_posts($posts, $query) {
-		if(!is_array($posts)) return $posts;
-		if($query->query_vars['post_type'] === 'nav_menu_item') return $posts;
-		foreach($posts as $post) {
-			$result = $this->restore_post_content($post);
-			if($result) zu_logc('the_posts', $post);
-	    }
-		return $posts;
-	}
-
 	private function restore_post_content($post) {
 		$content = $post->post_content;
 // zu_log('pre_post_content', $content);
-		// first quick check if we have at least one 'qtxRaw' attribute
+		// at first quick check if we have at least one 'qtxRaw' attribute
 		if(strpos($content, 'qtxRaw') !== false) {
 			$blocks = parse_blocks($content);
 			foreach($blocks as $block) {
-				[$rawContent, $lang] = $this->get_block_atts($block);
-				if($rawContent) {
+				[$raw_content, $lang] = $this->get_block_atts($block);
+				if($raw_content) {
 					$block_content = render_block($block);
-					$block_raw_content = $this->restore_block_raw($block_content, $rawContent, $lang);
+					$block_raw_content = $this->restore_block_raw($block_content, $raw_content, $lang);
 // zu_logc('str_replace', $block_content, $block_raw_content);
 					$content = str_replace($block_content, $block_raw_content, $content);
 				}
@@ -213,11 +144,30 @@ zu_logc('request_before_callbacks', $this->debug_request_info($request, $respons
 		return [$atts['qtxRaw'] ?? false, $atts['qtxLang'] ?? false];
 	}
 
-	private function restore_block_raw($content, $rawContent, $lang) {
-		$blocks = qtranxf_split($rawContent);
-		$last_edited_content = $blocks[$lang] ?? '';
-// zu_logc('restore_block_raw', $rawContent, $lang, $blocks, $last_edited_content);
-		return str_replace($last_edited_content, $rawContent, $content);
+	private function restore_block_raw($content, $raw_content, $lang) {
+		// divide RAW on content blocks for each attribute
+		// (usually attribute for content only one, but sometimes several)
+		$raw_blocks = explode($this->multicontent_separator, $raw_content);
+		foreach($raw_blocks as $raw) {
+			// replace the latest editable content on RAW content for this attribute
+			// (which will later be used by the 'qTranslate-XT' plugin)
+			$blocks = qtranxf_split($raw);
+			$last_edited_content = $blocks[$lang] ?? '';
+			$content = str_replace($last_edited_content, $raw, $content);
+// zu_logc('restore_block_raw', $raw, $lang, $blocks, $last_edited_content);
+		}
+		return $content;
+	}
+
+	private function enabled_post_types() {
+		global $q_config;
+		$enabled_post_types = [];
+		$post_types = get_post_types(['show_in_rest' => true]);
+			foreach($post_types as $post_type) {
+				$post_type_excluded = in_array($post_type, $q_config['post_type_excluded'] ?? []);
+				if(!$post_type_excluded) $enabled_post_types[] = $post_type;
+			}
+		return $enabled_post_types;
 	}
 
 	private function gutenberg_data() {
@@ -227,6 +177,7 @@ zu_logc('request_before_callbacks', $this->debug_request_info($request, $respons
 		];
 	}
 
+	// it's only necessary for debugging, then can be deleted
 	private function debug_request_info($request, $response) {
 		$data = $response ? $response->get_data() : null;
 		if($data) unset($data['content']);
