@@ -4,6 +4,7 @@
 include_once('traits/ajax.php');
 include_once('traits/qtx.php');
 include_once('traits/gutenberg.php');
+include_once('traits/shortcode.php');
 
 class zu_Translate extends zukit_Plugin  {
 
@@ -13,8 +14,8 @@ class zu_Translate extends zukit_Plugin  {
 	private $sizes = null;
 	// private $clean = null;
 
-	// qT-XT helpers, REST API and 'Gutenberg' support
-	use zu_TranslateQT, zu_TranslateAjax, zu_TranslateGutenberg;
+	// qT-XT helpers, shortcodes, REST API and 'Gutenberg' support
+	use zu_TranslateQT, zu_TranslateAjax, zu_TranslateGutenberg, zu_TranslateShortcode;
 
 	protected function config() {
 		return  [
@@ -162,6 +163,7 @@ class zu_Translate extends zukit_Plugin  {
 		$this->init_qtx_support();
 		$this->init_gutenberg_support();
 		$this->register_snippets();
+		$this->add_shortcoses();
 	}
 
 	// Custom menu position ---------------------------------------------------]
