@@ -1,17 +1,17 @@
 // WordPress dependencies
 
-const { get, map, castArray, join, includes, without } = lodash;
+const { get, map, isEmpty, mapKeys, castArray, join, split, compact, includes, without, omit, keys, has } = lodash;
 const { __ } = wp.i18n;
-const { Button, CheckboxControl } = wp.components; // BaseControl,
-const { useCallback } = wp.element;
+const { Button, CheckboxControl, ToggleControl } = wp.components;
+const { useCallback, useState } = wp.element;
 
 // Zukit dependencies
 
-const { ZukitDivider, ZukitPanel } = wp.zukit.components; // , AdvTextControl
-const { simpleMarkdown, getExternalData } = wp.zukit.utils;
+const { ZukitDivider, ZukitPanel, AdvTextControl, ListInputControl } = wp.zukit.components;
+const { simpleMarkdown, getExternalData, messageWithError } = wp.zukit.utils;
+const { scrollTop } = wp.zukit.jq;
 
-
-const blockEditorKey = 'zutranslate_blockeditor_options';
+const blockEditorKey = 'blockeditor';
 const supported = getExternalData('supported', {});
 
 function contentAtts(atts) {
@@ -19,40 +19,85 @@ function contentAtts(atts) {
 	return simpleMarkdown(`${comment}\`${join(castArray(atts), '` `')}\``);
 }
 
+function testCustomBlock(name, blockAtts, customBlocks) {
+	const nameRegex = /^(?!\d)[\w$]+\/(?!\d)[\w$]+$/;
+	const atts = compact(split(blockAtts, ','));
+	let error = nameRegex.test(name) ? null : { msg: 'errName', value: isEmpty(name) ? null : name };
+	if(error === null && has(customBlocks, name)) error = { msg: 'errDups', value: name };
+	if(error === null && atts.length === 0) error = { msg: 'errAtts', value: null };
+	return { name, atts, error };
+}
+
 const ZutranslateBlockEditor = ({
 	data,
 	options,
 	updateOptions,
-	// resetOptions,
-	// ajaxAction,
+	resetOptions,
+	ajaxAction,
+	noticeOperations,
 }) => {
 
+	const { createNotice } = noticeOperations;
 	const blockEditorOps = get(options, blockEditorKey, {});
 	const excludedBlocks = get(blockEditorOps, 'excluded', []);
-	const resetRules = useCallback(() => {
-		// resetOptions([
-		// 	`${blockEditorKey}.add_rewrite`,
-		// 	`${blockEditorKey}.rewrite`,
-		// 	'tag_rewrite',
-		// 	'category_rewrite'
-		// ], () => ajaxAction('zumedia_flush_rewrite')); resetOptions, ajaxAction
-	}, []);
+	const { sync, excluded, supported: customBlocks } = blockEditorOps;
+
+	const [ customName, setCustomName ] = useState('');
+	const [ customAtts, setCustomAtts ] = useState('');
+	const [ supportedBlocks, setSupportedBlocks ] = useState(supported);
+
+	const resetBEOptions = useCallback(() => {
+		resetOptions(blockEditorKey,
+			() => ajaxAction('zutranslate_reset_supported', blocks => {
+				setSupportedBlocks(blocks);
+				scrollTop();
+			})
+		);
+	}, [resetOptions, ajaxAction]);
+
+	const updateBEOptions = useCallback(update => {
+		const folderUpdate = mapKeys(update, (_, key) => `${blockEditorKey}.${key}`);
+		updateOptions(folderUpdate);
+	}, [updateOptions]);
 
 	const excludeBlock = useCallback((checked, block) => {
-		let excluded = get(blockEditorOps, 'excluded', []);
-		if(checked) excluded = without(excluded, block);
-		else excluded.push(block);
-		updateOptions({ [`${blockEditorKey}.excluded`]: excluded });
-	}, [blockEditorOps, updateOptions]);
+		if(checked) updateBEOptions({ excluded: without(excluded, block) });
+		else updateBEOptions({ excluded: [...excluded, block] });
+	}, [excluded, updateBEOptions]);
+
+	const addBlock = useCallback(() => {
+		const { name, atts, error } = testCustomBlock(customName, customAtts, customBlocks);
+
+		if(error === null) {
+			updateBEOptions({ supported: { ...customBlocks, [name]: { name, atts } } });
+			setCustomName('');
+			setCustomAtts('');
+		} else {
+			// Can be one of: success, info, warning, error
+			createNotice({
+				status: 'warning',
+				content: messageWithError(data[error.msg], error.value),
+				isDismissible: true,
+				__unstableHTML: true,
+			});
+			scrollTop();
+		}
+	}, [customBlocks, customName, customAtts, updateBEOptions, createNotice, data]);
+
+	const standardBlocks = omit(supportedBlocks, keys(customBlocks));
+	const hasCustomBlocks = !isEmpty(customBlocks);
 
 	return (
 			<ZukitPanel id="gutenberg" options={ options } initialOpen={ true }>
-				<div className="__note">
-					{ simpleMarkdown(data.note, { br: true }) }
-				</div>
+				<ToggleControl
+					label={ data.sync.label }
+					help={ simpleMarkdown(data.sync.help, { br: true }) }
+					checked={ sync }
+					onChange={ () => updateBEOptions({ sync: !sync  }) }
+				/>
 				<h3 className="__subtitle">{ data.blockTitle }</h3>
 				<div className="__supported">
-					{ map(supported, ({ name, atts }, key) =>
+					{ map(standardBlocks, ({ name, atts }, key) =>
 						<CheckboxControl
 							key={ key }
 							label={ name }
@@ -62,14 +107,63 @@ const ZutranslateBlockEditor = ({
 						/>
 					) }
 				</div>
-				<ZukitDivider bottomHalf size={ 2 }/>
+				{ hasCustomBlocks &&
+					<>
+						<ZukitDivider bottomHalf size={ 2 }/>
+						<div className="__supported">
+							{ map(customBlocks, ({ name, atts }, key) =>
+								<CheckboxControl
+									key={ key }
+									label={ name }
+									help={ contentAtts(atts) }
+									checked={ !includes(excludedBlocks, key) }
+									onChange={ (value) => excludeBlock(value, key) }
+								/>
+							) }
+						</div>
+					</>
+				}
+				<div className="__note">
+					{ simpleMarkdown(data.note, { br: true }) }
+				</div>
+				<div className="__custom">
+					<AdvTextControl
+						isSideBySide
+						label={ data.custom.nameLabel }
+						help={ simpleMarkdown(data.custom.nameHelp, { br: true }) }
+						value={ customName }
+						onChange={ setCustomName }
+						onKeyEnter={ addBlock }
+					/>
+					<ListInputControl
+						isOpen
+						isNotEmptyLabel
+						isSideBySide
+						strict={ /^(?!\d)[\w$]+$/ }
+						label={ data.custom.attsLabel }
+						inputLabel={ simpleMarkdown(data.custom.attsInput, { br: true }) }
+						inputHelp={ simpleMarkdown(data.custom.attsInputHelp, { br: true }) }
+						value={ customAtts }
+						onChange={ setCustomAtts }
+					/>
+					<Button
+						isSecondary
+						className="__plugin_actions __auto green"
+						label={ data.custom.addBlock }
+						icon="plus-alt"
+						onClick={ addBlock }
+					>
+						{ data.custom.addBlock }
+					</Button>
+				</div>
+
 				<div className="__flex __right">
 					<Button
 						isSecondary
 						className="__plugin_actions __auto magenta"
 						label={ data.resetAll }
 						icon="image-rotate"
-						onClick={ resetRules }
+						onClick={ resetBEOptions }
 					>
 						{ data.resetAll }
 					</Button>
@@ -77,51 +171,5 @@ const ZutranslateBlockEditor = ({
 			</ZukitPanel>
 	);
 };
-
-// <ListInputControl
-// 	strict="email"
-// 	label={ notify.label }
-// 	inputLabel={ notify.input }
-// 	help={ notify.help }
-// 	value={ options.notify }
-// 	onChange={ onNotifyChange }
-// />
-
-// { blockEditorOps.add_rewrite  &&
-// 	// use <BaseControl> here to separate the label from the text control and allow 'flex' to align the boxes
-// 	<BaseControl label={ data.folders_rewrite } id="folders-rewrite-text-control">
-// 		<div className="__flex __rules">
-// 			<AdvTextControl
-// 				value={ blockEditorOps.rewrite || '' }
-// 				onChange={ value => updateOptions({ [`${blockEditorKey}.rewrite`]: value }) }
-// 			/>
-// 			<div className="__tag">
-// 				<span>^<i>{ blockEditorOps.rewrite  }</i>/([0-9]+)/?</span>
-// 			</div>
-// 			<div className="__rule">
-// 				<span>index.php?post_type=<i>attachment</i>&<i>{ blockEditorOps.rewrite }_id</i>=$matches[1]</span>
-// 			</div>
-// 		</div>
-// 	</BaseControl>
-// }
-
-// { options.add_tags  &&
-// 	<BaseControl label={ data.tag_rewrite } id="tag-rewrite-text-control">
-// 		<div className="__flex __rules">
-// 			<AdvTextControl
-// 				id="tag-rewrite-text-control"
-// 				value={ options.tag_rewrite || '' }
-// 				onChange={ value => updateOptions({ tag_rewrite: value }) }
-// 			/>
-// 			<div className="__tag">
-// 				<span>^<i>{ options.tag_rewrite }</i>/([^/]*)/?</span>
-// 			</div>
-// 			<div className="__rule">
-// 				<span>index.php?post_type=<i>attachment</i>&<i>tag</i>=$matches[1]</span>
-// 			</div>
-// 		</div>
-// 	</BaseControl>
-// }
-
 
 export default ZutranslateBlockEditor;

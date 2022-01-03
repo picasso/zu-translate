@@ -1,8 +1,10 @@
 // Admin Components -----------------------------------------------------------]
 
 $violet-color: #bc2a8d;
-$help-color: #b6895e;
-
+$help-color: #783f3a;
+$help-code-color-bg: #e8a723;
+$help-code-color: #986b10;
+// rgba(224,23,101,.08)
 
 .components-base-control__help {
 	color: $help-color !important;
@@ -12,8 +14,17 @@ $help-color: #b6895e;
 		color: $help-color !important;
 		font-style: normal !important;
 	}
+	.__code {
+		background-color: rgba($help-code-color-bg, 0.1) !important;
+		color: $help-code-color !important;
+	}
 }
-
+.__sidebyside.__list {
+	margin-top: 8px;
+	.components-base-control__help, .components-base-control__label {
+		margin-bottom: 0;
+	}
+}
 .__supported {
 	display: flex;
 	flex-wrap: wrap;
@@ -27,4 +38,11 @@ $help-color: #b6895e;
 			margin-left: 0;
 		}
 	}
+}
+
+.__custom {
+	display: flex;
+	align-items: flex-start;
+	justify-content: flex-start;
+	flex-direction: column;
 }

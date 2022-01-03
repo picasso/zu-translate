@@ -7,12 +7,10 @@
 
 const { renderPage, toggleOption } = wp.zukit.render;
 const { ZukitPanel, ZukitDivider } = wp.zukit.components;
-// const { simpleMarkdown } = wp.zukit.utils;
 
 // Internal dependencies
 
 import { zutranslate } from './settings/data.js';
-// import { pluginInacive } from './hooks/utils.js';
 import ZutranslateBlockEditor from './settings/block-editor.js';
 
 const { options: optionsData, gutenberg, inacive } = zutranslate; // switcher,
@@ -24,9 +22,10 @@ const ZutranslateEdit = ({
 		// panels,
 		options,
 		updateOptions,
+		resetOptions,
 		// setUpdateHook,
-		// ajaxAction,
-		// noticeOperations,
+		ajaxAction,
+		noticeOperations,
 }) => {
 
 	// const onNotifyChange = useCallback(value => {
@@ -51,6 +50,9 @@ const ZutranslateEdit = ({
 				data={ gutenberg }
 				options={ options }
 				updateOptions={ updateOptions }
+				resetOptions={ resetOptions }
+				noticeOperations={ noticeOperations }
+				ajaxAction={ ajaxAction }
 			/>
 		</>
 	);

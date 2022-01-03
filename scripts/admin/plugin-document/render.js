@@ -1,8 +1,5 @@
 // WordPress dependencies
 
-// const { reduce, has } = lodash;
-// const { compose } = wp.compose;
-// const { withSelect, withDispatch } = wp.data;
 const { useCallback, useEffect } = wp.element;
 
 // Zukit dependencies
@@ -51,7 +48,7 @@ const LangControlSetting = ({
 		forceUpdate();
 		forceUpdateParent();
 		syncBlocks(rootClientId);
-	// 'forceUpdateAll' never change
+	// 'forceUpdate' and 'forceUpdateParent' never change
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
