@@ -15,12 +15,12 @@ const { useForceUpdater } = wp.zukit.data;
 
 // Internal dependencies
 
-import { isSupported, getTranslated, hasRaw, switchContent, createRawContent, updateRawContent } from './../utils.js';
+import { isSupported, getTranslated, hasRaw, switchContent, createRawContent, maybeFixRawContent, updateRawContent } from './../utils.js';
 import { changeLang, useOnLangChange, useLangHook } from './../data/use-store.js';
 import { syncBlocks } from './../data/raw-helpers.js';
 import LangControl from './../components/lang-control.js';
 
-const activateDebug = false;
+const activateDebug = true;
 
 const BlockEditLang = (props) => {
 	const {
@@ -47,41 +47,50 @@ const BlockEditLang = (props) => {
 		const atts = switchContent(raw, lang, translatedAtts);
 		rawRef.current.lang = lang;
 		setAttributes({ qtxLang: lang, ...atts });
-// Zubug.data({ atts, lang, ref: rawRef.current, translatedAtts });
 	}, [translatedAtts, setAttributes]);
 
 	const onChangeLang = useCallback(lang => {
+		const { id, lang: prevLang } = rawRef.current;
 		changeLang(lang);
 		forceUpdate();
-		syncBlocks(rawRef.current.id);
-		if(activateDebug) Zubug.info(`{${rawRef.current.id}} Language switched to [${lang}]`);
+		syncBlocks(id);
+		if(activateDebug) Zubug.info(`{${id}} Language switched to [${prevLang} -> ${lang}]`);
 	}, [forceUpdate]);
 
 	const forceUpdate = useForceUpdater();
+	// in the hook is checked if the language has changed, then we call 'replaceContent'
 	const editorLang = useOnLangChange(replaceContent);
 	// register 'forceUpdate' for subsequent language synchronization
 	useLangHook(clientId, forceUpdate);
 
-	// конвертировать content в рав если требуется при маунтинг
+	// synchronize, create RAW if does not exist and maybe fix it - on mounting only
 	useEffect(() => {
-		// synchronize the first time 'qtxLang' attribute and 'editorLang'
-		if(qtxLang !== editorLang) replaceContent(editorLang);
-
+		// if we already have RAW - synchronize the first time 'qtxLang' attribute and 'editorLang'
+		if(qtxLang !== editorLang && hasRaw(rawRef)) replaceContent(editorLang);
+		// if RAW does not exist - create it
 		if(!hasRaw(rawRef)) {
-			const [ raw, update ] = createRawContent(qtxLang, translatedValues, translatedAtts);
+			const [ raw, update ] = createRawContent(editorLang, translatedValues, translatedAtts);
 			rawRef.current.raw = raw;
-			setAttributes({ qtxLang, qtxRaw: raw, ...update });
-			if(activateDebug) Zubug.data({ lang: qtxLang, raw, update, translatedValues, translatedAtts }, `Raw created {${rawRef.current.id}}`);
-		} else {
-			const { raw } = rawRef.current;
-			const [ fixedRaw ] = createRawContent(qtxLang, translatedValues, translatedAtts, raw);
+			rawRef.current.lang = editorLang;
+			setAttributes({ qtxLang: editorLang, qtxRaw: raw, ...update });
 			if(activateDebug) Zubug.data({
-				raw: rawRef.current.raw,
-				fixedRaw: raw !== fixedRaw ? fixedRaw : null,
+				lang: qtxLang,
+				raw,
+				update,
 				translatedValues,
 				translatedAtts
-			}, raw !== fixedRaw ? `Raw fixed! {${rawRef.current.id}}` : `Raw existed! {${rawRef.current.id}}`);
-			if(raw !== fixedRaw) rawRef.current.raw = fixedRaw;
+			}, `Raw created {${rawRef.current.id}}`);
+		} else {
+			// fix if RAW was created for wrong amount of attributes
+			const { raw, id } = rawRef.current;
+			const fixedRaw = maybeFixRawContent(raw, editorLang, translatedValues);
+			if(activateDebug) Zubug.data({
+				raw,
+				fixedRaw: fixedRaw !== false ? fixedRaw : null,
+				translatedValues,
+				translatedAtts
+			}, `Raw ${fixedRaw !== false ? 'fixed' : 'existed'}: {${id}}`);
+			if(fixedRaw !== false) rawRef.current.raw = fixedRaw;
 		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
@@ -94,7 +103,7 @@ const BlockEditLang = (props) => {
 			if(updatedRaw !== rawRef.current.raw) {
 				rawRef.current.raw = updatedRaw;
 				setAttributes({ qtxRaw: updatedRaw });
-				if(activateDebug) Zubug.data({ updatedRaw, translatedValues }, `Raw updated {${rawRef.current.id}}`);
+				if(activateDebug) Zubug.data({ updatedRaw, translatedValues }, `Raw updated: {${rawRef.current.id}}`);
 			}
 		}
 	// we used a spread element in the dependency array -> we can't statically verify the correct dependencies
@@ -118,16 +127,6 @@ const withRawEditControl = createHigherOrderComponent(BlockEdit => {
 			name,
 			clientId,
 		} = props;
-
-		// Zubug.data({
-		// 	clientId,
-		// 	name,
-		// 	parents: getBlockParents(clientId),
-		// 	getBlock: getBlock(clientId),
-		// 	RootClientId: getBlockHierarchyRootClientId(clientId),
-		// 	allblock: getBlocks(),
-		// 	ids: getBlockOrder(),
-		// });
 
 		const { getBlockOrder } = select('core/block-editor');
 		// 'getBlockOrder' returns all block client IDs in the editor, check if our block is in this list
