@@ -6,8 +6,7 @@
 trait zu_TranslateAjax {
 
 	public function ajax_more($action, $value) {
-		if($action === 'zutranslate_action1') return $this->action1();
-		elseif($action === 'zutranslate_action2') return $this->action1(true);
+		if($action === 'zutranslate_reset_supported') return $this->reset_supported_blocks();
 		else return null;
 	}
 
@@ -36,8 +35,11 @@ trait zu_TranslateAjax {
 		// return $folders;
 	}
 
-	private function action1() {
-		// flush_rewrite_rules();
-		return $this->create_notice('success', 'WordPress rewrite rules were removed and then recreated.');
+	private function reset_supported_blocks() {
+		$this->assign_supported_blocks();
+		return $this->create_notice('infodata', // combine 'info' with 'data'
+			__('Block Editor settings are reset to defaults', 'zu-translate'),
+			$this->supported_data
+		);
 	}
 }
