@@ -23,6 +23,7 @@ export function setRawAttributes() {
 		let value = getRaw(attr);
 		if(value === undefined) {
 			value = getEditedPostAttribute(`${attr}_raw`);
+			if(attr === 'title' && value === 'Auto Draft') value = '';
 			setRaw(attr, value);
 			addInputListener(selector, () => updateRawAttributes(attr));
 		} else if(activateDebug) {
