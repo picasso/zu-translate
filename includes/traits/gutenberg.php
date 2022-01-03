@@ -4,8 +4,10 @@
 
 trait zu_TranslateGutenberg {
 
-	private $supported_blocks = null;
+	// 'supported_data' - is a list of all registered blocks, those by default and added by the user
 	private $supported_data = null;
+	// 'supported_blocks' - is a list of all registered blocks minus blocks from 'excluded' list
+	private $supported_blocks = null;
 	private $multicontent_separator = '[,]';
 	private $default_blocks = [
 		'core/paragraph'		=> ['name' => 'Paragraph', 'atts' => 'content'],
@@ -19,13 +21,19 @@ trait zu_TranslateGutenberg {
 
 	private function init_gutenberg_support() {
 		if($this->is_option('gutenberg')) {
-			$supported = $this->get_option('supported', null);
-			if($supported === 'default') {
-				$supported = $this->default_blocks;
-			}
-			if(!empty($supported)) {
-				$this->supported_data = $supported;
-				$this->supported_blocks = array_keys($supported);
+			$this->assign_supported_blocks();
+			// $supported = $this->get_option('blockeditor.supported', []);
+			// $supported = array_merge(is_array($supported) ? $supported : [], $this->default_blocks);
+			//
+			// if($supported === 'default') {
+			// 	$supported = $this->default_blocks;
+			// } else {
+			// 	$supported = array_merge(is_array($supported) ? : [], $this->default_blocks);
+			// }
+			if(!empty($this->supported_blocks)) {
+				// $this->supported_data = $supported;
+				// $excluded = $this->get_option('blockeditor.excluded', []);
+				// $this->supported_blocks = $this->snippets('array_without_keys', $supported, $excluded);
 				add_filter('the_posts', [$this, 'pre_render_posts'], 0, 2);
 				add_action('rest_api_init', [$this, 'rest_api_init']);
 
@@ -37,7 +45,6 @@ trait zu_TranslateGutenberg {
 
 	public function rest_api_init() {
 		$post_types = $this->enabled_post_types();
-// zu_log($post_types);
 		foreach($post_types as $post_type) {
 			add_filter("rest_prepare_{$post_type}", [$this, 'rest_prepare'], 99, 3);
 		}
@@ -76,8 +83,7 @@ trait zu_TranslateGutenberg {
 		if(!is_array($posts)) return $posts;
 		if($query->query_vars['post_type'] === 'nav_menu_item') return $posts;
 		foreach($posts as $post) {
-			$result = $this->restore_post_content($post);
-			if($result) zu_logc('the_posts', $post);
+			$this->restore_post_content($post);
 	    }
 		return $posts;
 	}
@@ -145,8 +151,8 @@ trait zu_TranslateGutenberg {
 	}
 
 	private function restore_block_raw($content, $raw_content, $lang) {
-		// divide RAW on content blocks for each attribute
-		// (usually attribute for content only one, but sometimes several)
+		// split RAW on content blocks for each attribute
+		// (usually attribute for content is only one, but sometimes several)
 		$raw_blocks = explode($this->multicontent_separator, $raw_content);
 		foreach($raw_blocks as $raw) {
 			// replace the latest editable content on RAW content for this attribute
@@ -170,10 +176,19 @@ trait zu_TranslateGutenberg {
 		return $enabled_post_types;
 	}
 
-	private function gutenberg_data() {
+	private function assign_supported_blocks() {
+		$supported = $this->get_option('blockeditor.supported', []);
+		$supported = array_merge(is_array($supported) ? $supported : [], $this->default_blocks);
+		$this->supported_data = $supported;
+		$excluded = $this->get_option('blockeditor.excluded', []);
+		$this->supported_blocks = $this->snippets('array_without_keys', $supported, $excluded);
+	}
+
+	private function gutenberg_data($include_fullset = false) {
 		return [
-			'supported' => $this->supported_data ?? [],
+			'supported' => ($include_fullset ? $this->supported_data : $this->supported_blocks) ?? [],
 			'lang'		=> $this->get_url_param('language'),
+			'sync'		=> $this->is_option('blockeditor.sync'),
 		];
 	}
 
@@ -215,6 +230,7 @@ trait zu_TranslateGutenberg {
 		}, 99);
 	}
 
+	// remove the filter by the name of the class when there is no access to the instance value
 	private function remove_filter($tag, $class, $method = null, $priority = null) {
 		$filters = $GLOBALS['wp_filter'][$tag] ?? [];
 		if(empty($filters)) return;
