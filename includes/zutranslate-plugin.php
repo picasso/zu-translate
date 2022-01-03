@@ -36,21 +36,25 @@ class zu_Translate extends zukit_Plugin  {
 			],
 
 			'options'			=> [
-				'flags'					=> false,
-				'gutenberg'				=> true,
-				'supported'				=> 'default',	// see 'traits/gutenberg.php'
-				'excluded'				=> false, 		// see 'traits/gutenberg.php'
-
-				'yseo'					=> false,
-				'media_details'			=> false,
-				'ls_frontend'			=> true,
-				'ls_menu'				=> true,
-				'ls_display'			=> 'lang',
+				'flags'				=> false,
+				'yseo'				=> false,
+				'media_details'		=> false,
+				'gutenberg'			=> true,
+				'blockeditor'		=> [
+					'supported'			=> [],			// see 'traits/gutenberg.php'
+					'excluded'			=> [], 			// see 'traits/gutenberg.php'
+					'sync'				=> true,
+				],
+				'switcher'			=> [
+					'frontend'			=> true,
+					'menu'				=> true,
+					'display'			=> 'lang',
+				],
 			],
 
 			// some data for the Settings Page
 	         'settings_script'	=> [
-	             'data'  				=> [$this, 'settings_js_data'],
+	             'data'  			=> [$this, 'settings_js_data'],
 	         ],
 
 			'blocks'			=> [
@@ -152,11 +156,6 @@ class zu_Translate extends zukit_Plugin  {
 		// if($this->is_option('folders')) {
 		// 	$this->folders = $this->register_addon(new zu_TranslateFolder());
 		// }
-		//
-		// // Dominant Color Addon
-		// if($this->is_option('dominant')) {
-		// 	$this->dominant = $this->register_addon(new zu_TranslateDominant());
-		// }
 
 		// Some internal 'inits' ----------------------------------------------]
 
@@ -215,7 +214,7 @@ class zu_Translate extends zukit_Plugin  {
 				'disabled'	=> !$this->is_multilang(),
 			],
 			$this->qtx_data(),
-			$this->gutenberg_data()
+			$this->gutenberg_data(true)
 		);
 	}
 
