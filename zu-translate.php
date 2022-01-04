@@ -13,11 +13,10 @@ Requires at least: 5.8.0
 Requires PHP: 7.2.0
 */
 
-// Plugin URI: https://wordpress.org/plugins/zu-translate/
 // Prohibit direct script loading
 defined('ABSPATH') || die('No direct script access allowed!');
 
-add_action('plugins_loaded', function() { 	// DEBUG-ONLY
+// add_action('plugins_loaded', function() { 	// DEBUG-ONLY
 
 // Always load Zukit even if we don't use it later ('wp_doing_ajax' or 'wp_doing_cron')
 // as other plugins or themes may want to use it
@@ -30,8 +29,6 @@ if(wp_doing_cron()) return;
 
 // Start! ---------------------------------------------------------------------]
 
-zu_log_location(__FILE__, 2);
-
 // compatibility check for Zukit
 if(Zukit::is_compatible(__FILE__)) {
 
@@ -39,4 +36,4 @@ if(Zukit::is_compatible(__FILE__)) {
 	zutranslate(__FILE__);
 }
 
-});
+// });
