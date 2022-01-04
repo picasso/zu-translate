@@ -25,19 +25,15 @@ const LangControlSetting = ({
 	const forceUpdate = useForceUpdater();
 	const editorLang = useOnLangChange(switchRawAttributes);
 
-	// combine two functions for updates to one
-	// const forceUpdateAll = useCallback(() => {
-	// 	forceUpdate();
-	// 	forceUpdateParent();
-	// // 'forceUpdate' and 'forceUpdateParent' never change
-	// // eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, []);
-
 	useEffect(() => {
-		// set the initial RAW attributes on mounting the component
+		// set the initial RAW attributes on mounting the component and add listeners
 		setRawAttributes();
 		// register 'rootUpdater' for subsequent language synchronization
 		registerRootUpdater();
+		return () => {
+			// with argument equal to false all listeners will be removed
+			setRawAttributes(false);
+		}
 	}, []);
 
 	// switch the language, call the update of the component and its parent -
