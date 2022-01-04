@@ -2,12 +2,10 @@
 
 const { includes } = lodash;
 // const { __ } = wp.i18n;
-// const { addFilter } = wp.hooks;
 const { createHigherOrderComponent } = wp.compose;
-// const { usePrevious } = wp.compose;
 const { InspectorControls } = wp.blockEditor;
-const { useEffect, useCallback, useRef, useMemo } = wp.element; // cloneElement, useState, useEffect, useLayoutEffect
-const { select } = wp.data; // , subscribe
+const { useEffect, useCallback, useRef, useMemo } = wp.element;
+const { select } = wp.data;
 
 // Zukit dependencies
 
@@ -20,7 +18,7 @@ import { changeLang, useOnLangChange, useLangHook } from './../data/use-store.js
 import { syncBlocks } from './../data/raw-helpers.js';
 import LangControl from './../components/lang-control.js';
 
-const activateDebug = true;
+const activateDebug = false;
 
 const BlockEditLang = (props) => {
 	const {
@@ -130,7 +128,7 @@ const withRawEditControl = createHigherOrderComponent(BlockEdit => {
 
 		const { getBlockOrder } = select('core/block-editor');
 		// 'getBlockOrder' returns all block client IDs in the editor, check if our block is in this list
-		// sometimes the blocks of those types that we support are created, but these blocks are not edited in the editor -
+		// NOTE: sometimes the blocks of those types that we support are created, but these blocks are not edited in the editor -
 		// for example, blocks for visual preview of the editable block
 		const isEditableBlock = includes(getBlockOrder(), clientId);
 		if(!isEditableBlock && activateDebug) Zubug.info(`Block [${name}] with id {${clientId}} was skipped`);
@@ -143,4 +141,5 @@ const withRawEditControl = createHigherOrderComponent(BlockEdit => {
 		);
 	};
 }, 'withRawEditControl');
+
 export default withRawEditControl;

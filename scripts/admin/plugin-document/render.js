@@ -23,6 +23,7 @@ const LangControlSetting = ({
 }) => {
 
 	const forceUpdate = useForceUpdater();
+	// in the hook is checked if the language has changed, then we call 'switchRawAttributes'
 	const editorLang = useOnLangChange(switchRawAttributes);
 
 	useEffect(() => {
