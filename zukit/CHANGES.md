@@ -1,3 +1,91 @@
+#### 1.4.5 / 2022-01-04
+
+##### Core
+* added `has_snippet` method
+* added `get_callable` method which allows you to use functions as configuration values
+* all `set_option` for Ajax requests are now running with the option `rewrite_array` equal to true
+* fixed bug in method `set_option` when `rewrite_array` is true and `key` is path
+
+##### Components
+* added `onKeyEnter` prop for `AdvTextControl` component
+* added `isSideBySide` prop to `ListInputControl` and `AdvTextControl` components
+* some CSS fix and `htmlFor` support when `isSideBySide` is true for `ListInputControl` and `AdvTextControl` components
+* added `isOpen` and `isNotEmptyLabel` props for `ListInput` Component
+* added `more` argument in `transformValue` function for `SelectItemControl` component
+* disable animation in `ListInputControl` component when `isOpen` is true
+
+##### Other
+* added `scrollTop` DOM helper
+* added `jquery-helpers` to global export for Settings Page
+* added `noColon` check for `messageWithError` function
+
+#### 1.4.4 / 2021-12-29
+
+* added a new version number that forgot in the past release
+* changed the title font for the `Settings Page`
+* changed the first section header to the `General Settings`
+* small improvements
+
+#### 1.4.3 / 2021-12-28
+
+##### Core
+* added `useForceUpdater` custom hook
+* fixed bug in `set_option` method when `$value` is array and `$key` is path
+* made `path_autocreated` = `true` by default
+* added explanation (*in comments*) when `simpleMarkdown` does not work
+
+##### Blocks & Components
+* added `TitleIndicator` component
+* added `withPlugin` and `withPluginMeta` HOCs to work with predefined WP slots (*PluginDocumentSettingPanel*, *PluginSidebar* and etc.)
+* exported `debug` module for __Zukit__ settings
+
+##### CSS
+* fix styles of some `standard` controls (checkbox, toggle)
+* small improvements
+
+#### 1.4.2 / 2021-12-10
+
+##### Core
+* changed parser to ecmaVersion 11
+* implemented `do_with_instances` to iterate all __Zukit__ instances for given method
+* refactoring `do_addons` to work with `options` and `collect` results
+* added `extend_metadata` method which allows you to modify the name, description and other information about the plugin/theme
+* refactoring `ConditionalWrap` after understanding how the JSX works with the `createEelement` function
+* added custom hooks - `useRefInit` and `useRefDefaults`
+* refactoring React custom hooks for `folders`
+* added `safe` transformation for path in `sprintf_dir` and `sprintf_uri`
+* added `safe` replacement for some formatting characters
+* added `externalDataSettings` function in `render` set
+* added warning when `getExternalData` was not called
+* added `container` option for `simpleMarkdown` function
+* added `findWithClientId` jQuery helper
+* replacing deprecated jQuery methods
+* implemented `getAttrWithClientId` and `getCssWithClientId` jQuery helpers
+
+##### Debug
+* refactoring `debug` module with new knowledge about React hooks
+* improved `useTraceUpdate`, implemented check for `added` and `removed` keys
+* improved `colored` console for Safari
+* changed codes for `colored console` blocks
+
+##### REST &  AJAX
+* fixed bug with `zudata` Ajax request
+* grouped the keys for the REST API
+* refactoring REST settings (implemented `setRestBasics` and `restRequestURL` methods)
+
+##### CSS
+* converted `instyle` SASS to SCSS
+* renaming some colors
+* improved `getColorOptions` to work with a list of slugs to be excluded
+* added `extend_block_colors` to modify the default __Zukit__ color palette
+* modified css for `__code` in markdown
+* added `__zu_markdown` class to plugin/theme description
+* implemented `markdown` in plugin/theme description
+* small improvements
+
+##### Snippets
+* improved `array_flatten` snippet to work with associative arrays
+
 #### 1.4.0 / 2021-10-16
 * adapted to WP 5.8.1
 
@@ -47,7 +135,7 @@
 * added `$reindex` argument to `array_pick_keys`, `array_without_keys` and `array_without_null` methods
 * fixed bug in `get_excerpt` function
 
-#####
+##### Other
 * The Wiki was last updated on Apr 16 2021.
 
 #### 1.3.0 / 2021-08-10

@@ -3,14 +3,15 @@
 const { isArray, isEmpty, isNil, map, pull, split, join, includes, has } = lodash;
 const { __ } = wp.i18n;
 const { ENTER } = wp.keycodes;
-const { compose } = wp.compose;
+const { compose, useInstanceId } = wp.compose;
 const { BaseControl, Button, TextControl, Tooltip } = wp.components;
 const { useState, useCallback, useMemo } = wp.element;
 const { isEmail, isURL } = wp.url;
 
 // Internal dependencies
 
-import { getKey, messageWithError } from './../utils.js';
+import { getKey, messageWithError, mergeClasses } from './../utils.js';
+import { scrollTop } from './../jquery-helpers.js';
 import { withNoticesContext } from './../hooks/use-notices.js';
 
 // List Input Component
@@ -19,7 +20,6 @@ const cprefix = 'zukit-list-input';
 const closeIcon = 'no-alt';
 
 const isKind = (kind, value) => {
-
 	// https://stackoverflow.com/questions/4338267/validate-phone-number-with-javascript
 	const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/g;
 
@@ -51,16 +51,24 @@ const ListInputControl = ({
 		label,
 		help,
 		inputLabel,
+		inputHelp,
+		isSideBySide,		// if true then 'inputLabel' and 'inputHelp' will be placed 'side by side'
 
 		strict,				// 'email', 'url', 'tel' or regex string
+							// when regex - provide it in JSX as strict={ /^(?!\d)[\w$]+$/g },
+							// if passed as a string then there may be problems with the backslash
 		value,
 		onChange,
+		isOpen,
+		isNotEmptyLabel,	// show 'label' and 'help' only when 'value' is not empty
 		noticeOperations,
 }) => {
 
 	const { createNotice } = noticeOperations;
 	const [ currentItem, setCurrentItem ] = useState('');
-	const [ editMode, setEditMode ] = useState(false);
+	const [ editMode, setEditMode ] = useState(isOpen);
+	const instanceId = useInstanceId(ListInputControl);
+	const controlId = `list-input-control-${ instanceId }`;
 
 	// convert string value to array if needed
 	const items = useMemo(() => {
@@ -83,27 +91,27 @@ const ListInputControl = ({
 
 	// add an item to the list (only unique values are allowed)
 	const onAddItem = useCallback(() => {
+		let error = null;
 		if(!includes(items, currentItem)) {
 			if(isKind(strict, currentItem)) {
 				items.push(currentItem);
 				onChange(join(items, separator));
 				setCurrentItem('');
 			} else {
-				// Can be one of: success, info, warning, error
-				createNotice({
-					status: 'error',
-					content: messageByKind(strict, currentItem),
-					isDismissible: true,
-					__unstableHTML: true,
-				});
+				error = messageByKind(strict, currentItem);
 			}
 		} else {
+			error = messageWithError(messages.duplicate, currentItem);
+		}
+		if(error !== null) {
+			// Can be one of: success, info, warning, error
 			createNotice({
 				status: 'warning',
-				content: messageWithError(messages.duplicate, currentItem),
+				content: error,
 				isDismissible: true,
 				__unstableHTML: true,
 			});
+			scrollTop();
 		}
 	}, [currentItem, items, onChange, separator, strict, createNotice]);
 
@@ -115,14 +123,15 @@ const ListInputControl = ({
 		}
 	}, [onAddItem]);
 
-	const isDesc = label || help;
+	const isСombined = (isNotEmptyLabel ? !isEmpty(items) : true) && (label || help);
+	const isInputСombined = isSideBySide && (inputLabel || inputHelp);
 
 	return (
-		<BaseControl className={ cprefix }>
-			{ isDesc &&
-				<div className="__desc">
+		<BaseControl className={ mergeClasses(cprefix, { __fullwidth: isСombined || isInputСombined }) }>
+			{ isСombined &&
+				<div className="__sidebyside __list">
 					{ label &&
-						<label className="components-base-control__label">{ label }</label>
+						<label className="components-base-control__label" htmlFor={ controlId }>{ label }</label>
 					}
 					{ help &&
 						<p className="components-base-control__help">{ help }</p>
@@ -155,12 +164,33 @@ const ListInputControl = ({
 				}
 			</div>
 			{ editMode &&
-				<div className="components-animate__appear is-from-top __input">
+				<>
+				{ isInputСombined &&
+					<div className="__sidebyside">
+						{ inputLabel &&
+							<label className="components-base-control__label" htmlFor={ controlId }>{ inputLabel }</label>
+						}
+						{ inputHelp &&
+							<p className="components-base-control__help">{ inputHelp }</p>
+						}
+					</div>
+				}
+				<div className={ mergeClasses(
+					'__input',
+					// 'is-from-top',
+					{
+						'components-animate__appear is-from-top': !isOpen,
+						'__with-help': inputHelp && !isInputСombined,
+						'__with-label-help': isInputСombined,
+					}
+				) }>
 					<TextControl
-						label={ inputLabel || __('Enter new item', 'zukit') }
+						label={ isInputСombined ? undefined : (inputLabel || __('Enter new item', 'zukit')) }
+						help={ isInputСombined ? undefined : inputHelp }
 						value={ currentItem }
 						onChange={ setCurrentItem }
 						onKeyDown={ onKeyDown }
+						{ ...(isInputСombined ? { id: controlId } : {}) }
 					/>
 					<Button
 						className="__add __plugin_actions admin-blue"
@@ -179,6 +209,7 @@ const ListInputControl = ({
 						{ __('Reset All', 'zukit') }
 					</Button>
 				</div>
+				</>
 			}
 		</BaseControl>
 	);

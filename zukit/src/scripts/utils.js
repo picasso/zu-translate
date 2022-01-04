@@ -18,6 +18,7 @@ export function externalData(key, defaultValues = null) {
 }
 // Allows multiple access to external data after calling 'externalData' function
 export function getExternalData(key = null, defaultValue = null) {
+	if(_.isEmpty(extData)) window.console.warn('ZUKIT: utils.externalData(<your_key>) should be called before any getExternalData() call!')
 	if(key === null) return extData;
 	return _.get(extData, key, defaultValue);
 }
@@ -130,7 +131,8 @@ export function messageWithError(message, value = null) {
 		.replace(/,\s*/g, ',  ')
 		.replace(/"([^"]+)":/g, '<b>$1</b>: ');
 
-	return mdMessage.replace(/[:|.]\s*$/g, '') + `: <span class="zukit-data">${value}</span>`;
+	const noColon = /[?|!.]\s*$/.test(message);
+	return mdMessage.replace(/[:|.]\s*$/g, '') + `${noColon ? '' : ':'} <span class="zukit-data">${value}</span>`;
 }
 
 // Returns SVG with a reference to an already loaded SVG set
@@ -186,9 +188,13 @@ export function compareVersions(a, b) {
 }
 
 // Converts a string to a set of React components based on simple Markdown constructs
-// replaces *text* with <em>text</em>
 // replaces **text** with <strong>text</strong>
+// replaces *text* with <em>text</em>
+// NOTE: Attention! Doesn't work for two blocks not separated by anything:
+// *text1**text2* - doesn't work!  *text1* *text2* - works!
 // replaces `text` with <span>text</span>
+// NOTE: Attention! Doesn't work for two blocks not separated by anything:
+// `text1``text2` - doesn't work!  `text1` `text2` - works!
 // replaces [text](link) with <a href="link">text</a>
 // replaces newlines with <p> or <br/> if 'params.br' is true
 // also replaces $link<index> constructs with elements from the 'params.links' array
@@ -202,6 +208,7 @@ export function simpleMarkdown(string, params) {
 		externalLink: true,
 		raw: false,
 		json: false,
+		container: false,
 	});
 
 	let linkReplace = '<a href="$2" target="_blank" rel="external noreferrer noopener">$1</a>';
@@ -230,12 +237,9 @@ export function simpleMarkdown(string, params) {
 	if(md.match(/<[^<]+>/gm) === null) return string;
 
 	const body = string2dom(md);
+	const markdown = (<>{ _.map(body.childNodes, node2comp) }</>);
 
-	return (
-		<>
-			{ _.map(body.childNodes, node2comp) }
-		</>
-	);
+	return mod.container ? <span className="__markdown">{ markdown }</span> : markdown;
 }
 
 function string2dom(string) {
@@ -306,12 +310,35 @@ function node2comp(node, index) {
 
 export const emptyGif = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
-const { colors: zukitColors = {}} = externalData('zukit_jsdata');
+const { colors: zukitRawColors = {}} = externalData('zukit_jsdata');
 
 // Returns one of predefined in SASS files colors
 export function getColor(key, defaultColor = '#cc1818') {
-	return _.get(zukitColors, key, defaultColor);
+	return _.get(zukitRawColors, key, defaultColor);
 }
+
+export function getColorOptions(colors, initialValue = [], mergeWithZukit = false) {
+	const options = _.reduce(colors, (values, color, colorName)  => {
+		values.push({
+			slug: colorName,
+			color: color,
+			name: _.startCase(_.replace(colorName, '_', ' ')),
+		});
+		return values;
+	}, initialValue);
+
+	// if we need to merge with zukitColors, then remove all options with the same 'slug'
+	// if 'mergeWithZukit' is array - use it as list of slugs to be excluded
+	if(mergeWithZukit) {
+		const slugs = _.concat(_.map(options, 'slug'), _.isArray(mergeWithZukit) ? mergeWithZukit :[]);
+		const withoutSlugs = _.filter(zukitColors, val => !_.includes(slugs, val.slug));
+		return _.concat(options, withoutSlugs);
+	}
+	return options;
+}
+
+// creates Zikit Color Options
+const zukitColors = getColorOptions(zukitRawColors, [{ slug: 'none', color: 'white', name: 'None'}]);
 
 // Brand assets ---------------------------------------------------------------]
 
@@ -387,11 +414,13 @@ export const blocksSet = {
 	hexToRGB,
 	hexToRGBA,
 	isNum,
+	isWrongId,
 	toBool,
 	toRange,
 	getKey,
 	getIds,
 	getColor,
+	getColorOptions,
 	toJSON,
 	uniqueValue,
 	svgRef,

@@ -26,7 +26,7 @@ class zukit_Addon {
 
 			$this->config = array_merge($this->config_defaults(), $this->config());
 			$this->name = $this->get('name') ?? 'zuaddon';
-			$this->nonce = $this->get('nonce') ?? $this->name.'_ajax_nonce';
+			$this->nonce = $this->get_callable('nonce') ?? $this->name.'_ajax_nonce';
 
 			$this->options_key = $this->name.'_options';
 			$this->init_options();
@@ -114,9 +114,11 @@ class zukit_Addon {
 			'ajax_send',
 			'array_with_defaults',
 			'create_notice',
+			'do_with_instances',
 			'ends_with_slug',
 			'enqueue_only',
 			'get_file_version',
+			'has_snippet',
 			'is_error',
 			'logd',
 			'prefix_it',
@@ -191,6 +193,10 @@ class zukit_Addon {
 
 	protected function get($key, $from_plugin = false, $default_value = null) {
 		return $this->plugin->get($key, $default_value, $from_plugin ? null : $this->config);
+	}
+
+	protected function get_callable($key, $from_plugin = false, $default_value = null) {
+		return $this->plugin->get_callable($key, $default_value, $from_plugin ? null : $this->config);
 	}
 
 	private function filename($file, $params) {

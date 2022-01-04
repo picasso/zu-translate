@@ -16,13 +16,13 @@ require_once('traits/exchange.php');
 
 class zukit_Plugin extends zukit_SingletonScripts {
 
-	private static $zukit_version = '1.4.1'; //.' (modified)';
+	private static $zukit_version = '1.4.5'; // .' (modified)';
 
 	public $config;
 
 	protected $options_key;
 	protected $options = null;
-	protected $path_autocreated = false;
+	protected $path_autocreated = true;
 	protected $data = [];
 	protected $addons = [];
 	protected $blocks = null;
@@ -201,21 +201,32 @@ class zukit_Plugin extends zukit_SingletonScripts {
 		return $addon;
 	}
 
-	public function do_addons($action, $param = '', &$return = null, $swap_param_and_return = false) {
+	public function do_addons($action, $param = '', $options = null, &$return = null) {
+		$swap_param_and_return = $options['swap'] ?? false;
+		$single_param = $options['single'] ?? true;
+		$collected = ($options['collect'] ?? false) ? [] : null;
 		foreach($this->addons as $addon) {
 			if(method_exists($addon, $action)) {
-				$return = call_user_func_array([$addon, $action], [$param]);
+				$return = call_user_func_array([$addon, $action], $single_param ? [$param] : ($param ?? []));
+				if(!is_null($collected)) $collected[get_class($addon)] = $return;
 				if($swap_param_and_return) $param = $return;
 			}
-			else $this->logc('Unknown addon method!', [
-				'action' => $action,
-				'param' => $param]
-			);
+			else {
+				if(!is_null($collected)) $collected[get_class($addon)] = null;
+				else $this->logc('Unknown addon method!', [
+					'addons'				=> $this->addons,
+					'action'				=> $action,
+					'param'					=> $param,
+					'swap_param_and_return'	=> $swap_param_and_return,
+					'single_param'			=> $single_param,
+					'collected'				=> $collected,
+				]);}
 		}
+		return $collected;
 	}
 
 	public function reset_addons() { $this->do_addons('init_options'); }
-	public function extend_from_addons(&$options) { $this->do_addons('extend_parent_options', $options, $options, true); }
+	public function extend_from_addons(&$options) { $this->do_addons('extend_parent_options', $options, ['swap' => true], $options); }
 	public function clean_addons() { $this->do_addons('clean'); }
 	public function ajax_addons($action, $value) {
 
@@ -241,12 +252,12 @@ class zukit_Plugin extends zukit_SingletonScripts {
 
 	public function sprintf_dir(...$params) {
 		$path = call_user_func_array('sprintf', $params);
-		return $this->dir.$path;
+		return $this->dir . '/' . ltrim($path, '/\\');
 	}
 
 	public function sprintf_uri(...$params) {
 		$path = call_user_func_array('sprintf', $params);
-		return $this->uri.$path;
+		return $this->uri . '/' . ltrim($path, '/\\');
 	}
 
 	private function script_defaults() {
@@ -462,7 +473,7 @@ class zukit_Plugin extends zukit_SingletonScripts {
 		return sprintf('%1$s%2$s%3$s', $this->prefix, $divider, $str);
 	}
 
-	public function get($key, $default_value = null, $addon_config = null) {
+	public function get($key, $default_value = null, $addon_config = null, $check_callable = true) {
 		$config = is_null($addon_config) ? $this->config : $addon_config;
 		// If 'key' contains 'path' - then resolve it before get
 		$pathParts = explode('.', $key);
@@ -477,6 +488,13 @@ class zukit_Plugin extends zukit_SingletonScripts {
 			}
 		}
 		return isset($config[$key]) ? $config[$key] : $default_value;
+	}
+
+	public function get_callable($key, $default_value = null, $addon_config = null) {
+		$value = $this->get($key, $default_value, $addon_config);
+		// we do not use 'is_callable' directly to avoid cases when the 'value' matches the name of the existing function
+		$is_callable = (is_array($value) && is_callable($value)) || ($value instanceof Closure);
+		return $is_callable ? call_user_func($value) : $value;
 	}
 
 	public function params_validated($params, $defaults = []) {
@@ -495,13 +513,13 @@ class zukit_Plugin extends zukit_SingletonScripts {
 	}
 
 	private function blocks_config() {
-		$blocks = $this->get('blocks.blocks');
-		$instance = $this->get('blocks.instance');
+		$blocks = $this->get_callable('blocks.blocks');
+		$instance = $this->get_callable('blocks.instance');
 		if(!empty($blocks) || !empty($instance)) {
 			if(is_null($instance)) $this->blocks = new zukit_Blocks;
 			elseif(is_string($instance) && class_exists($instance)) $this->blocks = new $instance();
 			if($this->blocks instanceof zukit_Blocks) $this->register_addon($this->blocks);
-			else zu_logc('!Your class must inherit from the "zukit_Blocks" class',  $instance);
+			else zu_logc('!Your class must inherit from the "zukit_Blocks" class', $instance);
 		}
 	}
 
@@ -516,6 +534,11 @@ class zukit_Plugin extends zukit_SingletonScripts {
 	}
 
 	// Common Interface to Zu Snippets helpers with availability check --------]
+
+	public function has_snippet($name) {
+		if(!function_exists('zu_snippets')) return false;
+		return zu_snippets()->method_exists($name);
+	}
 
 	public function register_snippet($func, $instance = 'self', $default = null) {
 		if(!function_exists('zu_snippets')) return false;

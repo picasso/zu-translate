@@ -95,6 +95,54 @@ $divider-component-class: zukit-divider;
 		}
 	}
 
+	// fix styles of standard controls that I do not like ---------------------]
+
+	.components-checkbox-control {
+		.components-checkbox-control__input {
+			border-radius: 4px;
+			opacity: 0.8;
+		}
+		.components-checkbox-control__checked {
+			width: 20px;
+			height: 20px;
+			left: 0;
+			top: 0;
+		}
+	}
+
+	.components-toggle-control {
+		.components-form-toggle {
+			opacity: 0.8;
+			&:not(.is-checked) {
+				.components-form-toggle__track {
+					border-color: rgba($wp-admin-blue-color, 0.8);
+				}
+			}
+		}
+	}
+
+	.__sidebyside {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		column-gap: 1em;
+		.components-base-control__label {
+			font-weight: 500;
+			margin: 0 0 8px;
+		}
+		.components-base-control__help.components-base-control__help {
+			margin-bottom: 8px !important;
+		}
+		@include breakpoint-width(LESS_SETTINGS_BREAK) {
+			flex-direction: column;
+			align-items: flex-start;
+			.components-base-control__label {
+				margin: 0 0 2px;
+			}
+		}
+	}
+
 	.#{$skeleton-class} {
 	    background-color: white;
 
@@ -112,7 +160,7 @@ $divider-component-class: zukit-divider;
 					background-color: rgba($blue-color, 0.1);
 				}
 				.is-warning {
-					background-color: rgba($orange-bright-color, 0.1);
+					background-color: rgba($yellow-color, 0.1);
 				}
 
 				.__code {
@@ -194,6 +242,12 @@ $divider-component-class: zukit-divider;
 				min-width: $settings-left-width;
 			}
 
+			.__subtitle {
+				font-size: $basic-font-size;
+				font-weight: 600;
+				color: $admin-darker-brown;
+			}
+
 			.editor-post-title {
 				background-color: rgba($admin-grey-blue-color, 0.3);
 				box-shadow: 0 0 2px rgba(black, 0.3) inset;
@@ -207,7 +261,7 @@ $divider-component-class: zukit-divider;
 					max-width: none;
 					h1 {
 						font-size: $plugin-title-size;
-						font-family: "Noto Serif", serif;
+						font-family: Ubuntu,Roboto,"Open Sans",sans-serif;
 					}
 					.block-editor-block-icon {
 						width: $plugin-icon-width;
@@ -221,24 +275,52 @@ $divider-component-class: zukit-divider;
 				}
 			}
 
-		.__note {
-			padding: 1em;
-			line-height: 1.7;
-			border: 1px solid $admin-gold-color;
-			border-radius: 5px;
-			margin-bottom: 2em;
-			background-color: rgba($admin-gold-color, 0.2);
-		}
-		.__select_label {
+			.__note {
+				padding: 1em;
+				line-height: 1.7;
+				border: 1px solid $admin-gold-color;
+				border-radius: 5px;
+				margin-bottom: 2em;
+				background-color: rgba($admin-gold-color, 0.2);
+				.__code {
+					@extend %markdown_basic;
+					@extend %markdown_code;
+					background-color: rgba($admin-gold-color, 0.2);
+					@include in('^.is-green') { @extend %markdown_green; }
+					@include in('^.is-red') { @extend %markdown_red; }
+					@include in('^.is-gold') { @extend %markdown_gold; }
+				}
+				strong {
+					@extend %markdown_strong;
+				}
+				em {
+					@extend %markdown_basic;
+					@extend %markdown_em;
+					background-color: transparent;
+					margin: 0;
+					padding: 0 1px;
+					color: $brown-color;
+				}
+			}
+
+			.editor-post-title + .__note {
+				display: inline-block;
+				margin: $main-note-margin;
+				width: calc(100% - #{($main-note-margin * 2) + $main-note-margin});
+			}
+
+			.__select_label {
 				display: block;
 				margin-bottom: 4px;
 			}
+
 			.__block_label {
 				label {
 					display: block;
 					margin-bottom: 4px;
 				}
 			}
+
 			.__select_block {
 				display: flex;
 				justify-content: space-between;
@@ -246,6 +328,7 @@ $divider-component-class: zukit-divider;
 					flex-direction: column;
 				}
 			}
+
 			.__select_control {
 				display: flex;
 				justify-content: flex-start;
@@ -261,11 +344,12 @@ $divider-component-class: zukit-divider;
 					min-width: 36px;
 				}
 			}
+
 			.components-base-control__help {
 				margin: 0 0 1em 1em;
 				color: $toggle-help-color;
 				font-size: 13px;
-				font-style: italic;
+				letter-spacing: 0.5px;
 				text-align: right;
 				@include breakpoint-width(LESS_SETTINGS_BREAK) {
 					margin-left: 0;
@@ -322,7 +406,6 @@ $divider-component-class: zukit-divider;
 					margin-top: 27px;
 				}
 			}
-
 		}
 
 		// Settings Sidebar ---------------------------------------------------]
@@ -334,7 +417,23 @@ $divider-component-class: zukit-divider;
 				font-weight: 600;
 			}
 			.block-editor-block-card__title {
-				margin-bottom: 1.5em;
+				margin-left: 0.5em;
+				margin-bottom: 0.5em;
+				font-size: $basic-font-size;
+			}
+
+			.block-editor-block-card__description {
+				color: $admin-darker-brown;
+				.__code {
+					color: $admin-dark-brown;
+					background-color: rgba($admin-light-brown, 0.2);
+				}
+			}
+			.__plugin_info {
+				.__code {
+					color: $wp-admin-blue-color;
+					background-color: rgba($wp-admin-blue-color, 0.15);
+				}
 			}
 
 			.block-editor-block-card .block-editor-block-icon svg {

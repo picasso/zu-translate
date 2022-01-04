@@ -6,6 +6,7 @@ $admin-grey-color: #e5e5e5;
 $admin-light-yellow: #ffffa5;
 $admin-light-brown: #f2d592; //#d5b464;
 $admin-dark-brown: #7f6c3c;
+$admin-darker-brown: darken($admin-dark-brown, 5%);
 
 $admin-magenta-color: #e01765;
 $admin-error-color: #cc2027;
@@ -20,16 +21,30 @@ $hover-darken: 10;
 $hover-shadow: 15;
 
 $admin-colors: (
+	'red': $admin-red-color,
+	'gold': $admin-gold-color,
 	'green': $admin-green-color,
 	'blue': $admin-blue-color,
-	'gold': $admin-gold-color,
-	'red': $admin-red-color,
 	'magenta': $admin-magenta-color,
 	'light-yellow': $admin-light-yellow,
 	'light-brown': $admin-light-brown,
 	'error': $admin-error-color,
 	'admin-blue': $wp-admin-blue-color
 );
+
+$custom-colors: (
+	'red': 		$red-color,
+	'orange': 	$orange-color,
+	'yellow': 	$yellow-color,
+	'green': 	$green-color,
+	'lime':		$lime-color,
+	'blue': 	$blue-color,
+	'blue-sky': $blue-sky-color,
+	'violet': 	$violet-color,
+	'brown':	$some-brown,
+	'grey':		$dark-blue-grey,
+);
+
 
 // colors ---------------------------------------------------------------------]
 
@@ -51,7 +66,7 @@ $custom-button-hover-text-color: white;
 $settings-max-width: 1020px; //none;
 $settings-left-width: 200px;
 $settings-left-min-width: $settings-left-width + 60px;
-$settings-sidebar-icon-size: 30px;
+$settings-sidebar-icon-size: 36px;
 
 $basic-font-family: 'Open Sans',-apple-system,Roboto,Ubuntu,sans-serif;
 $basic-font-size: 14px;
@@ -62,6 +77,7 @@ $plugin-icon-width: 100px;
 $plugin-icon-height: 80px;
 
 $select-item-size: 80px;
+$main-note-margin: 2em;
 
 // class prefixes -------------------------------------------------------------]
 
@@ -70,6 +86,7 @@ $listinput-component-class: zukit-list-input;
 $advtext-component-class: zukit-text-control;
 $loader-component-class: zukit-loader-control;
 $modal-component-class: zukit-modal;
+$title-indicator-class: zukit-title-indicator;
 
 // simple markdown ------------------------------------------------------------]
 
@@ -82,8 +99,10 @@ $modal-component-class: zukit-modal;
 }
 
 %markdown_code {
+	padding: 1px 5px;
+	display: inline-block;
 	color: darken($admin-magenta-color, 10%);
-	background-color: rgba($admin-magenta-color, 0.05);
+	background-color: rgba($admin-magenta-color, 0.08);
 }
 
 %markdown_em {
@@ -107,10 +126,10 @@ $modal-component-class: zukit-modal;
 
 %markdown_red_on_red {
 	color: darken($red-color, 30%);
-	background-color: rgba($orange-bright-color, 0.2);
+	background-color: rgba($yellow-color, 0.2);
 }
 
 %markdown_gold {
-	color: darken($orange-bright-color, 10%);
-	background-color: rgba($orange-bright-color, 0.1);
+	color: darken($yellow-color, 10%);
+	background-color: rgba($yellow-color, 0.1);
 }

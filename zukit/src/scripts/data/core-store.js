@@ -1,6 +1,7 @@
 // WordPress dependencies
 
-const { isEmpty, isNil, get, includes, repeat, forEach } = lodash;
+const { isEmpty, isNil, get, includes, repeat, forEach, sortBy } = lodash;
+const { __ } = wp.i18n;
 const { createHigherOrderComponent } = wp.compose;
 const { withSelect, useSelect } = wp.data;
 
@@ -110,10 +111,14 @@ export const withFolders = createHigherOrderComponent(
 	'withFolders',
 );
 
-export const folderOptions = folders => {
+export const folderOptions = (folders, initialOption = null) => {
+
+    const sortedFolders = sortBy(folders, 'order');
+    // const idRefs = transform(folders, (acc, val, i) => { acc[val.id] = toInteger(i) });
 
     function folderOps(folder, ops, depth, parentId) {
-        if(folder.parent_id !== parentId) return;
+
+        if(isNil(folder) || folder.parent_id !== parentId) return;
         ops.push({
             label: repeat(FolderDepthSymbol, depth * FolderDepthShift) + folder.title,
             value: folder.id,
@@ -125,23 +130,28 @@ export const folderOptions = folders => {
     }
 
     let folderDepth = 0;
-    let options = [];
-    forEach(folders, f => {
+    let options = initialOption ? [initialOption] : [];
+    forEach(sortedFolders, f => {
         if(f.parent_id === 0) folderOps(f, options, folderDepth, 0);
     })
     return options;
 }
 
-// Custom hook which returns 'folders' (all folders if folderId is 'null')
-export const useFolders = (folderId = null, asOptions = false) => {
+// Custom hook which returns 'folder/folders' (all folders if folderId is 'null')
+export const useFolders = (folderId = null) => {
 	const { folders = null } = useSelect((select) => {
 		return { folders: select(ZUKIT_STORE).getValue('folders') };
 	}, []);
 
-	return isEmpty(folders) ? null :
-        (folderId === null ?
-            (asOptions ? folderOptions(folders) : folders) :
-                get(folders, folderId, null));
+    return isEmpty(folders) ? null : (folderId === null ? folders : get(folders, folderId, null));
+};
+
+// Custom hook which returns array with 'folder options'
+const emptyOps = [{ value: 0, label: __('Loading...', 'zukit') }];
+const initialOp = { value: 0, label: __('Select folder', 'zukit') };
+export const useFolderOptions = (withInitial = initialOp) => {
+    const folders = useFolders();
+    return isEmpty(folders) ? emptyOps : folderOptions(folders, withInitial);
 };
 
 // Custom hook which returns 'galleries' (all galleries if postId is 'null')

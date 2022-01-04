@@ -1,50 +1,28 @@
+// WordPress dependencies
+
+const { isString, trim } = lodash;
+const { createElement } = wp.element;
+
 // Conditional Wrap Component
 // condition ? wrap(children) : children
 
 const ConditionalWrap = ({
-		className,
-		condition,					// if true "children" will be wrapped in <WrappingComponent> component with additionalProps
-		elseDiv,					// if true then "children" will be wrapped in <div> with the same className
-		wrappingDiv,				// if !undefined then <div> will be used as Wrapping Component
-		wrappingLink,				// if !undefined then <a> will be used as Wrapping Component
-		wrap,						// will be used only if wrappedDiv and wrappedLink are undefined
+		condition,					// if true 'children' will be wrapped in <WrappingComponent> component with additionalProps
+		wrap: WrappingComponent,	// could be a string (for built-in components) or a class/function (for composite components)
+									// built-in components can be wrapped in angular brackets like <div> or <div/> (for clarity)
 		children,
 		...additionalProps			// all additional props go to Wrapping Component
 }) => {
 
-	// maybe Wrapping Component is <div>
-	let wrappingComponent = !wrappingDiv ? null : (
-		<div
-			className={ className }
-			{ ...additionalProps }
-		>
-			{ children }
-		</div>
-	);
-
-	// maybe Wrapping Component is <a>
-	if(wrappingLink) wrappingComponent = (
-		<a
-			className={ className }
-			{ ...additionalProps }
-		>
-			{ children }
-		</a>
-	);
-
-	// if wrappingComponent is still undefined then use "wrap" as component
-	if(!wrappingComponent) {
-		const Wrap = wrap;
-		wrappingComponent = (
-			<Wrap
-				className={ className }
-				{ ...additionalProps }>
-				{ children }
-			</Wrap>
-		);
+	if(condition) {
+		if(isString(WrappingComponent)) {
+			// built-in components can be wrapped in angular brackets
+			const elementType = trim(WrappingComponent, '</>');
+			return createElement(elementType, additionalProps, children);
+		}
+		return <WrappingComponent { ...additionalProps }>{ children }</WrappingComponent>;
 	}
-
-	return condition ? wrappingComponent : (elseDiv ? <div className={ className }>{ children }</div> : children);
+	return children;
 }
 
 export default ConditionalWrap;

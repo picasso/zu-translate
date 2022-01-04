@@ -19,6 +19,12 @@ $advtext-help-margin: -16px; // margin 8px * 2
 	&.__with-label {
 		align-items: flex-end;
 	}
+	&.__with-help {
+		.components-base-control__help {
+			text-align: left !important;
+			margin-left: 0 !important;
+		}
+	}
 	&.__with-label-help {
 		align-items: flex-start;
 	}
@@ -52,7 +58,7 @@ $advtext-help-margin: -16px; // margin 8px * 2
 			margin-bottom: 8px;
 		}
 		&.__with-label-help {
-			margin-top: 26px;
+			margin-top: 27px;
 			margin-bottom: 0;
 		}
 
