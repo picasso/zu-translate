@@ -31,9 +31,9 @@ trait zukit_AjaxREST {
 
 	private function ajax_config() {
 
-		$this->nonce = $this->get('api.nonce') ?? $this->prefix.'_ajax_nonce';
-		$this->api_root = $this->get('api.root') ?? $this->prefix;
-		$this->api_version = $this->get('api.version') ?? 1;
+		$this->nonce = $this->get_callable('api.nonce') ?? $this->prefix.'_ajax_nonce';
+		$this->api_root = $this->get_callable('api.root') ?? $this->prefix;
+		$this->api_version = $this->get_callable('api.version') ?? 1;
 
 		$this->zukit_routes = [
 			// make action via ajax call
@@ -193,9 +193,11 @@ trait zukit_AjaxREST {
 
 	public function api_basics() {
 		return [
-			'router'	=> $this->get_router_name(),
-			'root'		=> $this->api_root,
-			'verion'	=> $this->api_version,
+			'rest'	=> [
+				'router'	=> $this->get_router_name(),
+				'root'		=> $this->api_root,
+				'version'	=> $this->api_version,
+			],
 		];
 	}
 
@@ -376,10 +378,9 @@ trait zukit_AjaxREST {
 				// if value for 'key' is 'null' then call 'del_option' instead of 'set_option'
 				if(array_key_exists($key, $values) && $values[$key] === null) $return = $router->del_option($key);
 				// with set_option 'null' will be ignored, 'false' considered as failure
-				else $return = $router->set_option($key, $values[$key] ?? null);
+				else $return = $router->set_option($key, $values[$key] ?? null, true);
 				// if at least one call returns 'true', then the overall result will also be 'true'
 				$result = $result || $return;
-				// if($return === false) $result = false;
 			}
 		}
 		// if $result is false - something went wrong - then return null
@@ -428,15 +429,11 @@ trait zukit_AjaxREST {
 				]);
 				break;
 
-			// process 'zudata' from all loaded plugins/theme
+			// process 'zudata' from all loaded plugins/themes
 			default:
-				if($request_router !== null) {
-					$result = $request_router->extend_zudata($key, $params) ?? null;
-				} else {
-					foreach($this->instance_by_router() as $plugin_router) {
-						$result = $plugin_router->extend_zudata($key, $params) ?? null;
-						if(!empty($result)) break;
-					}
+				foreach($this->instance_by_router() as $plugin_router) {
+					$result = $plugin_router->extend_zudata($key, $params) ?? null;
+					if(!empty($result)) break;
 				}
 		}
 

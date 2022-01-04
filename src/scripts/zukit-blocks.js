@@ -5,6 +5,7 @@ import { blocksSet as render } from './render.js';
 import * as icons from './icons.js';
 import * as jq from './jquery-helpers.js';
 import * as components from './components/blocks-index.js';
+import * as plugins from './plugins/with-plugin.js';
 import * as data from './data/use-store.js';
 import debug from './debug.js';
 
@@ -15,6 +16,7 @@ wp.zukit = {
     icons,
     jq,
     components,
+    plugins,
     data,
     debug,
 };

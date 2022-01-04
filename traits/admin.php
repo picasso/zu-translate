@@ -53,7 +53,8 @@ trait zukit_Admin {
 
 	protected function on_activation() {}
 	protected function on_deactivation() {}
-	protected function extend_info() { return (object)null;}
+	protected function extend_info() {}
+	protected function extend_metadata($metadata) { return $metadata; }
 	protected function extend_actions() { return (object)null;}
 
 	// Wordpress Admin Page ---------------------------------------------------]
@@ -69,20 +70,29 @@ trait zukit_Admin {
 		$domain = $this->text_domain();
 		$github = preg_replace('/\.git$/', '', $data['GitHubURI']);
 
-		return [
-			'version'		=> $this->version,
-			// yes, I know that should not use a variable as a text string
-			// 'Poedit' will pull these strings from the plugin description
+		$metadata =  [
 			'title'			=> __($data['Name'], $domain),
 			'author'		=> __($data['Author'], $domain),
 			'link'			=> __($data['AuthorURI'], $domain),
 			'description'	=> __($data['Description'], $domain),
-			'uri'			=> $data['URI'],
-			'github'		=> $github ?: $defaultFill,
-			'icon'			=> $this->get('appearance.icon'),
-			'colors'		=> $this->get('appearance.colors'),
-			'more' 			=> $this->extend_info(),
 		];
+
+		return array_merge([
+				'version'		=> $this->version,
+				// yes, I know that should not use a variable as a text string
+				// 'Poedit' will pull these strings from the plugin description
+				'title'			=> __($data['Name'], $domain),
+				'author'		=> __($data['Author'], $domain),
+				'link'			=> __($data['AuthorURI'], $domain),
+				'description'	=> __($data['Description'], $domain),
+				'uri'			=> $data['URI'],
+				'github'		=> $github ?: $defaultFill,
+				'icon'			=> $this->get_callable('appearance.icon'),
+				'colors'		=> $this->get_callable('appearance.colors'),
+				'more' 			=> $this->extend_info() ?? (object)null,
+			],
+			$this->extend_metadata($metadata)
+		);
 	}
 
 	public function admin_slug() {
@@ -102,9 +112,29 @@ trait zukit_Admin {
 		return false;
 	}
 
+	// $router is $this->admin_slug()
 	protected function instance_by_router($router = null) {
-		// $router is $this->admin_slug()
 		return is_null($router) ? self::$zukit_items : (self::$zukit_items[$router] ?? null);
+	}
+
+	public function do_with_instances($method, $params = null, $addon = false, $flatten = true) {
+		$results = [];
+		foreach(self::$zukit_items as $instance) {
+			if($addon) {
+				$collected = $instance->do_addons($method, $params ?? [], ['collect' => true, 'single' => false]);
+				$results[] = $flatten ? $this->snippets('array_flatten', array_filter($collected)) : $collected;
+			} elseif(method_exists($instance, $method)) {
+				$results[] = call_user_func_array([$instance, $method], $params ?? []);
+			}
+			else {
+				$this->logc('Unknown "Zukit instance" method!', [
+					'method'	=> $method,
+					'params'	=> $params,
+					'instances'	=> self::$zukit_items,
+				]);
+			}
+		}
+		return empty($results) ? null : $results;
 	}
 
 	public function admin_menu() {

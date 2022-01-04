@@ -1,9 +1,11 @@
 // WordPress dependencies
 
-const { isNil, isEmpty, debounce } = lodash;
+const { isNil, isEmpty, isFunction, debounce } = lodash;
 const { __ } = wp.i18n;
+const { ENTER } = wp.keycodes;
 const { Button, TextControl, Tooltip } = wp.components;
 const { useCallback, useState, useEffect } = wp.element;
+const { useInstanceId } = wp.compose;
 
 // Internal dependencies
 
@@ -38,6 +40,7 @@ const setValidatedValue = (val, withoutValues, fallbackValue, kind, emptyIfFaile
 const AdvTextControl = ({
 		className,
 		isPassword,
+		isSideBySide,		// if true then 'label' and 'help' will be placed 'side by side'
 		showTooltip = true,
 		tooltipPosition = 'top center',
 		withoutClear,
@@ -46,14 +49,16 @@ const AdvTextControl = ({
 		value,
 		help,
 		type,
-		strict,
-
+		strict,				// 'number', 'email', 'url', 'tel' or regex string
+							// when regex - provide it in JSX as strict={ /^(?!\d)[\w$]+$/g },
+							// if passed as a string then there may be problems with the backslash
 		withDebounce,
 		debounceDelay = 1000,
 		withoutValues = null,
 		fallbackValue = 'name',
 
 		onChange,
+		onKeyEnter,
 }) => {
 
 	const [visible, setVisible] = useState(false);
@@ -61,6 +66,8 @@ const AdvTextControl = ({
 	const controlType = isPassword ? (visible ? 'text' : 'password') : (type || 'text');
 	const controlIcon = isPassword ? (visible ? 'hidden' : 'visibility') : 'no-alt';
 	const controlTooltip = isPassword ? (visible ? labels.hide : labels.show) : labels.clear;
+	const instanceId = useInstanceId(AdvTextControl);
+	const controlId = id ?? `advanced-text-control-${ instanceId }`;
 
 	const onClear = useCallback(() => {
 		setTemporaryValue('');
@@ -91,6 +98,14 @@ const AdvTextControl = ({
 		onUpdateValue(value);
 	}, [onUpdateValue]);
 
+	// call handler on ENTER key pressed
+	const onEnter = useCallback(event => {
+		const { keyCode } = event;
+		if(keyCode === ENTER && isFunction(onKeyEnter)) {
+			onKeyEnter();
+		}
+	}, [onKeyEnter]);
+
 	// sync 'temporaryValue' and 'value' what can happen if 'value' was changed outside the component и
 	// after the component has been mounted and the 'temporaryValue' state has already been initialized
 	useEffect(() => {
@@ -115,23 +130,37 @@ const AdvTextControl = ({
 		}
 	}, [strict, withDebounce, onChange, onChangeValue, withoutValues, fallbackValue]);
 
+	const isСombined = isSideBySide && (label || help);
+
 	return (
+		<>
+		{ isСombined &&
+			<div className="__sidebyside components-base-control">
+				{ label &&
+					<label className="components-base-control__label" htmlFor={ controlId }>{ label }</label>
+				}
+				{ help &&
+					<p className="components-base-control__help">{ help }</p>
+				}
+			</div>
+		}
 		<div className={ mergeClasses(
 			'components-base-control', 'zukit-text-control', className,
 			{
-				'__with-label': label && withButton,
-				// '__with-help': help && withButton,
-				'__with-label-help': label && help && withButton,
+				'__with-label': !isСombined && label && withButton,
+				'__with-help': !isСombined && help,
+				'__with-label-help': !isСombined && label && help && withButton,
 				'__with-button': withButton,
 			}
 		) }>
 			<TextControl
-				id={ id }
 				type={ controlType }
-				label={ label }
-				help={ help }
+				label={ isСombined ? undefined : label }
+				help={ isСombined ? undefined : help }
 				value={ (withDebounce ? temporaryValue : value) || '' }
 				onChange={ onValidatedChange }
+				onKeyDown={ onEnter }
+				{ ...(isСombined ? { id: controlId } : {}) }
 			/>
 			{ withButton &&
 				<ConditionalWrap
@@ -144,9 +173,8 @@ const AdvTextControl = ({
 					<Button
 						className={ mergeClasses('__exclude',
 						{
-							'__with-label': label && withButton,
-							// '__with-help': help && withButton,
-							'__with-label-help': label && help && withButton,
+							'__with-label': !isСombined && label && withButton,
+							'__with-label-help': !isСombined && label && help && withButton,
 						}
 					) }
 						icon={ controlIcon }
@@ -155,6 +183,7 @@ const AdvTextControl = ({
 				</ConditionalWrap>
 			}
 		</div>
+		</>
 	);
 }
 

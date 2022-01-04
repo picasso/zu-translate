@@ -1,7 +1,8 @@
 // WordPress dependencies
 
-const { isNil, isArray, isEmpty, some, reduce } = lodash;
+const { isNil, isArray, isEmpty, isFunction, isPlainObject, some, reduce, defaults } = lodash;
 const { useSelect, useDispatch } = wp.data;
+const { useRef, useReducer } = wp.element;
 
 // Internal dependencies
 
@@ -9,6 +10,28 @@ import { setupStore } from './generic-store.js';
 import { useCoreDataGeneric, useSvgFromFileGeneric } from './core-store.js';
 
 const emptyArray = [];
+
+// Custom hooks ---------------------------------------------------------------]
+
+export function useForceUpdater() {
+	const [, forceUpdate] = useReducer(z => z + 1, 0);
+	return forceUpdate;
+}
+
+export function useRefInit(func, params = null) {
+	const ref = useRef(null);
+	if(ref.current === null && isFunction(func)) ref.current = func(params);
+	return ref;
+}
+
+export function useRefDefaults(params, defaultValues = {}) {
+	const ref = useRef(null);
+	if(ref.current === null && params) {
+		const value = isPlainObject(params) ? defaults({}, params, defaultValues) : params;
+		ref.current = value;
+	}
+	return ref;
+}
 
 // Setup and re-export Zukit Core store ---------------------------------------]
 

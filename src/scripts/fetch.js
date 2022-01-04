@@ -9,13 +9,15 @@ import { messageWithError, toJSON } from './utils.js';
 
 const cacheKey = 'cache';
 const routerKey = 'router';
-const apiBaseURL = '/zukit/v1/';
+const restDefaults = { router: null, root: 'zukit', version: 1 };
+const apiBaseURL = `/${restDefaults.root}/v${restDefaults.version}/`;
 
 // restRouter serves to identify the plugin that currently uses the REST API,
 // since all plugins inherit the same Zukit_plugin class and identification
 // is required to determine which of the active plugins should respond to ajax requests.
 // Therefore, we automatically add the 'router' param to all API request.
 let restRouter = null;
+let restBasics = restDefaults;
 
 // Ajax actions and options update --------------------------------------------]
 
@@ -206,10 +208,6 @@ function parseError(error, requestKey) {
 	return [message, param];
 }
 
-export function setRestRouter(router) {
-	restRouter = router;
-}
-
 // Convert object to query string and skip "unwanted" properties
 function serializeData(data, cache = false, skip = []) {
 
@@ -266,6 +264,21 @@ function requestURLWithRoot(root, version, url, options, router = null, picked =
 	return requestURL(url, options, router, picked, apiBase);
 }
 
+function requestCustomURL(url, options, router = null, picked = []) {
+	const apiBase = `/${restBasics.root}/v${restBasics.version}/`;
+	return requestURL(url, options, router, picked, apiBase);
+}
+
+export function setRestRouter(router) {
+	restRouter = _.isString(router) ? router : (_.get(router, 'rest.router', null) || _.get(router, 'router', null));
+}
+
+export function setRestBasics(data) {
+	if(_.isNil(data)) return {restBasics, restRouter};
+	restRouter = _.get(data, 'rest.router', null) || _.get(data, 'router', null);
+	restBasics = _.get(data, 'rest', restDefaults);
+}
+
 // create GET API Promise with Route and Options, then execute it and process results with callbacks
 export function fetchAndCatchWithOptions({ route, options, picked, onSuccess, onError }) {
 
@@ -297,7 +310,9 @@ export function postAndCatchWithOptions({ route, options, picked, onSuccess, onE
 // Subset of functions for 'zukit-blocks'
 export const blocksSet = {
 	serializeData,
+	setRestBasics,
 	requestURL: requestURLWithRoot,
+	restRequestURL: requestCustomURL,
 	fetchAndCatchWithOptions,
 	postAndCatchWithOptions,
 };

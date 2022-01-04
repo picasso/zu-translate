@@ -1,6 +1,7 @@
 // Admin Divider Component ----------------------------------------------------]
 
-$list-input-border-radius: 10px;
+$list-input-margin: 8px;
+$list-input-border-radius: 6px;
 $list-input-basic-color: $wp-admin-blue-color;
 $list-input-item-color: rgba($list-input-basic-color, 0.1);
 $list-input-item-border-color: rgba($list-input-basic-color, 0.7);
@@ -13,13 +14,8 @@ $list-input-close-size: $_button-svg-default-size + $list-input-padding;
 	display: flex;
 	flex-direction: column;
 
-	.__desc {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		.components-base-control__label {
-			font-weight: 500;
-		}
+	&.__fullwidth {
+		width: 100%;
 	}
 
 	.__list {
@@ -27,7 +23,7 @@ $list-input-close-size: $_button-svg-default-size + $list-input-padding;
 		align-items: center;
 		justify-content: flex-start;
 		flex-wrap: wrap;
-		margin-top: 1em;
+		margin-top: $list-input-margin;
 
 		.__list-item {
 			display: flex;
@@ -37,7 +33,7 @@ $list-input-close-size: $_button-svg-default-size + $list-input-padding;
 			border-radius: $list-input-border-radius;
 			border: 1px solid $list-input-item-border-color;
 			overflow: hidden;
-			margin: 0 $list-input-padding $list-input-padding 0;
+			margin: 0 $list-input-margin $list-input-margin 0;
 
 			span:not(.dashicons) {
 				color: $list-input-item-text-color;
@@ -72,14 +68,33 @@ $list-input-close-size: $_button-svg-default-size + $list-input-padding;
 		display: flex;
 		align-items: center;
 		justify-content: flex-start;
-		margin-top: 1em;
+		margin-top: $list-input-margin;
 
 		.components-button {
-			margin: 14px 0 0 10px;
+			margin: 15px 0 0 10px;
 			height: 30px;
 			width: auto !important;
 			padding-right: 12px;
 			box-shadow: none;
+		}
+		&.__with-help {
+			.components-base-control__help {
+				margin-left: 0 !important;
+			}
+			.__add, .__reset {
+				margin-top: 0;
+				top: - $list-input-margin;
+			}
+		}
+		&.__with-label-help {
+			margin-top: 0;
+			margin-bottom: $list-input-margin;
+			.components-base-control__field {
+				margin-bottom: 0;
+			}
+			.__add, .__reset {
+				margin-top: 0;
+			}
 		}
 	}
 }

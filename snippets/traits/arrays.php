@@ -36,11 +36,13 @@ trait zusnippets_Arrays {
 	}
 
 	public function array_without_keys($array, $keys, $reindex = false) {
+		if(empty($keys)) return $array ?? [];
 		$array = array_diff_key($array ?? [], array_flip($this->cast_array($keys)));
 		return $reindex ? array_values($array) : $array;
 	}
 
 	public function array_pick_keys($array, $keys, $reindex = false) {
+		if(empty($keys)) return $array ?? [];
 		$array = array_intersect_key($array ?? [], array_flip($this->cast_array($keys)));
 		return $reindex ? array_values($array) : $array;
 	}
@@ -52,9 +54,12 @@ trait zusnippets_Arrays {
 
 	public function array_flatten($array) {
 		$flatten = [];
-		foreach($array ?? [] as $value) {
+		foreach($array ?? [] as $key => $value) {
 			if(is_array($value)) $flatten = array_merge($flatten, $this->array_flatten($value));
-			else $flatten[] = $value;
+			else {
+				if(is_string($key)) $flatten[$key] = $value;
+				else $flatten[] = $value;
+			}
 		}
 		return $flatten;
 	}

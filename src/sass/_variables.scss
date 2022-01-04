@@ -1,109 +1,21 @@
-@use 'sass:math';
+// @use 'sass:math';
 //-----------------------------------------------------------------------------]
 @import "instyle";
-//
-// https://github.com/salsita/inStyle/
-//
-// @include in('<.class')
-// Appending a state to an existing parent is done with the < special character.
-// Each additional use of this character targets a higher parent (works the same for all features).
-//
-// EXAMPLE:
-// .my-app {
-//     display: block;
-//
-//     .widget {
-//         border-radius: 5px;
-//
-//         &.large {
-//             font-size: 20px;
-//         }
-//
-//         @include in('<.expanded') { font-size: 10px; }
-//         // .my-app.expanded .widget { font-size: 10px; };
-// }
-//
-// You can also explicitly mention the compound selector, which is useful for filtering out undesired multiselector parents.
-// May also be preferential for readability.
-//
-// EXAMPLE:
-// ul, ol {
-//     list-style: none
-//
-//     li {
-//         display: inline-block;
-//
-//         a {
-//             text-decoration: underline;
-//
-//             @include in('ol.links') { text-decoration: none; }
-//             // ol.links li a { text-decoration: none; };
-//         }
-//     }
-// }
-//
-// @include in('^.class')
-// Inserting a new selector at a certain position above the current element is done with the ^ special character.
-//
-// EXAMPLE:
-// .container {
-//     display: flex;
-//
-//     div {
-//         flex: 1;
-//
-//         span {
-//             padding: 0;
-//
-//             @include in('^.upside-down') { transform: rotate(180deg); }
-//             // .container div .upside-down span { transform: rotate(180deg); };
-//
-//             @include in('^^[class^=foo]') { content: 'bar'; }
-//             // .container [class^=foo] div span { content: 'bar'; };
-//         }
-//     }
-// }
-//
-// @include in('@.class')
-// Replacing a certain selector is done using the @ character.
-// Multiselectors that become duplicit due to the replacement are removed from the rendered selector.
-//
-// EXAMPLE:
-// ul, ol {
-//     list-style: none;
-//
-//     li {
-//         display: inline-block;
-//
-//         a {
-//             text-decoration: underline;
-//
-//             @include in('@.cool') { background: transparent; }
-//              // ul .cool a, ol .cool a { background: transparent; };
-//
-//             @include in('@@.special-list') { border-bottom: 1px dotted; }
-//             // .special-list li a { border-bottom: 1px dotted; };
-//         }
-//     }
-// }
+// @function div($be-divided, $by) { @return math.div($be-divided, $by); }
 
-
-//-----------------------------------------------------------------------------]
-
-// using '/' for division is deprecated and will be removed in Dart Sass 2.0.0
-// this function is more convenient to use than math.div
-@function div($be-divided, $by) { @return math.div($be-divided, $by); }
-
-@function strip-units($number) {  @return div($number, ($number * 0 + 1)); }
-@function half($number)             {  @return floor(div($number, 2)); }
-@function twice($number)            {  @return floor($number * 2); }
+@function strip-units($number) { @return div($number, ($number * 0 + 1)); }
+@function half($number) { @return floor(div($number, 2)); }
+@function twice($number) { @return floor($number * 2); }
 
 // Colors ---------------------------------------------------------------------]
 
-$some-orange: #fb8f3d; //#fcbf00; // #fb8f3d;
+$some-orange: #fb8f3d;
 $some-orange-bright: #fcbf00;
 $some-green: #5b9a68; // #83b19a - truewine;  // #63ad72 - safari?
 $some-blue: #00aced;
+$some-dark-blue: #0063db;
+$some-lime: #b2ec5d; // #a6d608 #cae00d  #9dc209  #d0ff14 #ccff00
+
 $some-violet: #bc2a8d;
 $some-red: #ff3358; // #ff3358 // #ff4136 // orig - #e32546
 $some-red-bright: #ff4136; // #ff3358 // #ff4136 // orig - #e32546
@@ -117,15 +29,19 @@ $light-yellow: #fff4d9;
 $dark-yellow: #fcb813;
 $black-blue: #2f2933;
 $gold-green-color: #c8ba51; // #9f985e;
+$some-brown: #987654; // #987654 #826644 #a0785a #80755a #6c541e #c19a6b
 
 // Site colors ----------------------------------------------------------------]
 
 $red-color: $some-red !default;
 $green-color: $some-green !default;
-$blue-color: $some-blue !default;
+$lime-color: $some-lime !default;
+$blue-sky-color: $some-blue !default;
+$blue-color: $some-dark-blue !default;
 $violet-color: $some-violet !default;
 $orange-color: $some-orange !default;
-$orange-bright-color: $some-orange-bright !default;
+$yellow-color: $some-orange-bright !default;
+$brown-color: $some-brown !default;
 $red-bright-color: $some-red-bright !default;
 
 // Wordpress basic vars -------------------------------------------------------]
@@ -259,10 +175,14 @@ $break-480: 480px;
 $break-768: 768px;
 $break-1800: 1800px;
 
-$break-layout: $break-1020;					// when all columns will be reverted to 100% width (and Normal Menu will be hidden and MX Menu will be shown)
-$topmenu-break-width: $break-1280;			// when Normal Menu will be reduced (small font and padding)
-$break-settings: $settings-max-width + $settings-sidebar-width + $settings-leftmenu-width;          // when settings area will reach 'max-width'
-$break-settings-sidebar: $settings-min-width + $settings-sidebar-width + $settings-leftmenu-width;  // when settings sidebar will be hidden
+// when all columns will be reverted to 100% width (and Normal Menu will be hidden and MX Menu will be shown)
+$break-layout: $break-1020;
+// when Normal Menu will be reduced (small font and padding)
+$topmenu-break-width: $break-1280;
+// when settings area will reach 'max-width'
+$break-settings: $settings-max-width + $settings-sidebar-width + $settings-leftmenu-width;
+// when settings sidebar will be hidden     
+$break-settings-sidebar: $settings-min-width + $settings-sidebar-width + $settings-leftmenu-width;
 
 @mixin breakpoint-width($point) {
     @if $point == LESS320 {
