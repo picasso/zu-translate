@@ -59,7 +59,7 @@ class zu_Translate extends zukit_Plugin  {
 
 			'blocks'			=> [
 				'namespace'			=> 'zu',
-				'blocks'			=> ['translate'],
+				'blocks'			=> [$this, 'blocks_enabled'],
 				'frontend_blocks'	=> false,
 				'load_css'          => true,
 				'script'			=> [
@@ -218,8 +218,15 @@ class zu_Translate extends zukit_Plugin  {
 		);
 	}
 
+	// Custom blocks helpers --------------------------------------------------]
+
 	public function blocks_js_data() {
 		return $this->gutenberg_data();
+	}
+
+	public function blocks_enabled() {
+		// the block name can be any, since we do not create a block, only hooks
+		return $this->is_option('gutenberg') ? ['hooks_only'] : null;
 	}
 
 
