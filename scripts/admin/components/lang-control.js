@@ -5,17 +5,16 @@ const { __ } = wp.i18n;
 const { PanelBody, Path, SVG } = wp.components;
 const { useCallback } = wp.element;
 
-// Import debug object and make it available from global scope
-window.Zubug = { ...(wp.zukit.debug  || {}) };
-
 // Zukit dependencies
 
 const { SelectItemControl, TitleIndicator } = wp.zukit.components;
 
 // Internal dependencies
 
-const { language_config: config } = window.qTranslateConfig ?? {};
-const langOptions = map(config, (data, key) => ({ value: key, label: data.name }));
+import { getExternalData, emptyGif, mergeClasses } from './../utils.js';
+const { language_config: config, flag_location: flagPath } = window.qTranslateConfig ?? {};
+const langOptions = map(config, (data, key) => ({ value: key, label: data.name, flag: data.flag }));
+export const withFlags = getExternalData('flags', false);
 
 const langPrefix = 'components-zu-lang-control';
 
@@ -51,15 +50,19 @@ const LangControl = ({
 	withPanel,
 	...additionalProps
 }) => {
-	// const { title, lang, onClick, withPanel, ...additionalProps } = props;
-	// Zubug.useTrace(props);
 
-	const langValue = useCallback((value, label, style) => {
+	const langValue = useCallback((value, label, style, more) => {
 		return (
 			<span
-				className="__lang"
+				className={ mergeClasses('__lang', { '__with-flags': withFlags }) }
 				style={ style }
 			>
+				{ withFlags &&
+					<img
+						className="__flag"
+						src={ more.flag ? flagPath + more.flag : emptyGif }
+					/>
+				}
 				{ label }
 				{ lang === value ? tick : null }
 			</span>

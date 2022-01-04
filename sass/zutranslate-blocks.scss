@@ -12,7 +12,7 @@ $admin-disable-text-color: #a0a5aa;
 $admin-block-accent-color: $violet-color;
 
 $admin-control-highlight-color: $admin-blue;
-$admin-control-font-family: Ubuntu,'Open Sans';
+$admin-control-font-family: Ubuntu,Roboto,'Open Sans','Helvetica Neue',sans-serif;
 $admin-control-selected-color: rgba($admin-control-highlight-color, 0.3);
 $admin-control-text-color: $admin-dark;
 
@@ -68,15 +68,23 @@ $lang-control-text-color: $violet-color;
 		transition-property: background-color, color;
 		transition-duration: $transition-time;
 		transition-timing-function: $transition-function;
-		span {
-			width: 100%;
-			letter-spacing: 1px;
-			font-weight: 400;
-			font-family: $admin-control-font-family;
-		}
 		&:hover {
 			background-color: $admin-control-hover-color !important;
 			color: $admin-control-hover-text-color !important;
 		}
+
+		.__lang {
+			width: 100%;
+			letter-spacing: 1px;
+			font-weight: 400;
+			font-family: $admin-control-font-family;
+			&.__with-flags {
+				font-size: 15px;
+			}
+			.__flag {
+				margin-right: 6px;
+			}
+		}
 	}
+
 }

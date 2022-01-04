@@ -189,6 +189,7 @@ trait zu_TranslateGutenberg {
 			'supported' => ($include_fullset ? $this->supported_data : $this->supported_blocks) ?? [],
 			'lang'		=> $this->get_url_param('language'),
 			'sync'		=> $this->is_option('blockeditor.sync'),
+			'flags'		=> $this->is_option('flags'),
 		];
 	}
 

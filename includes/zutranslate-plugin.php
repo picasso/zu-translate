@@ -75,18 +75,7 @@ class zu_Translate extends zukit_Plugin  {
 	}
 
 	protected function extend_info() {
-		return array_merge([
-			// 	'images'		=> [
-			// 			'label'		=> __('Images', 'zu-media'),
-			// 			'value'		=> count($this->get_attachments()),
-			// 	],
-			// 	'memory'		=> [
-			// 			'label'		=> __('Cached Data', 'zu-media'),
-			// 			'value'		=> $this->get_cached_memory($stats),
-			// 			'depends' 	=> ['folders', 'disable_cache'],
-			// 	],
-			], $this->qtx_info()
-		);
+		return $this->qtx_info();
 	}
 
 	protected function extend_actions() {

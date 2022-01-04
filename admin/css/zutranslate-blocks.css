@@ -23,11 +23,15 @@
     transition-property: background-color, color;
     transition-duration: 0.3s;
     transition-timing-function: ease-out; }
-    .components-zu-lang-control .components-button.components-button span {
-      width: 100%;
-      letter-spacing: 1px;
-      font-weight: 400;
-      font-family: Ubuntu, "Open Sans"; }
     .components-zu-lang-control .components-button.components-button:hover {
       background-color: rgba(0, 124, 186, 0.7) !important;
       color: white !important; }
+    .components-zu-lang-control .components-button.components-button .__lang {
+      width: 100%;
+      letter-spacing: 1px;
+      font-weight: 400;
+      font-family: Ubuntu, Roboto, "Open Sans", "Helvetica Neue", sans-serif; }
+      .components-zu-lang-control .components-button.components-button .__lang.__with-flags {
+        font-size: 15px; }
+      .components-zu-lang-control .components-button.components-button .__lang .__flag {
+        margin-right: 6px; }

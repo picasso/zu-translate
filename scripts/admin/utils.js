@@ -4,7 +4,7 @@ const _ = lodash;
 
 // Zukit dependencies
 
-export const { externalData, getExternalData, mergeClasses, toJSON, simpleMarkdown } = wp.zukit.utils;
+export const { externalData, getExternalData, mergeClasses, emptyGif, toJSON, simpleMarkdown } = wp.zukit.utils;
 
 // Import debug object and make it available from global scope
 window.Zubug = { ...(wp.zukit.debug  || {}) };
