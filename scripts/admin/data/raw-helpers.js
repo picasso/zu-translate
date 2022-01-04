@@ -17,22 +17,27 @@ const activateDebug = false;
 // NB! set them only for the first time when values in 'store' are undefined
 // all subsequent calls should be ignored - it's necessary as the document editing panel
 // will be mounted and unmounted every time when switching to blocks editing
-export function setRawAttributes(removeListeners = false) {
+export function setRawAttributes(addListeners = true) {
 	const { getEditedPostAttribute } = select('core/editor');
 	forEach(supportedAtts, (selector, attr) => {
-		if(removeListeners) {
-			// with the third argument equal to false listener will be removed
-			addInputListener(selector, getListener(attr), false);
-		} else {
+		if(addListeners) {
 			let value = getRaw(attr);
 			if(value === undefined) {
 				value = getEditedPostAttribute(`${attr}_raw`);
 				if(attr === 'title' && value === 'Auto Draft') value = '';
 				setRaw(attr, value);
 				addInputListener(selector, getListener(attr));
-			} else if(activateDebug) {
-				Zubug.info(`set for {${attr}} is ignored, current value = ${value}`);
+			} else {
+				addInputListener(selector, getListener(attr));
+				// if the language has been switched while editing blocks
+				// then synchronize switching for newly created elements (for example, 'excerpt')
+				// 'title' does not require synchronization as it is not removed from the page while editing blocks
+				if(attr !== 'title') switchRawAttributes(null, attr);
+				if(activateDebug) Zubug.info(`set for {${attr}} is ignored, current value = ${value}`);
 			}
+		} else {
+			// with the third argument equal to false listener will be removed
+			addInputListener(selector, getListener(attr), false);
 		}
 	});
 }
@@ -50,13 +55,17 @@ export function updateRawAttributes(onlyAtts = null) {
 }
 
 // select content for the language from the RAW value and set it in the INPUT element
-export function switchRawAttributes(lang) {
+// (if 'onlyAtts' is not null - select content for these attributes only)
+export function switchRawAttributes(lang, onlyAtts = null) {
 	const editorLang = lang ?? getLang();
+	onlyAtts = onlyAtts === null ? null : castArray(onlyAtts);
 	forEach(supportedAtts, (selector, attr) => {
-		const rawValue = getRaw(attr);
-		if(rawValue !== undefined) {
-			const renderedValue = getLangContent(rawValue, editorLang);
-			changeInputValue(selector, renderedValue, true);
+		if(onlyAtts === null || includes(onlyAtts, attr)) {
+			const rawValue = getRaw(attr);
+			if(rawValue !== undefined) {
+				const renderedValue = getLangContent(rawValue, editorLang);
+				changeInputValue(selector, renderedValue, true);
+			}
 		}
 	});
 }
