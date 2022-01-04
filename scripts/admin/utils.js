@@ -158,12 +158,15 @@ export function changeInputValue(selector, value, textarea = false) {
     }
 }
 
-export function addInputListener(selector, callback) {
+export function addInputListener(selector, callback, addListener = true) {
 	const el = document.querySelector(selector);
 	// React chose to make 'onChange' behave like 'onInput' does
 	// it does fire when there's a change, just not until the input also loses focus
 	// that's why we are adding a listener to the 'input' event and not to the 'change' event
-    if(el) el.addEventListener('input', callback);
+    if(el) {
+		if(addListener) el.addEventListener('input', callback);
+		else el.removeEventListener('input', callback);
+	}
 }
 
 // internal helpers -----------------------------------------------------------]

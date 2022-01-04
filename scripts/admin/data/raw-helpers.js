@@ -1,13 +1,13 @@
 // WordPress dependencies
 
-const { forEach, castArray, includes, has } = lodash;
+const { forEach, castArray, includes, has, noop } = lodash;
 const { select } = wp.data;
 
 // Internal dependencies
 
 import { getLangContent, getInputValue, changeInputValue, addInputListener } from './../utils.js';
 import { getLang, getRaw, getHooks, setRaw, updateRaw, addHook } from './use-store.js';
-import { supportedAtts } from './raw-store.js';
+import { supportedAtts, supportedKeys } from './raw-store.js';
 
 const activateDebug = false;
 
@@ -17,17 +17,22 @@ const activateDebug = false;
 // NB! set them only for the first time when values in 'store' are undefined
 // all subsequent calls should be ignored - it's necessary as the document editing panel
 // will be mounted and unmounted every time when switching to blocks editing
-export function setRawAttributes() {
+export function setRawAttributes(removeListeners = false) {
 	const { getEditedPostAttribute } = select('core/editor');
 	forEach(supportedAtts, (selector, attr) => {
-		let value = getRaw(attr);
-		if(value === undefined) {
-			value = getEditedPostAttribute(`${attr}_raw`);
-			if(attr === 'title' && value === 'Auto Draft') value = '';
-			setRaw(attr, value);
-			addInputListener(selector, () => updateRawAttributes(attr));
-		} else if(activateDebug) {
-			Zubug.info(`set for {${attr}} is ignored, current value = ${value}`);
+		if(removeListeners) {
+			// with the third argument equal to false listener will be removed
+			addInputListener(selector, getListener(attr), false);
+		} else {
+			let value = getRaw(attr);
+			if(value === undefined) {
+				value = getEditedPostAttribute(`${attr}_raw`);
+				if(attr === 'title' && value === 'Auto Draft') value = '';
+				setRaw(attr, value);
+				addInputListener(selector, getListener(attr));
+			} else if(activateDebug) {
+				Zubug.info(`set for {${attr}} is ignored, current value = ${value}`);
+			}
 		}
 	});
 }
@@ -79,4 +84,16 @@ export function registerRootUpdater() {
 	if(!has(hooks, rootClientId)) {
 		addHook(rootClientId, switchRawAttributes);
 	}
+}
+
+// we need to pre-create listeners for each attribute,
+// since we cannot use arrow function directly when adding listener - later we won't be able to remove such listener
+const listeners = {};
+
+forEach(supportedKeys, attr => {
+	listeners[attr] = () => updateRawAttributes(attr);
+});
+
+function getListener(attr) {
+	return listeners[attr] ?? noop;
 }
