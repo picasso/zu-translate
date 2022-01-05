@@ -1,4 +1,4 @@
-#### 1.0.1 / 2022-01-04
+#### 1.0.2 / 2022-01-05
 * refactoring with `Zukit` components
 * created custom `store` for RAW values
 * added `shortcode` support
