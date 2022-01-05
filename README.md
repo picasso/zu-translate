@@ -3,7 +3,7 @@
 [![WordPress Plugin Version](https://img.shields.io/github/package-json/v/picasso/zu-translate?style=for-the-badge)](https://github.com/picasso/zu-translate)
 [![WordPress Plugin: Tested WP Version](https://img.shields.io/github/package-json/testedWP/picasso/zu-translate?color=4ab866&label=wordpress%20tested&style=for-the-badge)](https://wordpress.org)
 [![WordPress Plugin Required PHP Version](https://img.shields.io/github/package-json/requiresPHP/picasso/zu-translate?color=bc2a8d&label=php&style=for-the-badge)](https://www.php.net/)
-[![License](https://img.shields.io/github/license/picasso/zu-translate?color=fcbf00&style=for-the-badge)](https://github.com/picasso/zu-translate/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/picasso/zu-translate?style=for-the-badge&color=fcbf00)](https://github.com/picasso/zu-translate/blob/master/LICENSE)
 
  <!-- ![WordPress Plugin Downloads](https://img.shields.io/wordpress/plugin/dt/zu-translate?color=00aced&style=for-the-badge) -->
 
