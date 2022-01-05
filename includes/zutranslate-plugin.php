@@ -15,6 +15,9 @@ class zu_Translate extends zukit_Plugin  {
 
 	protected function config() {
 		return  [
+			// всегда загружать дефолтные опции
+			'debug_defaults'	=> true,
+
 			'prefix'			=> 'zutranslate',
 			'zukit'				=> true,
 
@@ -42,6 +45,7 @@ class zu_Translate extends zukit_Plugin  {
 					'sync'				=> true,
 				],
 				'switcher'			=> [
+					'shortcode_menu'	=> true,
 					'frontend'			=> true,
 					'menu'				=> true,
 					'display'			=> 'lang',
