@@ -80,8 +80,8 @@ trait zu_TranslateShortcode {
 	//		to add class for link use attribute 'linkclass'
 
 
-	public function menu_items($menu_items) {
-	    foreach($menu_items as $menu_item) {
+	public function menu_items($menu_items, $menu_args) {
+		foreach($menu_items as $menu_item) {
 			$shortcode = preg_match('/#([^#]+)#/', $menu_item->url, $shortcodes) ? $shortcodes[1] : null;
 			if(empty($shortcode)) continue;
 
@@ -110,8 +110,10 @@ trait zu_TranslateShortcode {
 					return $atts;
 				 };
 
-				$position_func = function($args, $item) use($menu_id, $output, $position) {
+				$restore = $position === 'after' ? $menu_args->after :  $menu_args->before;
+				$position_func = function($args, $item) use($menu_id, $output, $position, $restore) {
 					if($menu_id === $item->ID) $args->{$position} = $output;
+					else $args->{$position} = $restore;
 					return $args;
 				};
 
@@ -134,7 +136,7 @@ trait zu_TranslateShortcode {
 	}
 
 	private function support_shortcode_in_menu() {
-		add_filter('wp_nav_menu_objects', [$this, 'menu_items']);
+		add_filter('wp_nav_menu_objects', [$this, 'menu_items'], 10, 2);
 		add_filter('pre_wp_nav_menu', [$this, 'clear_menu_filters']);
 	}
 
