@@ -16,7 +16,7 @@ class zu_Translate extends zukit_Plugin  {
 	protected function config() {
 		return  [
 			// всегда загружать дефолтные опции
-			'debug_defaults'	=> true,
+			// 'debug_defaults'	=> true,
 
 			'prefix'			=> 'zutranslate',
 			'zukit'				=> true,
@@ -40,7 +40,7 @@ class zu_Translate extends zukit_Plugin  {
 				'media_details'		=> false,
 				'gutenberg'			=> true,
 				'blockeditor'		=> [
-					'supported'			=> [],			// see 'traits/gutenberg.php'
+					'custom'			=> [],			// see 'traits/gutenberg.php'
 					'excluded'			=> [], 			// see 'traits/gutenberg.php'
 					'sync'				=> true,
 				],

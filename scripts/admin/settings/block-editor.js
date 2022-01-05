@@ -40,7 +40,7 @@ const ZutranslateBlockEditor = ({
 	const { createNotice } = noticeOperations;
 	const blockEditorOps = get(options, blockEditorKey, {});
 	const excludedBlocks = get(blockEditorOps, 'excluded', []);
-	const { sync, excluded, supported: customBlocks } = blockEditorOps;
+	const { sync, excluded, custom: customBlocks } = blockEditorOps;
 
 	const [ customName, setCustomName ] = useState('');
 	const [ customAtts, setCustomAtts ] = useState('');
@@ -69,7 +69,7 @@ const ZutranslateBlockEditor = ({
 		const { name, atts, error } = testCustomBlock(customName, customAtts, customBlocks);
 
 		if(error === null) {
-			updateBEOptions({ supported: { ...customBlocks, [name]: { name, atts } } });
+			updateBEOptions({ custom: { ...customBlocks, [name]: { name, atts } } });
 			setCustomName('');
 			setCustomAtts('');
 		} else {

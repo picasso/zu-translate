@@ -42,7 +42,7 @@ trait zu_TranslateGutenberg {
 	}
 
 	// prepare the REST request for a post being edited
-	// set the raw content // NOTE: ??? and the 'qtx_editor_lang' field for the current language.
+	// set the raw content fields
 	public function rest_prepare($response, $post, $request) {
 		if($this->is_eligible_request($request, 'GET', $post)) {
 			$url_lang = $this->get_url_param('language');
@@ -165,7 +165,7 @@ trait zu_TranslateGutenberg {
 	}
 
 	private function assign_supported_blocks() {
-		$supported = $this->get_option('blockeditor.supported', []);
+		$supported = $this->get_option('blockeditor.custom', []);
 		$supported = array_merge(is_array($supported) ? $supported : [], $this->default_blocks);
 		$this->supported_data = $supported;
 		$excluded = $this->get_option('blockeditor.excluded', []);
@@ -240,9 +240,7 @@ trait zu_TranslateGutenberg {
 				}
 	// zu_logc('check_filter', $remove, $function, is_array($function) ? is_a($function[0], $class) : 'NOT METHOD');
 				if($remove) {
-	// zu_logc('Removed filter', $tag, $removed_method, $p);
 					remove_filter($tag, $identifier, $p);
-	// zu_logc('after', $filters[$priority]);
 				}
 			}
 		}
