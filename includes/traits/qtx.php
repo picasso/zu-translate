@@ -9,22 +9,6 @@ trait zu_TranslateQT {
 	private $qtx_version = false;
 	private $qtx_link = 'https://github.com/qtranslate/qtranslate-xt/';
 
-	// 		'en' => [
-	// 			'admin_name' => "Американский Английский",
-	// 			'flag' => "gb.png",
-	// 			'locale' => "en_US",
-	// 			'locale_html' => "en",
-	// 			'name' => "English",
-	// 		],
-	// 		'ru' => [
-	// 			'admin_name' => "Русский",
-	// 			'flag' => "ru.png",
-	// 			'locale' => "ru_RU",
-	// 			'locale_html' => "ru",
-	// 			'name' => "Русский",
-	// 		],
-	// 	],
-
 	private function init_qtx_support() {
 		global $q_config;
 
@@ -44,11 +28,11 @@ trait zu_TranslateQT {
 		}
 	}
 
-	protected function is_multilang() {
+	public function is_multilang() {
 		return $this->is_multilang;
 	}
 
-	protected function get_lang($detailed = false) {
+	public function get_lang($detailed = false) {
 		global $q_config;
 		if(!$this->is_multilang()) return $detailed ? [] : '';
 		$code = $q_config['language'];
@@ -60,27 +44,27 @@ trait zu_TranslateQT {
 		] : $code;
 	}
 
-	protected function get_all_languages($sorted = true) {
+	public function get_all_languages($sorted = true) {
 		$languages = $this->is_multilang() ? $this->lang_config : [];
 		// sort so active language will be on top
 		if($sorted) usort($languages, function($a, $b) { return $b['active'] <=> $a['active']; });
 		return $languages;
 	}
 
-	protected function get_all_codes($sorted = true) {
+	public function get_all_codes($sorted = true) {
 		$languages = $this->get_all_languages($sorted);
 	    return array_map(function($a) { return $a['code']; }, $languages);
 	}
 
-	protected function convert_text($text, $lang = null, $flags = 0) {
+	public function convert_text($text, $lang = null, $flags = 0) {
 		return apply_filters('translate_text', $text, $lang, $flags);
 	}
 
-	protected function convert_url($url, $lang = null) {
+	public function convert_url($url, $lang = null) {
 		return apply_filters('translate_url', $url, $lang);
 	}
 
-	protected function convert_term($term, $lang = null, $taxonomy = null) {
+	public function convert_term($term, $lang = null, $taxonomy = null) {
 		return apply_filters('translate_term', $term, $lang, $taxonomy);
 	}
 
@@ -99,7 +83,7 @@ trait zu_TranslateQT {
 
 
 	////////////////////////////////////////////////////////////////////////////
-
+	// это пока не восстановлено после перехода на Zukit
 
 	// return array of content for all languages
 	protected function  get_content($raw_content) {
@@ -167,6 +151,8 @@ trait zu_TranslateQT {
 	}
 
 	////////////////////////////////////////////////////////////////////////////
+
+	// internal helpers -------------------------------------------------------]
 
 	private function qtx_data() {
 		global $q_config;

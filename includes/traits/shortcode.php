@@ -15,10 +15,11 @@ trait zu_TranslateShortcode {
 
 		$atts = $this->snippets('shortcode_atts_with_cast', [
 			'className' 	=> '',			// additional classes to be added
+			'class' 		=> null,		// alias for additional classes
 			'embedded_menu'	=> false,		// if embedded in the menu, the base class will be 'lang-menu' otherwise 'lang-shortcode'
     		'as_code' 		=> false,		// use language codes as the name of the switcher items
     		'unsorted'		=> false, 		// if sorted then the active language will be on top
-			'post_id'		=> null,
+			'post_id'		=> null,		// post ID for which you want to create a language switcher
     	], $atts, ['as_code', 'unsorted', 'embedded_menu']);
 		extract($atts, EXTR_OVERWRITE);
 
@@ -58,7 +59,7 @@ trait zu_TranslateShortcode {
 			implode('', $links),
 			$this->snippets('merge_classes', [
 				$embedded_menu ? 'lang-menu' : 'lang-shortcode',
-				$className
+				$class ?? $className,
 			]),
 			$active_lang['code'],
 			$active_lang['name']

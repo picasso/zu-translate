@@ -8,10 +8,6 @@ include_once('traits/shortcode.php');
 
 class zu_Translate extends zukit_Plugin  {
 
-	// Plugin addons
-	private $folders = null;
-	private $dominant = null;
-	private $sizes = null;
 	// private $clean = null;
 
 	// qT-XT helpers, shortcodes, REST API and 'Gutenberg' support
@@ -222,17 +218,14 @@ class zu_Translate extends zukit_Plugin  {
 	// Public snippets --------------------------------------------------------]
 
 	private function register_snippets() {
-		$this->register_snippet('get_dominant_by_id', $this->dominant, $this->snippets('get_default_background_color'));
-		$this->register_snippet('update_dominant_by_id', $this->dominant, false);
-		$this->register_snippet('media_size_full_key', $this->sizes, 'full');
+		$this->register_snippet('is_multilang');
+		$this->register_snippet('get_lang');
+		$this->register_snippet('get_all_languages');
+		$this->register_snippet('get_all_codes');
 
-		$this->register_snippet('get_folders', $this->folders, null);
-		$this->register_snippet('get_folder', $this->folders, null);
-		$this->register_snippet('get_folder_props', $this->folders, null);
-		$this->register_snippet('get_folder_by_attachment_id', $this->folders, null);
-
-		$this->register_snippet('get_location');
-		$this->register_snippet('get_media_taxonomy_link');
+		$this->register_snippet('convert_text');
+		$this->register_snippet('convert_url');
+		$this->register_snippet('convert_term');
 	}
 }
 

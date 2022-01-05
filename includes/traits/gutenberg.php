@@ -22,18 +22,7 @@ trait zu_TranslateGutenberg {
 	private function init_gutenberg_support() {
 		if($this->is_option('gutenberg')) {
 			$this->assign_supported_blocks();
-			// $supported = $this->get_option('blockeditor.supported', []);
-			// $supported = array_merge(is_array($supported) ? $supported : [], $this->default_blocks);
-			//
-			// if($supported === 'default') {
-			// 	$supported = $this->default_blocks;
-			// } else {
-			// 	$supported = array_merge(is_array($supported) ? : [], $this->default_blocks);
-			// }
 			if(!empty($this->supported_blocks)) {
-				// $this->supported_data = $supported;
-				// $excluded = $this->get_option('blockeditor.excluded', []);
-				// $this->supported_blocks = $this->snippets('array_without_keys', $supported, $excluded);
 				add_filter('the_posts', [$this, 'pre_render_posts'], 0, 2);
 				add_action('rest_api_init', [$this, 'rest_api_init']);
 
@@ -66,7 +55,7 @@ trait zu_TranslateGutenberg {
 // zu_logc('request_before_callbacks', $this->debug_request_info($request, $response));
 // 	}
 
-	// ??? Restore the raw content of the post just updated and set the 'qtx_editor_lang', as for the prepare step
+	// modify the REST response of the post just updated and set the 'raw_*' attributes
 	public function request_after_callbacks($response, $handler, $request) {
 		if($this->is_eligible_request($request, ['PUT', 'POST'])) {
 			$editor_lang = $request->get_param('editor_lang');
@@ -102,7 +91,7 @@ trait zu_TranslateGutenberg {
 		return in_array($request->get_method(), $method);
 	}
 
-	// replace the multi-language raw content with only the current language used for edition and set 'qtx_editor_lang'
+	// replace the multi-language raw content with only the current language used for edition and set 'editor_lang'
 	private function modify_rest_response($response, $lang) {
 		$response_data = $response->get_data();
 		$update_data = false;
@@ -126,7 +115,6 @@ trait zu_TranslateGutenberg {
 
 	private function restore_post_content($post) {
 		$content = $post->post_content;
-// zu_log('pre_post_content', $content);
 		// at first quick check if we have at least one 'qtxRaw' attribute
 		if(strpos($content, 'qtxRaw') !== false) {
 			$blocks = parse_blocks($content);
