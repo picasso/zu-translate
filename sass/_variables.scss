@@ -1,0 +1,168 @@
+@import "instyle";
+@import "functions";
+
+// General colors -------------------------------------------------------------]
+
+$red-color: #ff3358 !default;
+$green-color: #5b9a68 !default;
+$lime-color: #b2ec5d !default;
+$blue-sky-color: #00aced !default;
+$blue-color: #0063db !default;
+$violet-color: #bc2a8d !default;
+$orange-color: #fb8f3d !default;
+$yellow-color: #fcbf00 !default;
+$brown-color: #987654 !default;
+$red-bright-color: #ff4136 !default;
+$dark-grey: #363636 !default;
+$light-grey: #b5b5bf !default;
+$lighter-grey: #cfcfde !default;
+
+$secondary-opacity: 0.4 !default;
+$secondary-opacity-more: 0.8 !default;
+$shade-opacity: 0.6 !default;
+$disable-opacity: 0.5 !default;
+$on-menu-opacity: 0.7 !default;												// opacity for links in menu if used in animation
+$on-dark-opacity: 0.7 !default;												// opacity when color on dark bg
+$decor-darken: 20% !default;
+
+$text-shadow-for-white: 0 1px 3px rgba(black, 0.3) !default;
+$text-shadow-for-white-strong: 0 1px 3px rgba(black, 0.7) !default;
+
+$custom-colors: (
+	'red': 		$red-color,
+	'orange': 	$orange-color,
+	'yellow': 	$yellow-color,
+	'green': 	$green-color,
+	'lime':		$lime-color,
+	'blue': 	$blue-color,
+	'blue-sky': $blue-sky-color,
+	'violet': 	$violet-color,
+	'brown':	$brown-color,
+	'grey':		$dark-grey,
+);
+
+// Admin colors ---------------------------------------------------------------]
+
+$admin-blue-color: #007cba !default;
+$admin-blue-button-color:#2271b1 !default;
+$admin-light-blue-color: #b2d5e7 !default; // equal rgba($admin-blue, 0.3) on white
+$admin-dark-color: #555d66 !default;
+$admin-darker-color: #2c3338 !default;
+$admin-disable-border-color: #ddd !default;
+$admin-disable-background-color: #f7f7f7 !default;
+$admin-disable-text-color: #a0a5aa !default;
+
+// Sizes ----------------------------------------------------------------------]
+
+$golden-ratio: 1.618em;
+$golden-ratio-1_2: 0.809em;
+$clear-letter-spacing: 0.5px;
+
+$my-font-family: 'Ubuntu' !default;
+$primary-font-family: $my-font-family, Arial, sans-serif !default;
+
+$smaller-font-size: 15px !default;
+$smaller-line-height: 1.5em !default;
+
+$small-font-size: 13px !default;
+$small-line-height: 1em !default;
+$small-font-weight: 400 !default;
+
+$bolder-font-weight: 500 !default;
+$extrabold-font-weight: 600 !default;
+
+$border-radius: 3px !default;
+$border-big-radius: 5px !default;
+
+$minimum-padding: 10px !default;
+$element-bottom-margin: 3em !default;
+$flex-gap: 30px !default;
+
+$admin-bar-shift: 32px;
+$admin-bar-shift-LESS_768: 46px;
+
+// iPhone ---------------------------------------------------------------------]
+
+// $iphone-top: 40px !default;
+$iphone-padding: 20px !default;
+// $iphone-H1-font-size: 26px !default;
+
+// Transitions ----------------------------------------------------------------]
+
+$transition-time: .3s !default;
+$transition-short-time: .1s !default;
+$transition-medium-time: .6s !default;
+$transition-long-time: 1s !default;
+$transition-function: ease-out !default;
+$transition-soft: ease-in !default;
+$transition-cubic: cubic-bezier(0.33, 0, 0.2, 1) !default;
+
+// Responsive Design ----------------------------------------------------------]
+
+$break-1280: 1280px;
+$break-1280-width: 960px;
+$break-1020: 1020px;
+$break-1020-width: 800px;
+$break-880: 880px;
+
+$break-320: 320px;
+$break-480: 480px;
+$break-768: 768px;
+$break-1800: 1800px;
+
+// $more-than-break-1280-width: 1200px;
+$more-than-max-break-width: 1200px;
+$min-break-width: $break-320;
+// when all columns will be reverted to 100% width (and Normal Menu will be hidden and MX Menu will be shown)
+$break-layout: $break-1020;
+$break-layout-width: $break-1020-width;
+// when Normal Menu will be reduced (small font and padding)
+$topmenu-break-width: $break-1280;
+
+@mixin breakpoint-width($point, $media: 'all') {
+	@if $point == LESS_320 {
+		@media #{$media} and (max-width: $break-320)  { @content; }
+	}
+	@else if $point == LESS_480 {
+		@media #{$media} and (max-width: $break-480)  { @content; }
+	}
+	@else if $point == LESS_768 {
+		@media #{$media} and (max-width: $break-768)  { @content; }
+	}
+	@else if $point == LESS_880 {
+		@media #{$media} and (max-width: $break-880)  { @content; }
+	}
+	@else if $point == LESS_1020 {
+		@media #{$media} and (max-width: $break-1020)  { @content; }
+	}
+	@else if $point == LESS_LAYOUT_BREAK {
+		@media #{$media} and (max-width: $break-layout)  { @content; }
+	}
+	@else if $point == LESS_1280 {
+		@media #{$media} and (max-width: $break-1280)  { @content; }
+	}
+	@else if $point == LESS_1800 {
+		@media #{$media} and (max-width: $break-1800)  { @content; }
+	}
+	@else {
+		@media #{$media} and (max-width: $point)  { @content; }
+	}
+}
+
+@mixin breakpoint-height($point, $media: 'all') {
+	@if $point == LESS_480 {
+	    @media #{$media} and (max-height: $break-480)  { @content; }
+	}
+	@else {
+		@media #{$media} and (max-height: $point)  { @content; }
+	}
+}
+
+@mixin breakpoint-small-mobile($media: 'all') {
+	@media #{$media} and (max-width: $break-480),
+				#{$media} and (max-device-width: 640px) and (orientation: landscape)  { @content; }
+}
+
+@mixin breakpoint-width-and-more($point, $media: 'all') {
+	@media #{$media} and (min-width: $point)  { @content; }
+}

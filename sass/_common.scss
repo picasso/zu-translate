@@ -1,0 +1,17 @@
+@import "variables";
+
+$zutranslate-font-family: Ubuntu,Roboto,'Open Sans','Helvetica Neue',sans-serif;
+$zutranslate-unselected-color: rgba($admin-blue-color, 0.1);
+$zutranslate-selected-color: rgba($violet-color, 0.3);
+$zutranslate-selected-text-color: $violet-color;
+$zutranslate-hover-color: rgba($admin-blue-color, 0.7);
+$zutranslate-hover-text-color: white;
+$zutranslate-selected-button-opacity: 0.6;
+$zutranslate-border-width: 1px;
+
+$zutranslate-green-color: #00c3aa;
+$zutranslate-violet-color: #7e3bd0;
+
+$zutranslate-copy-color: $zutranslate-violet-color; //$zutranslate-green-color;
+$zutranslate-copy-selected-color: lighten($zutranslate-copy-color, 20);
+$zutranslate-copy-selected-text-color: darken($zutranslate-copy-color, 10);

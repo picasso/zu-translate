@@ -1,0 +1,218 @@
+// Functions ------------------------------------------------------------------]
+@use 'sass:math';
+// using '/' for division is deprecated and will be removed in Dart Sass 2.0.0
+// this function is more convenient to use than math.div
+@function div($be-divided, $by) { @return math.div($be-divided, $by); }
+
+@function half($number)         {  @return floor(div($number, 2)); }
+@function twice($number)        {  @return floor($number * 2); }
+
+// Remove the unit of value
+@function strip-units($number) {
+    @if type-of($number) == 'number' and not unitless($number) {
+        @return div($number, $number * 0 + 1);
+    }
+    @return $number;
+}
+
+// Convert the elements of a list into a string.
+// The elements will be separated by a specified separator.
+// The default separator is comma ','
+@function list-join($list, $separator: ',') {
+    // Check if list is valid
+    @if type-of($list) == list {
+		// Init index counter variable & string accumulator
+		$i: 0;
+		$string: '';
+
+            // Traverse list
+            @each $list-value in $list {
+				$i: $i + 1;
+				$string: #{$string}#{$list-value};
+
+                // If not last item, add separator
+                @if $i < length($list) {
+                    $string: #{$string}#{$separator};
+                }
+			}
+			@return $string;
+	}
+    @return $list;
+}
+
+// String helpers -------------------------------------------------------------]
+
+// Casting to a string
+@function to-string($value) {
+    @if type-of($value) != string {
+        @return inspect($value);
+    }
+    @return $value;
+}
+
+// Replace '$search' with '$replace' in string
+@function str-replace($string, $search, $replace: '') {
+    $string: to-string($string);
+    $i: str-index($string, $search);
+    @if $i {
+        $rest-of-string: str-replace(str-slice($string, $i + str-length($search)), $search, $replace);
+        @return str-slice($string, 1, $i - 1) + $replace + $rest-of-string;
+    }
+    @return $string;
+}
+
+// Trim string
+@function str-trim($string) {
+    // @return str-replace($string, ' ');
+    $string: to-string($string);
+    $i: str-index($string, ' ');
+    @if $i == 1 {
+        @return str-trim(str-slice($string, $i + 1, -1));
+    }
+    @else if $i == str-length($string) {
+        @return str-trim(str-slice($string, 1, $i - 1));
+    }
+    @return $string;
+}
+
+// Split a string into the list with a possible conversion to numbers.
+@function str-split($string, $separator: ' ', $to-number: false, $trim: false) {
+	$i: str-index($string, $separator);
+	@if $i != null {
+		$value: str-slice($string, 1, $i - 1);
+		@if $to-number {
+			$value: to-number($value);
+		}
+        @if $trim {
+			$value: unquote(str-trim($value));
+		}
+		@return join(
+			$value,
+			str-split(str-slice($string, $i + str-length($separator)), $separator, $to-number)
+		);
+	}
+	@if $to-number {
+		$string: to-number($string);
+	}
+    @if $trim {
+        $string: unquote(str-trim($string));
+    }
+    @if type-of($string) != string {
+        @return $string;
+    }
+    @else {
+    	@return ($string);
+    }
+}
+
+// Splits a complex selector into units and then modifies each selector
+// either adding the specified class to the body tag (if present), or by inserting a class before the selector
+// returns the concatenated modified selector
+@function with-body-class($class, $selector: null) {
+    @if $selector == null {
+        $selector: &;
+    }
+    @if type-of($selector) == list {
+        $selector: list-join($selector);
+    }
+
+    $modified-list: ();
+    $selectors: str-split(to-string($selector), ',', false, true);
+    @each $single-selector in $selectors {
+        $modified-selector: str-replace($single-selector, 'body', 'body.#{$class}');
+        @if $modified-selector == $single-selector {
+            $modified-selector: '.#{$class} #{$single-selector}';
+        }
+        $modified-list: append($modified-list, unquote($modified-selector));
+    }
+    @return list-join($modified-list);
+}
+
+// Splits a complex selector into units and then returns last 'simple' selector
+@function last-selector($selector: null) {
+    @if $selector == null {
+        $selector: &;
+    }
+    @if type-of($selector) == list {
+        $selector: list-join($selector);
+    }
+    $selectors: str-split(to-string($selector), ',', false, true);
+// @debug 'split ,' length($selectors) $selectors ;
+    $last-selector: nth($selectors, length($selectors));
+// @debug $last-selector;
+    $selectors: str-split(to-string($last-selector), ' ', false, true);
+// @debug 'split " "' length($selectors) $selectors;
+    $last-selector: nth($selectors, length($selectors));
+// @debug $last-selector;
+    @return unquote($last-selector);
+}
+
+// Casts a string into a number
+@function to-number($value) {
+    @if type-of($value) == 'number' {
+        @return $value;
+    } @else if type-of($value) != 'string' {
+        @warn 'Value for `to-number` should be a number or a string [ #{ $value } ].';
+    }
+    $result: 0;
+    $digits: 0;
+    $minus: str-slice($value, 1, 1) == '-';
+    $numbers: ('0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9);
+    @for $i from if($minus, 2, 1) through str-length($value) {
+        $character: str-slice($value, $i, $i);
+        @if $character == '.' {
+            $digits: 1;
+        } @else if $digits == 0 {
+            $char-num: map-get($numbers, $character);
+            $result: $result * 10 + $char-num;
+        } @else {
+            $digits: $digits * 10;
+            $char-num: map-get($numbers, $character);
+            $result: $result + div($char-num, $digits);
+        }
+    }
+    @return if($minus, -$result, $result);
+}
+
+// Converts the size in px to rem (based on the html font-size is set to 10 px)
+@function rem-size($number_in_px) {
+    $num: strip-units($number_in_px);
+    $in_rem: decimal-round(div($num, 10), 1);
+    @return #{$in_rem}rem;
+}
+
+// Round a number to specified digits
+//      $number A number to round
+//      [$digits:0] Digits to output
+//      [$mode:round] (round|ceil|floor) How to round a number
+@function decimal-round($number, $digits: 0, $mode: round) {
+    $n: 1;
+    // $number must be a number
+    @if type-of($number) != number {
+        @warn '#{ $number } is not a number.';
+        @return $number;
+    }
+    // $digits must be a unitless number
+    @if type-of($digits) != number {
+        @warn '#{ $digits } is not a number.';
+        @return $number;
+    } @else if not unitless($digits) {
+        @warn '#{ $digits } has a unit.';
+        @return $number;
+    }
+    @if $digits > 0 {
+        @for $i from 1 through $digits {
+            $n: $n * 10;
+        }
+    }
+    @if $mode == round {
+        @return div(round($number * $n), $n);
+    } @else if $mode == ceil {
+        @return div(ceil($number * $n), $n);
+    } @else if $mode == floor {
+        @return div(floor($number * $n), $n);
+    } @else {
+        @warn '#{ $mode } is undefined keyword.';
+        @return $number;
+    }
+}
