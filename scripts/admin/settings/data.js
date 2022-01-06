@@ -26,7 +26,15 @@ const options = {
 		label: 	__('Show flags in buttons', 'zu-translate'),
 		help:	__('Display country flag on language switching buttons in admin mode.', 'zu-translate'),
 	},
-
+	appearance: {
+		label: 	__('Custom button appearance', 'zu-translate'),
+		help:	__('Change the appearance of the buttons for language switching in admin mode.', 'zu-translate'),
+	},
+	large: {
+		label: 	__('Large custom button size', 'zu-translate'),
+		help:	__('Enlarge the size of the buttons (*for those who prefer more*).', 'zu-translate'),
+		depends: 'appearance',
+	},
 	media_details: {
 		label: 	__('Language Switcher in Media Details', 'zu-translate'),
 		help:	__('When activated you will not be able to edit the fields when viewing the modal dialog, only on `Edit Media` page.', 'zu-translate'),

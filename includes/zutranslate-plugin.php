@@ -35,7 +35,9 @@ class zu_Translate extends zukit_Plugin  {
 			],
 
 			'options'			=> [
-				'flags'				=> false,
+				'flags'				=> true,
+				'appearance'		=> false,
+				'large'				=> false,
 				'yseo'				=> false,
 				'media_details'		=> false,
 				'gutenberg'			=> true,
@@ -146,6 +148,18 @@ class zu_Translate extends zukit_Plugin  {
 		// 	$this->folders = $this->register_addon(new zu_TranslateFolder());
 		// }
 
+		if(!$this->is_option('flags')) {
+            $this->snippets('add_admin_body_class', 'zutranslate-noflags');
+		}
+		if($this->is_option('appearance')) {
+            $this->snippets('add_admin_body_class', 'zutranslate-custom-appearance');
+			if($this->is_option('large')) {
+				$this->snippets('add_admin_body_class', 'zutranslate-custom-large');
+			}
+		}
+
+
+
 		// Some internal 'inits' ----------------------------------------------]
 
 		$this->init_qtx_support();
@@ -192,9 +206,9 @@ class zu_Translate extends zukit_Plugin  {
 		// we cannot do this in the add-on, since if it is not created (because
 		// the 'folders' option is disabled), then the styles will not be loaded
 
-		// if(!$is_frontend && $this->ends_with_slug($hook)) {
-		// 	$this->admin_enqueue_style('zumedia-folders');
-		// }
+		if(!$is_frontend && $this->need_common_admin_css($hook)) {
+			$this->admin_enqueue_style('zutranslate-common');
+		}
 	}
 
 	public function settings_js_data($is_frontend = true) {
@@ -204,6 +218,13 @@ class zu_Translate extends zukit_Plugin  {
 			],
 			$this->qtx_data(),
 			$this->gutenberg_data(true)
+		);
+	}
+
+	private function need_common_admin_css($hook) {
+		return !$this->ends_with_slug($hook) && (
+			$this->is_option('flags') === false ||
+			$this->is_option('appearance')
 		);
 	}
 

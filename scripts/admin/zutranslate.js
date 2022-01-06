@@ -6,7 +6,7 @@
 // Zukit dependencies
 
 const { renderPage, toggleOption } = wp.zukit.render;
-const { ZukitPanel, ZukitDivider } = wp.zukit.components;
+const { ZukitPanel } = wp.zukit.components;
 
 // Internal dependencies
 
@@ -28,10 +28,6 @@ const ZutranslateEdit = ({
 		noticeOperations,
 }) => {
 
-	// const onNotifyChange = useCallback(value => {
-	// 	updateOptions({ notify: value })
-	// }, [updateOptions]);
-
 	if(inacive) {
 		return (
 			<div className="__note">
@@ -44,7 +40,6 @@ const ZutranslateEdit = ({
 		<>
 			<ZukitPanel title={ title }>
 				{ toggleOption(optionsData, options, updateOptions) }
-				<ZukitDivider/>
 			</ZukitPanel>
 			<ZutranslateBlockEditor
 				data={ gutenberg }
