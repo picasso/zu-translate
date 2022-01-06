@@ -1,0 +1,231 @@
+@import "common";
+
+$button-tick-size: 13px;
+$button-tick-large-size: 15px;
+$button-tick-icon-padding: 2px;
+$button-tick-icon-shift: half($button-tick-size) + twice($button-tick-icon-padding) + 1;
+$button-tick-icon: '\f15e'; // '\f147'
+$button-copy-icon: '\f502';
+
+$translatable-color: $zutranslate-selected-text-color;
+$translatable-width: 4px;
+$translatable-border-radius: 4px;
+
+// Basic Classes --------------------------------------------------------------]
+
+$noflags-class: 'zutranslate-noflags';
+$custom-appearance-class: 'zutranslate-custom-appearance';
+$custom-large-size-class: 'zutranslate-custom-large';
+
+%absolute_wrap {
+	width: auto;
+	position: absolute;
+	z-index: 3;
+}
+
+// Language Buttons -----------------------------------------------------------]
+
+.#{$noflags-class} {
+	.qtranxs-lang-switch {
+		.button {
+			img {
+				display: none;
+			}
+		}
+	}
+}
+
+.#{$custom-appearance-class} {
+
+	// Translatable markers ---------------------------------------------------]
+
+	input, textarea, div {
+		&.qtranxs-translatable {
+	        border-left: $translatable-width solid $translatable-color !important;
+			border-radius: 0 $translatable-border-radius $translatable-border-radius 0;
+	    }
+	}
+
+	.qtranxs-lang-switch-wrap {
+		opacity: 1;
+		transition: opacity $transition-time $transition-function;
+
+		.qtranxs-lang-switch, .qtranxs-lang-copy {
+			margin: ($button-tick-icon-shift + 3) 8px 0 0;
+
+			.button {
+				box-shadow: none;
+				position: relative;
+				font-family: $zutranslate-font-family;
+				letter-spacing: $clear-letter-spacing;
+				border: $zutranslate-border-width solid $zutranslate-hover-color;
+				background-color: $zutranslate-unselected-color;
+				transition-property: background-color, color;
+				transition-duration: $transition-time;
+				transition-timing-function: $transition-function;
+				&:hover {
+					background-color: $zutranslate-hover-color;
+					color: $zutranslate-hover-text-color;
+				}
+				&.active {
+					cursor: default;
+					border-color: $zutranslate-selected-text-color;
+					background-color: $zutranslate-selected-color;
+					color: $zutranslate-selected-text-color;
+					opacity: $zutranslate-selected-button-opacity;
+					&:hover {
+						background-color: $zutranslate-selected-color;
+						color: $zutranslate-selected-text-color;
+					}
+					&:before {
+						content: $button-tick-icon;
+						font-family: dashicons;
+						display: inline-block;
+						line-height: 1;
+						font-weight: 400;
+						font-style: normal;
+						speak: never;
+						text-decoration: inherit;
+						text-transform: none;
+						text-rendering: auto;
+						-webkit-font-smoothing: antialiased;
+						-moz-osx-font-smoothing: grayscale;
+						width: $button-tick-size;
+						height: $button-tick-size;
+						font-size: $button-tick-size;
+						vertical-align: top;
+						text-align: center;
+						transition: color 0.1s ease-in;
+
+						position: absolute;
+						background-color: $zutranslate-selected-text-color;
+						color: $zutranslate-hover-text-color;
+						border-radius: 50%;
+						padding: 2px;
+						left: 5px;
+						top: - ($button-tick-icon-shift);
+					}
+				}
+			}
+		}
+
+		.qtranxs-lang-copy {
+			.button {
+				&.active {
+					border-color: $zutranslate-copy-selected-text-color;
+					background-color: $zutranslate-copy-selected-color;
+					color: $zutranslate-copy-selected-text-color;
+					&:hover {
+						background-color: $zutranslate-copy-selected-color;
+						color: $zutranslate-copy-selected-text-color;
+					}
+					&:before {
+						background-color: $zutranslate-copy-selected-text-color;
+						content: $button-copy-icon;
+					}
+				}
+			}
+		}
+
+		// Modification of the position and visibility of standard language buttons
+
+		@include in('^#nav-menus-frame') {
+			@extend %absolute_wrap;
+			top: -69px;
+			left: 380px;
+			right: auto;
+			@include breakpoint-width(1100px) { left: 260px; }
+		}
+
+		// Remove duplicate buttons
+
+		@at-root {
+			.#{$custom-appearance-class} #menu-to-edit + #{last-selector()} {
+				display: none;
+			}
+			.#{$custom-appearance-class} #widgets-right + #{last-selector()} {
+				display: none;
+			}
+		}
+
+	// #posts-filter & {
+	//     width: auto;
+	//     position: absolute;
+	//     top: -34px;
+	//     left: 170px;
+	// }
+
+
+	// @include in('^#post-body-content ') { // #post-body-content &
+	// 	@extend %absolute_wrap;
+	//     top: -44px;
+	//     right: -200px;
+	//     .post-php &, .post-new-php & {
+	// 	    width: 100%;
+	//     }
+	//     .post-type-attachment & {
+	//         width: auto;
+	//         position: absolute;
+	//         left: 300px;
+	//         z-index: 3;
+	//         &:lang(ru) {
+	//         	left: 450px;
+	//         }
+	//     }
+	// }
+	}
+}
+
+
+.#{$custom-large-size-class} {
+	.qtranxs-lang-switch-wrap {
+		.qtranxs-lang-switch, .qtranxs-lang-copy {
+			.button {
+				padding: 3px 12px;
+				font-size: 15px;
+				&.active {
+					&:before {
+						width: $button-tick-large-size;
+						height: $button-tick-large-size;
+						font-size: $button-tick-large-size;
+					}
+				}
+			}
+		}
+	}
+
+	// Modification of the position and visibility of standard language buttons
+
+	#nav-menus-frame {
+		#nav-menu-header .major-publishing-actions {
+			padding: 20px 0 14px;
+		}
+		.qtranxs-lang-switch-wrap {
+			top: -79px;
+		}
+	}
+}
+
+// .tplus_admin_button {
+// 	@extend .tplus_lang;
+// 	background-color: $red-bright-color;
+// 	color: $admin-dark-color !important;
+// 	border: 2px solid $admin-dark-color;
+// 	cursor: pointer;
+// 	&:hover {
+// 		background-color: darken($red-bright-color, 7%);
+// 	}
+// }
+
+
+// QTX SEO support ------------------------------------------------------------]
+
+// .qtx-seo-enabled {
+// 	th#qtx_seo, .column-qtx_seo { display: none;}
+// 	#qtx_seo_value { display: none;}
+//
+// 	.wpseo-score-icon.empty {
+// 		background-color: transparent;
+// 		border: 1px solid #666;
+// 	}
+// }
