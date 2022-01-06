@@ -1,22 +1,22 @@
-// Admin Components -----------------------------------------------------------]
+// Settings Appearance --------------------------------------------------------]
 
-$violet-color: #bc2a8d;
-$help-color: #783f3a;
-$help-code-color-bg: #e8a723;
-$help-code-color: #986b10;
-// rgba(224,23,101,.08)
+$settings-help-color: #783f3a;
+$settings-help-em-color: #fbb0b8;
+$settings-help-code-color-bg: #e8a723;
+$settings-help-code-color: #986b10;
 
 .components-base-control__help {
-	color: $help-color !important;
+	color: $settings-help-color !important;
 	font-style: normal !important;
 	em {
-		background-color: rgba($help-color, 0.2) !important;
-		color: $help-color !important;
-		font-style: normal !important;
+		background-color: rgba($settings-help-em-color, 0.2) !important;
+		color: $settings-help-color !important;
+		// font-style: normal !important;
+		letter-spacing: 1px;
 	}
 	.__code {
-		background-color: rgba($help-code-color-bg, 0.1) !important;
-		color: $help-code-color !important;
+		background-color: rgba($settings-help-code-color-bg, 0.1) !important;
+		color: $settings-help-code-color !important;
 	}
 }
 .__sidebyside.__list {
