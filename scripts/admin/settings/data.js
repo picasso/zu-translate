@@ -12,9 +12,6 @@ const { externalDataSettings } = wp.zukit.render;
 
 const { disabled: pluginInacive, qtxlink: qtxUrl } = externalDataSettings('zutranslate', {});
 
-// 'The plugin extend functionality of qTranslate-XT plugin.'
-// 'Customization & settings for Language Switcher.'
-
 const inacive = __('This plugin only *complements* the functionality of the **qTranslate-XT** plugin.\nThe [qTranslate-XT]($link1) version `3.10 or above` should be installed and activated (now it **was not found** among active plugins).', 'zu-translate');
 
 const options = {
@@ -39,11 +36,11 @@ const options = {
 		label: 	__('Add Language Switcher to post/pages list', 'zu-translate'),
 		help:	__('Ability to switch language on a list of posts/pages and support for **Quick Edit**.', 'zu-translate'),
 	},
-	media_details: {
-		label: 	__('Language Switcher in Media Details', 'zu-translate'),
-		help:	__('When activated you will not be able to edit the fields when viewing the modal dialog, only on `Edit Media` page.', 'zu-translate'),
-	},
 	// NOTE: not yet restored after refactoring
+	// media_details: {
+	// 	label: 	__('Language Switcher in Media Details', 'zu-translate'),
+	// 	help:	__('When activated you will not be able to edit the fields when viewing the modal dialog, only on `Edit Media` page.', 'zu-translate'),
+	// },
 	// yseo: {
 	// 	label: 	__('Include additional support for Yoast SEO Plugin?', 'zu-translate'),
 	// 	help:	__('The Yoast SEO should be installed and activated.', 'zu-translate'),
@@ -51,6 +48,7 @@ const options = {
 };
 
 // NOTE: not yet restored after refactoring
+// 'Customization & settings for Language Switcher.'
 const switcher = {
 	ls_frontend: {
 		label: __('Swither on Front-End?', 'zu-translate'),
@@ -100,7 +98,7 @@ const panels = {
 	gutenberg: {
 		value: true,
 		label: 	__('Block Editor Support', 'zu-translate'),
-		// Это позволит исключить эту панель когда значение option is false
+		// this allows the panel to be excluded when the option is false
 		depends: 'gutenberg',
 	},
 	switcher: {

@@ -15,7 +15,7 @@ class zu_Translate extends zukit_Plugin  {
 
 	protected function config() {
 		return  [
-			// всегда загружать дефолтные опции
+			// always load default options
 			// 'debug_defaults'	=> true,
 
 			'prefix'			=> 'zutranslate',
@@ -84,31 +84,21 @@ class zu_Translate extends zukit_Plugin  {
 	protected function extend_actions() {
 		// return [
 		// 	[
-		// 		'label'		=> __('Update Dominants', 'zu-media'),
-		// 		'value'		=> 'zumedia_update_dominants',
-		// 		'icon'		=> 'admin-customizer',
-		// 		'color'		=> 'gold',
-		// 		'help'		=> __('Dominant Colors will be updated for all existing images'
-		// 							.' in Media Library if you press this button.', 'zu-media'),
-		// 		// the button will be visible only if this option is 'true'
-		// 		'depends'	=> 'dominant',
-		// 	],
-		// 	[
-		// 		'label'		=> __('Clean All Cached Data', 'zu-media'),
+		// 		'label'		=> __('Clean All Cached Data', 'zu-translate'),
 		// 		'value'		=> 'zumedia_reset_cached',
 		// 		'icon'		=> 'dismiss',
 		// 		'color'		=> 'magenta',
 		// 		'help'		=> __('Clear all cached data referenced to attachments, galleries and folders.'
-		// 							.' Needs if you added gallery or folder.', 'zu-media'),
+		// 							.' Needs if you added gallery or folder.', 'zu-translate'),
 		// 		'depends'	=> '!disable_cache',
 		// 	],
 		// 	[
-		// 		'label'		=> __('Flush Rewrite Rules', 'zu-media'),
+		// 		'label'		=> __('Flush Rewrite Rules', 'zu-translate'),
 		// 		'value'		=> 'zumedia_flush_rewrite',
 		// 		'icon'		=> 'superhero',
 		// 		'color'		=> 'blue',
 		// 		'help'		=> __('Remove rewrite rules and then recreate rewrite rules.'
-		// 							.' Needs if you redefined tag or category rewrite rules.', 'zu-media'),
+		// 							.' Needs if you redefined tag or category rewrite rules.', 'zu-translate'),
 		// 		'depends'	=> ['zumedia_folders_options.add_rewrite', 'add_tags', 'add_category'],
 		// 	],
 		// ];
@@ -117,7 +107,7 @@ class zu_Translate extends zukit_Plugin  {
 	protected function extend_debug_options() {
 		// return [
 		// 	'show_id'	=> [
-		// 		'label'		=> __('Display Attachment Id', 'zu-media'),
+		// 		'label'		=> __('Display Attachment Id', 'zu-translate'),
 		// 		'value'		=> false,
 		// 	],
 		// ];
@@ -126,13 +116,13 @@ class zu_Translate extends zukit_Plugin  {
 	protected function extend_debug_actions() {
 		// return $this->folders ? [
 		// 	[
-		// 		'label'		=> __('Fix Orphaned Attachments', 'zu-media'),
+		// 		'label'		=> __('Fix Orphaned Attachments', 'zu-translate'),
 		// 		'value'		=> 'zumedia_fix_orphaned',
 		// 		'icon'		=> 'hammer',
 		// 		'color'		=> 'blue',
 		// 	],
 		// 	[
-		// 		'label'		=> __('Check Existed Terms', 'zu-media'),
+		// 		'label'		=> __('Check Existed Terms', 'zu-translate'),
 		// 		'value'		=> 'zumedia_check_terms',
 		// 		'icon'		=> 'warning',
 		// 		'color'		=> 'gold',
@@ -140,61 +130,22 @@ class zu_Translate extends zukit_Plugin  {
 		// ] : [];
 	}
 
-	private $edit_list = [
-		'pages'	=> ['edit.php' => ''],
-	    'anchors'	=> ['wrap' => [ 'jquery' => '#wpbody-content > .wrap', 'where' => 'after' ],
-		// 'wrap2' => [ 'jquery' => '#wpbody-content > .wrap', 'where' => 'after' ]
-	],
-		// 'forms' => [
-		// 	'posts-filter' => [
-		// 		'fields' => [
-		// 			'post-title' => [
-		// 				'jquery' => '.column-title', // '.column-title.page-title .hidden .post_title'
-		// 				'encode' => 'input', //'display'
-		// 			],
-		// 			'tags' => [
-		// 				'jquery' => '.tags.column-tags a',
-		// 				'encode' => 'display'
-		// 			],
-		// 			'focuskw' => [
-		// 				'jquery' => '.wpseo-focuskw.column-wpseo-focuskw',
-		// 				'encode' => 'display'
-		// 			],
-		// 			'metadesc' => [
-		// 				'jquery' => '.wpseo-metadesc.column-wpseo-metadesc',
-		// 				'encode' => 'display'
-		// 			],
-		// 			'qtx-seo' => [
-		// 				'jquery' => '.column-qtx_seo span',
-		// 				'encode' => 'display'
-		// 			],
-		// 			'comments-view' => [
-		// 				'jquery' => '.comments-view-item-link',
-		// 				'encode' => 'display'
-		// 			],
-		// 			'notice-b' => [
-		// 				'jquery' => '.notice b',
-		// 				'encode' => 'display'
-		// 			],
-		// 		],
-		// 	],
-		// ],
-		'js-exec' => [
-			'zutranslate-edit-list'  => [
-			    'src' => 'plugins/zu-translate/admin/js/zutranslate-exec-edit.min.js',
-		 	],
-		],
-	];
-
 	protected function construct_more() {
-		add_filter('qtranslate_admin_config', [$this, 'get_qtx_config']);
+		add_filter('qtranslate_admin_config', [$this, 'update_qtx_config']);
 	}
 
-	public function get_qtx_config($admin_config) {
-		if($this->is_option('list') || true) {
-			$admin_config['edit'] = $this->edit_list;
+	public function update_qtx_config($admin_config) {
+		if($this->is_option('list')) {
+			$admin_config['edit'] = [
+				'pages'		=> ['edit.php' => ''],
+				// there is no way to indicate that 'qTranslate-XT' plugin do not need to create a language wrap by an anchor
+				// so we use an existing 'id' and a non-existing 'where' modifier
+			    'anchors'	=> ['the-list' => ['where' => 'none']],
+				'js-exec'	=> ['zutranslate-edit-list'  => [
+					'src'		=> $this->get_full_filepath('zutranslate-exec-edit'),
+			 	]],
+			];
 		}
-// zu_log($admin_config);
 		return $admin_config;
 	}
 
@@ -202,11 +153,12 @@ class zu_Translate extends zukit_Plugin  {
 
 	public function init() {
 
-// apply_filters( 'qtranslate_admin_config', $admin_config );
 		// // Media Folders Addon
 		// if($this->is_option('folders')) {
 		// 	$this->folders = $this->register_addon(new zu_TranslateFolder());
 		// }
+
+		// add our classes to the body class
 
 		if(!$this->is_option('flags')) {
             $this->snippets('add_admin_body_class', 'zutranslate-noflags');
@@ -217,8 +169,6 @@ class zu_Translate extends zukit_Plugin  {
 				$this->snippets('add_admin_body_class', 'zutranslate-custom-large');
 			}
 		}
-
-
 
 		// Some internal 'inits' ----------------------------------------------]
 
@@ -251,7 +201,7 @@ class zu_Translate extends zukit_Plugin  {
 		];
 	}
 
-	// Script enqueue ---------------------------------------------------------]
+	// Script/Style enqueue ---------------------------------------------------]
 
 	protected function should_load_css($is_frontend, $hook) {
 		return $is_frontend === false && $this->ends_with_slug($hook);
@@ -262,10 +212,7 @@ class zu_Translate extends zukit_Plugin  {
 	}
 
 	protected function enqueue_more($is_frontend, $hook) {
-		// always add styles only for Settings Page (needed for Folders Preview)
-		// we cannot do this in the add-on, since if it is not created (because
-		// the 'folders' option is disabled), then the styles will not be loaded
-
+		// add styles for custom button appearance and more
 		if(!$is_frontend && $this->need_common_admin_css($hook)) {
 			$this->admin_enqueue_style('zutranslate-common');
 		}
@@ -323,5 +270,4 @@ function zutranslate($file = null) {
 
 // Additional Classes & Functions ---------------------------------------------]
 
-// require_once('addons/dominant-color.php');
-// require_once('media-folders/zumedia-folders.php');
+// require_once('addons/???.php');

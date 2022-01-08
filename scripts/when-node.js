@@ -60,13 +60,18 @@
         }
     }
 
+    const hasOwnProperty = Object.prototype.hasOwnProperty;
+    function has(object, key) {
+        return object != null && hasOwnProperty.call(object, key)
+    }
+
     function isFunction(func) {
-        return Object.prototype.toString.call(func) == '[object Function]';
+        return typeof func === 'function';
     }
 
     function addObserver(observer, selector, inserted) {
         const storage = inserted ? observers.inserted : observers.removed;
-        if(hasOwnProperty.call(storage, selector)) removeObserver(selector, inserted);
+        if(has(storage, selector)) removeObserver(selector, inserted);
         storage[selector] = observer;
     }
 

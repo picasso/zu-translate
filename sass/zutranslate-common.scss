@@ -229,6 +229,16 @@ $custom-large-size-class: 'zutranslate-custom-large';
 			padding: 10px 8px;
 		}
 	}
+	.list-reusable-blocks__container {
+		.#{$custom-appearance-class} & {
+			position: static;
+			margin-top: $button-margin-top;
+			border-radius: $border-radius;
+			.components-button {
+				padding: 15px 12px;
+			}
+		}
+	}
 	.qtranxs-lang-switch-wrap {
 		margin: 0 0 0 10px;
 	}
