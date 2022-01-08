@@ -4,6 +4,7 @@ $button-tick-size: 13px;
 $button-tick-large-size: 15px;
 $button-tick-icon-padding: 2px;
 $button-tick-icon-shift: half($button-tick-size) + twice($button-tick-icon-padding) + 1;
+$button-margin-top: $button-tick-icon-shift + 3;
 $button-tick-icon: '\f15e'; // '\f147'
 $button-copy-icon: '\f502';
 
@@ -51,7 +52,7 @@ $custom-large-size-class: 'zutranslate-custom-large';
 		transition: opacity $transition-time $transition-function;
 
 		.qtranxs-lang-switch, .qtranxs-lang-copy {
-			margin: ($button-tick-icon-shift + 3) 8px 0 0;
+			margin: $button-margin-top 8px 0 0;
 
 			.button {
 				box-shadow: none;
@@ -203,6 +204,33 @@ $custom-large-size-class: 'zutranslate-custom-large';
 		.qtranxs-lang-switch-wrap {
 			top: -79px;
 		}
+	}
+}
+
+.qtranxs-flex {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+
+	.wp-heading-inline {
+		padding: 0 5px 0 0;
+		.#{$custom-appearance-class} & {
+			margin-top: $button-margin-top - 2;
+		}
+	}
+	.page-title-action {
+		position: static;
+		.#{$custom-appearance-class} & {
+			padding: 5px 8px;
+			margin-top: $button-margin-top;
+			border-radius: $border-radius;
+		}
+		.#{$custom-large-size-class} & {
+			padding: 10px 8px;
+		}
+	}
+	.qtranxs-lang-switch-wrap {
+		margin: 0 0 0 10px;
 	}
 }
 
