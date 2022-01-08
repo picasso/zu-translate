@@ -38,6 +38,7 @@ class zu_Translate extends zukit_Plugin  {
 				'flags'				=> true,
 				'appearance'		=> false,
 				'large'				=> false,
+				'list'				=> false,
 				'yseo'				=> false,
 				'media_details'		=> false,
 				'gutenberg'			=> true,
@@ -139,10 +140,69 @@ class zu_Translate extends zukit_Plugin  {
 		// ] : [];
 	}
 
+	private $edit_list = [
+		'pages'	=> ['edit.php' => ''],
+	    'anchors'	=> ['wrap' => [ 'jquery' => '#wpbody-content > .wrap', 'where' => 'after' ],
+		// 'wrap2' => [ 'jquery' => '#wpbody-content > .wrap', 'where' => 'after' ]
+	],
+		// 'forms' => [
+		// 	'posts-filter' => [
+		// 		'fields' => [
+		// 			'post-title' => [
+		// 				'jquery' => '.column-title', // '.column-title.page-title .hidden .post_title'
+		// 				'encode' => 'input', //'display'
+		// 			],
+		// 			'tags' => [
+		// 				'jquery' => '.tags.column-tags a',
+		// 				'encode' => 'display'
+		// 			],
+		// 			'focuskw' => [
+		// 				'jquery' => '.wpseo-focuskw.column-wpseo-focuskw',
+		// 				'encode' => 'display'
+		// 			],
+		// 			'metadesc' => [
+		// 				'jquery' => '.wpseo-metadesc.column-wpseo-metadesc',
+		// 				'encode' => 'display'
+		// 			],
+		// 			'qtx-seo' => [
+		// 				'jquery' => '.column-qtx_seo span',
+		// 				'encode' => 'display'
+		// 			],
+		// 			'comments-view' => [
+		// 				'jquery' => '.comments-view-item-link',
+		// 				'encode' => 'display'
+		// 			],
+		// 			'notice-b' => [
+		// 				'jquery' => '.notice b',
+		// 				'encode' => 'display'
+		// 			],
+		// 		],
+		// 	],
+		// ],
+		'js-exec' => [
+			'zutranslate-edit-list'  => [
+			    'src' => 'plugins/zu-translate/admin/js/zutranslate-exec-edit.min.js',
+		 	],
+		],
+	];
+
+	protected function construct_more() {
+		add_filter('qtranslate_admin_config', [$this, 'get_qtx_config']);
+	}
+
+	public function get_qtx_config($admin_config) {
+		if($this->is_option('list') || true) {
+			$admin_config['edit'] = $this->edit_list;
+		}
+// zu_log($admin_config);
+		return $admin_config;
+	}
+
 	// Actions & Add-ons ------------------------------------------------------]
 
 	public function init() {
 
+// apply_filters( 'qtranslate_admin_config', $admin_config );
 		// // Media Folders Addon
 		// if($this->is_option('folders')) {
 		// 	$this->folders = $this->register_addon(new zu_TranslateFolder());
@@ -173,21 +233,21 @@ class zu_Translate extends zukit_Plugin  {
 	protected function custom_admin_submenu() {
 
 		return [
-			'reorder'	=>	[
-				[
-					'menu'				=> 	'qtranslate-xt',
-					'after_index2'		=>	'zuplus-settings',
-				],
-				[
-					'menu'				=> 	'zutranslate-settings',
-					'after_index'		=>	'qtranslate-xt',
-				],
-			],
-			'separator'	=>	[
-				[
-					'before_index'		=> 	'qtranslate-xt',
-				],
-			],
+			// 'reorder'	=>	[
+			// 	[
+			// 		'menu'				=> 	'qtranslate-xt',
+			// 		'after_index2'		=>	'zuplus-settings',
+			// 	],
+			// 	[
+			// 		'menu'				=> 	'zutranslate-settings',
+			// 		'after_index'		=>	'qtranslate-xt',
+			// 	],
+			// ],
+			// 'separator'	=>	[
+			// 	[
+			// 		'before_index'		=> 	'qtranslate-xt',
+			// 	],
+			// ],
 		];
 	}
 
@@ -224,7 +284,8 @@ class zu_Translate extends zukit_Plugin  {
 	private function need_common_admin_css($hook) {
 		return !$this->ends_with_slug($hook) && (
 			$this->is_option('flags') === false ||
-			$this->is_option('appearance')
+			$this->is_option('appearance') ||
+			$this->is_option('list')
 		);
 	}
 

@@ -35,6 +35,10 @@ const options = {
 		help:	__('Enlarge the size of the buttons (*for those who prefer more*).', 'zu-translate'),
 		depends: 'appearance',
 	},
+	list: {
+		label: 	__('Add Language Switcher to post/pages list', 'zu-translate'),
+		help:	__('Ability to switch language on a list of posts/pages and support for **Quick Edit**.', 'zu-translate'),
+	},
 	media_details: {
 		label: 	__('Language Switcher in Media Details', 'zu-translate'),
 		help:	__('When activated you will not be able to edit the fields when viewing the modal dialog, only on `Edit Media` page.', 'zu-translate'),
