@@ -17,7 +17,7 @@ const {
 	keys,
 } = lodash;
 const { __ } = wp.i18n;
-const { Button, CheckboxControl, ToggleControl } = wp.components;
+const { Button, CheckboxControl } = wp.components;
 const { useCallback, useState } = wp.element;
 
 // Zukit dependencies
@@ -55,8 +55,7 @@ const ZutranslateBlockEditor = ({
 
 	const { createNotice } = noticeOperations;
 	const beOptions = get(options, blockEditorKey, {});
-	// const excludedBlocks = get(beOptions, 'excluded', []);
-	const { sync, excluded: excludedBlocks, custom: customBlocks } = beOptions;
+	const { excluded: excludedBlocks, custom: customBlocks } = beOptions;
 
 	const [ customName, setCustomName ] = useState('');
 	const [ customAtts, setCustomAtts ] = useState('');
@@ -106,12 +105,6 @@ const ZutranslateBlockEditor = ({
 	return (
 			<ZukitPanel id="gutenberg" options={ options } initialOpen={ true }>
 				{ toggleOption(pick(data, ['sync', 'session']), beOptions, updateBEOptions) }
-				<ToggleControl
-					label={ data.sync.label }
-					help={ simpleMarkdown(data.sync.help, { br: true }) }
-					checked={ sync }
-					onChange={ () => updateBEOptions({ sync: !sync  }) }
-				/>
 				<h3 className="__subtitle">{ data.blockTitle }</h3>
 				<div className="__supported">
 					{ map(standardBlocks, ({ name, atts }, key) =>

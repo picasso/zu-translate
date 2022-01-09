@@ -7,16 +7,9 @@ const _ = lodash;
 import { qtranxj_split, qtranxj_get_split_blocks, qtranxj_split_blocks } from './qblocks.js';
 
 const activateDebug = false;
-const delimiters = ['[]', '{}', '<!-- -->'];
 
 export function hasRaw(ref) {
 	return !!ref?.current?.raw;
-}
-
-export function hasTranslations(text) {
-	const blocks = qtranxj_get_split_blocks(text ?? '');
-	// no language separator found - there are no translations
-	return blocks?.length > 1;
 }
 
 export function getLangContent(raw, lang) {
@@ -28,7 +21,6 @@ export function createRawContent(lang, values, translatedAtts, maybeFixRaw = fal
 	const del = getDefaultDelimter();
     const separator = getSeparator();
     const rawItems = emptyRawContent(values.length, false);
-// _.fill(_.range(0, values.length), '');
 	// if RAW was created for wrong amount of attributes
 	if(maybeFixRaw) {
 		const items = _.split(maybeFixRaw, separator);
@@ -39,7 +31,7 @@ export function createRawContent(lang, values, translatedAtts, maybeFixRaw = fal
 	}
 	// check if any of the attributes already contains a RAW block
     const prevRaw = _.reduce(values, (foundRaw, value) => {
-        return foundRaw === false ? (hasTranslations(value) ? value : false) : foundRaw;
+        return foundRaw === false ? (hasRawBlocks(value) ? value : false) : foundRaw;
     }, false);
     if(activateDebug) Zubug.data({ lang, values, prevRaw });
 
@@ -59,7 +51,6 @@ export function createRawContent(lang, values, translatedAtts, maybeFixRaw = fal
     }
 
 	// for the newly created RAW, save the current attribute values in the current language section
-// const raw = _.join(rawItems, separator);
     return [ updateRawContent(rawItems, lang, values, { del, separator }), {} ];
 }
 
@@ -107,6 +98,14 @@ export function switchContent(raw, lang, translatedAtts) {
 }
 
 // internal helpers -----------------------------------------------------------]
+
+const delimiters = ['[]', '{}', '<!-- -->'];
+
+function hasRawBlocks(text) {
+	const blocks = qtranxj_get_split_blocks(text ?? '');
+	// no language separator found - there are no translations
+	return blocks?.length > 1;
+}
 
 function emptyRawContent(itemCount, joinItems = true) {
 	const del = getDefaultDelimter();

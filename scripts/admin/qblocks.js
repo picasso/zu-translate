@@ -1,31 +1,9 @@
 // Utilities for qTranslate blocks
 
-// const qTranslateConfig = {
-// 	lang_code_format: '[a-z]{2,3}',
-// 	language_config: {
-// 		en: {
-// 			admin_name: "Американский Английский",
-// 			flag: "gb.png",
-// 			locale: "en_US",
-// 			locale_html: "en",
-// 			name: "English",
-// 		},
-// 		ru: {
-// 			admin_name: "Русский",
-// 			flag: "ru.png",
-// 			locale: "ru_RU",
-// 			locale_html: "ru",
-// 			name: "Русский",
-// 		},
-// 	},
-// };
-
 import { getExternalData } from './utils.js';
 
 const langCodeFormat = getExternalData('format', '');
 const languageConfig = getExternalData('config', []);
-
-console.log('langCodeFormat', langCodeFormat, languageConfig);
 
 export const qtranxj_get_split_blocks = function (text) {
     const regex = '(<!--:lang-->|<!--:-->|\\[:lang]|\\[:]|{:lang}|{:})'.replace(/lang/g, langCodeFormat);

@@ -29,8 +29,8 @@ function addRawAttribute(settings, name) {
 	return settings;
 }
 
-addFilter('blocks.registerBlockType', 'zu/paragraph', addRawAttribute);
-addFilter('editor.BlockEdit', 'zu/paragraph', withRawEditControl);
+addFilter('blocks.registerBlockType', 'zu/translate', addRawAttribute);
+addFilter('editor.BlockEdit', 'zu/translate', withRawEditControl);
 
 // NOTE: All experiments left here --------------------------------------------]
 
