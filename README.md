@@ -25,7 +25,8 @@ After the WordPress changed the `TinyMCE` to the Block Editor (*Gutenberg*), edi
 * Ability to add custom blocks to the list supported by this plugin
 * Control of the appearance of buttons to switch language
 * Ability to switch language in the list of posts/pages
-* Ability to switch language in the modal window of __Media Library__
+* Support for __Quick Edit__ in the list of posts/pages
+<!-- * Ability to switch language in the modal window of __Media Library__ -->
 * Supports adding a language switcher to any post or page using a `shortcode`
 * Ability to use `shortcode` in the WordPress __menu__
 
@@ -38,6 +39,16 @@ You can also personalize the form by adding attributes to the shortcode:
 * __unsorted__ - if sorted (default) then the active language will be always on top: `unsorted=true`
 * __post_id__ - post ID for which you want to create a language switcher (default for the current post): `post_id=123`
 
+If `shortcode` is used in the menu, use the following template to describe the shortcode:
+
+`#location+tag?attribute1=value1&attribute2=value2&linkclass=red-color,bold#`
+
+* __location__ - a position where the result of the shortcode will be inserted. Possible options - `after`|`before`|`url`, that is, before link, after link or instead of the link itself
+* __tag__ - the name of shortcode
+* __attribute1__, __attribute2__ - names of attributes of shortcode
+* __value1__, __value2__ - attribute values
+* __linkclass__ - a special attribute that sets the class name that will be added to the link (*note that if you want to add __several__ classes, you can specify them through the comma*)
+
 #### Examples
 
 * With language codes and "unsorted":
@@ -47,6 +58,11 @@ You can also personalize the form by adding attributes to the shortcode:
 * With custom class for Post ID 1209:
 
 `[zu-lang class="my-switcher" post_id=1209]`
+
+* In __menu__ with custom class, only language codes, before link and with a special link class:
+
+`#before+zu-lang?class=my-switcher&as_code=true&linkclass=none#`
+
 
 
 ## Download
@@ -61,7 +77,7 @@ You can also personalize the form by adding attributes to the shortcode:
 
 ## Public methods
 
-In order to take advantage of the switching language implemented in this plugin, Plugins and themes can add their custom blocks using these functions:
+In order to take advantage of the switching language implemented in this plugin, plugins and themes can add their custom blocks using these functions:
 
 + __zutrans_is_multilang()__
 + __zutrans_register_blocks(`$blocks`)__

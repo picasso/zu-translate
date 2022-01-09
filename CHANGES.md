@@ -1,3 +1,17 @@
+#### 1.0.3 / 2022-01-09
+* restored option to add Language Switcher to post/pages list
+* refactoring `admin-edit` script to support support for `Quick Edit` and post/pages list
+* refactoring `whenReady` into `whenNodeInserted`, added capabilities `whenNodeRemoved`
+* refactoring some methods to use `get_qt_config` method instead of `global $q_config`
+* added `session` option support
+* added support for shortcodes in menu
+* added `appearance` and `large` options - to change appearance of language buttons
+* got rid of `qTranslateConfig` in the __Block Editor__
+* implemented `inserted` hooks to deal with element removed from the page when the attribute Panel is closed
+* implemented `not synced` language switching
+* refactoring CSS to use common variables
+* small improvements
+
 #### 1.0.2 / 2022-01-05
 * refactoring with `Zukit` components
 * created custom `store` for RAW values
