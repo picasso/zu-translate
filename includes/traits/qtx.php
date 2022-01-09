@@ -10,19 +10,19 @@ trait zu_TranslateQT {
 	private $qtx_link = 'https://github.com/qtranslate/qtranslate-xt/';
 
 	private function init_qtx_support() {
-		global $q_config;
-
-		$this->is_multilang = defined('QTRANSLATE_FILE') && isset($q_config);
+		$qt_config = $this->get_qt_config();
+	zu_log($qt_config);
+		$this->is_multilang = $this->is_installed_qtranslate() && !empty($qt_config);
 		if($this->is_multilang) {
 			$this->qtx_version = defined('QTX_VERSION') ? QTX_VERSION : false;
 			$config = [];
-			foreach($q_config['enabled_languages'] as $lang) {
+			foreach($qt_config['enabled_languages'] as $lang) {
 				$config[$lang]['code'] = $lang;
-				$config[$lang]['name'] = $q_config['language_name'][$lang];
-				$config[$lang]['flag'] = $q_config['flag'][$lang];
-				$config[$lang]['locale'] = $q_config['locale'][$lang];
-				$config[$lang]['locale_html'] = $q_config['locale_html'][$lang];
-				$config[$lang]['active'] = ($lang === $q_config['language']);
+				$config[$lang]['name'] = $qt_config['language_name'][$lang];
+				$config[$lang]['flag'] = $qt_config['flag'][$lang];
+				$config[$lang]['locale'] = $qt_config['locale'][$lang];
+				$config[$lang]['locale_html'] = $qt_config['locale_html'][$lang];
+				$config[$lang]['active'] = ($lang === $qt_config['language']);
 			}
 			$this->lang_config = $config;
 		}
@@ -33,14 +33,15 @@ trait zu_TranslateQT {
 	}
 
 	public function get_lang($detailed = false) {
-		global $q_config;
 		if(!$this->is_multilang()) return $detailed ? [] : '';
-		$code = $q_config['language'];
+
+		$qt_config = $this->get_qt_config();
+		$code = $qt_config['language'];
 		return $detailed ? [
 			'code'		=> $code,
-			'locale'	=> $q_config['locale'][$code],
-			'name'		=> $q_config['language_name'][$code],
-			'flag'		=> $this->sprintf_uri('%s%s', $q_config['flag_location'] ?? '', $q_config['flag'][$code]),
+			'locale'	=> $qt_config['locale'][$code],
+			'name'		=> $qt_config['language_name'][$code],
+			'flag'		=> $this->sprintf_uri('%s%s', $qt_config['flag_location'] ?? '', $qt_config['flag'][$code]),
 		] : $code;
 	}
 
@@ -77,8 +78,8 @@ trait zu_TranslateQT {
 	}
 
 	protected function get_url_param($param = null) {
-		global $q_config;
-		return $param ? ($q_config['url_info'][$param] ?? null) : ($q_config['url_info'] ?? null);
+		$qt_config = $this->get_qt_config();
+		return $param ? ($qt_config['url_info'][$param] ?? null) : ($qt_config['url_info'] ?? null);
 	}
 
 
@@ -87,39 +88,38 @@ trait zu_TranslateQT {
 
 	// return array of content for all languages
 	protected function  get_content($raw_content) {
-		global $q_config;
-		if(empty($q_config) || !function_exists('qtranxf_gettext')) return $raw_content;
+		$qt_config = $this->get_qt_config();
+		if(empty($qt_config) || !function_exists('qtranxf_gettext')) return $raw_content;
 
 		$raw_contents = [];
-		$keep_lang = $q_config['language'];
-		foreach($q_config['enabled_languages'] as $lang) {
+		$keep_lang = $qt_config['language'];
+		foreach($qt_config['enabled_languages'] as $lang) {
 			// set language
-			$q_config['language'] = $lang;
+			$qt_config['language'] = $lang;
 			$raw_contents[$lang] = qtranxf_gettext($raw_content);
 		}
 		// restore saved language
-		$q_config['language'] = $keep_lang;
+		$qt_config['language'] = $keep_lang;
 		return $raw_content;
 	}
 
 	// return array of cut content for all languages
 	protected function  cut_content($raw_content, $amount = 150) {
-		global $q_config;
-
-		if(empty($q_config) || !function_exists('qtranxf_gettext')) return zu()->cut_content($raw_content, $amount);
+		$qt_config = $this->get_qt_config();
+		if(empty($qt_config) || !function_exists('qtranxf_gettext')) return zu()->cut_content($raw_content, $amount);
 
 		$raw_contents = [];
 		$contents = [];
 
-		$keep_lang = $q_config['language'];
-		foreach($q_config['enabled_languages'] as $lang) {
+		$keep_lang = $qt_config['language'];
+		foreach($qt_config['enabled_languages'] as $lang) {
 			// set language
-			$q_config['language'] = $lang;
+			$qt_config['language'] = $lang;
 			$raw_contents[$lang] = qtranxf_gettext($raw_content);
 			$contents[$lang] = zu()->cut_content($raw_contents[$lang], $amount);
 		}
 		// restore saved language
-		$q_config['language'] = $keep_lang;
+		$qt_config['language'] = $keep_lang;
 
 		foreach($contents as $lang => $cut_content) {
 			$raw_content = str_replace($raw_contents[$lang], $cut_content, $raw_content);
@@ -129,20 +129,21 @@ trait zu_TranslateQT {
 
 	// return array of modified content for all languages
 	protected function  modify_content($raw_content, $prefix = '', $suffix = '', $replace = []) {
-		global $q_config;
-
-		if(empty($q_config) || !function_exists('qtranxf_gettext')) return zu()->modify_content($raw_content, $prefix, $suffix, $replace);
+		$qt_config = $this->get_qt_config();
+		if(empty($qt_config) || !function_exists('qtranxf_gettext')) return zu()->modify_content($raw_content, $prefix, $suffix, $replace);
 
 		$raw_contents = [];
 		$contents = [];
 
-		$c_lang = $q_config['language'];
-		foreach($q_config['enabled_languages'] as $lang){
-			$q_config['language'] = $lang; 													// set language
+		$c_lang = $qt_config['language'];
+		foreach($qt_config['enabled_languages'] as $lang){
+			// set language
+			$qt_config['language'] = $lang;
 			$raw_contents[$lang] = qtranxf_gettext($raw_content);
 			$contents[$lang] = zu()->modify_content($raw_contents[$lang], $prefix, $suffix, $replace);
 		}
-		$q_config['language'] = $c_lang; 													// restore saved language
+		// restore saved language
+		$qt_config['language'] = $c_lang;
 
 		foreach($contents as $lang => $mod_content) {
 			$raw_content = str_replace($raw_contents[$lang], $mod_content, $raw_content);
@@ -154,14 +155,21 @@ trait zu_TranslateQT {
 
 	// internal helpers -------------------------------------------------------]
 
-	private function qtx_data() {
+	private function is_installed_qtranslate() {
+		return defined('QTRANSLATE_FILE');
+	}
+
+	private function get_qt_config() {
 		global $q_config;
-		return $this->is_multilang() ? [
-			'language_config'	=> $this->lang_config,
-			'flag_location'		=> $this->sprintf_uri($q_config['flag_location'] ?? ''),
-			'qtxlink'			=> $this->qtx_link,
-		] : [
-			'qtxlink'			=> $this->qtx_link,
+		return $q_config ?? null;
+	}
+
+	private function qtx_data($settings_data = false) {
+		$qt_config = $this->get_qt_config();
+		return $settings_data ? ['qtxlink' => $this->qtx_link] : [
+			'config'	=> $this->lang_config,
+			'location'	=> $this->sprintf_uri($qt_config['flag_location'] ?? ''),
+			'format'	=> $this->is_installed_qtranslate() ? QTX_LANG_CODE_FORMAT : '',
 		];
 	}
 
