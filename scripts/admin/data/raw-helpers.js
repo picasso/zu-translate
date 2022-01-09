@@ -5,7 +5,8 @@ const { select } = wp.data;
 
 // Internal dependencies
 
-import { getLangContent, getInputValue, changeInputValue, addInputListener } from './../utils.js';
+import { getInputValue, changeInputValue, addInputListener } from './../utils.js';
+import { getLangContent } from './../raw-utils.js';
 import { getLang, getRaw, getHooks, setRaw, updateRaw, addHook } from './use-store.js';
 import { supportedAtts, supportedKeys } from './raw-store.js';
 

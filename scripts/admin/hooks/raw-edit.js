@@ -13,7 +13,8 @@ const { useForceUpdater } = wp.zukit.data;
 
 // Internal dependencies
 
-import { isSupported, getTranslated, hasRaw, switchContent, createRawContent, maybeFixRawContent, updateRawContent } from './../utils.js';
+import { isSupported, getTranslated } from './../utils.js';
+import { hasRaw, switchContent, createRawContent, maybeFixRawContent, updateRawContent } from './../raw-utils.js';
 import { changeLang, useOnLangChange, useLangHook } from './../data/use-store.js';
 import { syncBlocks } from './../data/raw-helpers.js';
 import LangControl from './../components/lang-control.js';

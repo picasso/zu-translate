@@ -5,7 +5,15 @@ const { registerStore } = wp.data;
 
 // Internal dependencies
 
-import { editorLang, updateRawContent } from './../utils.js';
+import { getExternalData, getSessionLang } from './../utils.js';
+import { updateRawContent } from './../raw-utils.js';
+
+
+const supportSession = getExternalData('session', false);
+const editorLang = supportSession ? getSessionLang() : getExternalData('lang', 'en');
+
+console.log('getSessionLang()', getSessionLang());
+console.log('editorLang', editorLang);
 
 // Create and register Zu Translate store -------------------------------------]
 
