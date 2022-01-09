@@ -1,7 +1,5 @@
-/**
- * Utilities for qTranslate blocks
- */
-'use strict';
+// Utilities for qTranslate blocks
+
 // const qTranslateConfig = {
 // 	lang_code_format: '[a-z]{2,3}',
 // 	language_config: {
@@ -22,9 +20,15 @@
 // 	},
 // };
 
-/* global qTranslateConfig */
+import { getExternalData } from './utils.js';
+
+const langCodeFormat = getExternalData('format', '');
+const languageConfig = getExternalData('config', []);
+
+console.log('langCodeFormat', langCodeFormat, languageConfig);
+
 export const qtranxj_get_split_blocks = function (text) {
-    const regex = '(<!--:lang-->|<!--:-->|\\[:lang]|\\[:]|{:lang}|{:})'.replace(/lang/g, qTranslateConfig.lang_code_format);
+    const regex = '(<!--:lang-->|<!--:-->|\\[:lang]|\\[:]|{:lang}|{:})'.replace(/lang/g, langCodeFormat);
     const splitRegex = new RegExp(regex, "gi");
 
     // Most browsers support RegExp.prototype[@@split]()... except IE
@@ -55,7 +59,7 @@ export const qtranxj_split = function (text) {
 
 export const qtranxj_split_blocks = function (blocks) {
     const result = new Object;
-    for (const lang in qTranslateConfig.language_config) {
+    for (const lang in languageConfig) {
         result[lang] = '';
     }
     if (!blocks || !blocks.length)
@@ -63,14 +67,14 @@ export const qtranxj_split_blocks = function (blocks) {
     if (blocks.length === 1) {
         // no language separator found, enter it to all languages
         const b = blocks[0];
-        for (const lang in qTranslateConfig.language_config) {
+        for (const lang in languageConfig) {
             result[lang] += b;
         }
         return result;
     }
-    const clang_regex = new RegExp('<!--:(lang)-->'.replace(/lang/g, qTranslateConfig.lang_code_format), 'gi');
-    const blang_regex = new RegExp('\\[:(lang)]'.replace(/lang/g, qTranslateConfig.lang_code_format), 'gi');
-    const slang_regex = new RegExp('{:(lang)}'.replace(/lang/g, qTranslateConfig.lang_code_format), 'gi');
+    const clang_regex = new RegExp('<!--:(lang)-->'.replace(/lang/g, langCodeFormat), 'gi');
+    const blang_regex = new RegExp('\\[:(lang)]'.replace(/lang/g, langCodeFormat), 'gi');
+    const slang_regex = new RegExp('{:(lang)}'.replace(/lang/g, langCodeFormat), 'gi');
     let lang = false;
     let matches;
     for (let i = 0; i < blocks.length; ++i) {

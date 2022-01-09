@@ -12,7 +12,10 @@ const { SelectItemControl, TitleIndicator } = wp.zukit.components;
 // Internal dependencies
 
 import { getExternalData, emptyGif, mergeClasses } from './../utils.js';
-const { language_config: config, flag_location: flagPath } = window.qTranslateConfig ?? {};
+// qTranslateConfig
+// const { language_config: config, flag_location: flagPath } = window.qTranslateConfig ?? {};
+const config = getExternalData('config', []);
+const flagPath = getExternalData('location', []);
 const langOptions = map(config, (data, key) => ({ value: key, label: data.name, flag: data.flag }));
 export const withFlags = getExternalData('flags', false);
 

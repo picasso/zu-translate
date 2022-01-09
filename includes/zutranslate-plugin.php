@@ -46,6 +46,7 @@ class zu_Translate extends zukit_Plugin  {
 					'custom'			=> [],			// see 'traits/gutenberg.php'
 					'excluded'			=> [], 			// see 'traits/gutenberg.php'
 					'sync'				=> true,
+					'session'			=> true,
 				],
 				'switcher'			=> [
 					'shortcode_menu'	=> true,
@@ -135,6 +136,10 @@ class zu_Translate extends zukit_Plugin  {
 	}
 
 	public function update_qtx_config($admin_config) {
+// zu_log($admin_config);
+		if($this->is_option('gutenberg')) {
+			unset($admin_config['post']);
+		}
 		if($this->is_option('list')) {
 			$admin_config['edit'] = [
 				'pages'		=> ['edit.php' => ''],
@@ -223,7 +228,7 @@ class zu_Translate extends zukit_Plugin  {
 				'locale'	=> get_locale(),
 				'disabled'	=> !$this->is_multilang(),
 			],
-			$this->qtx_data(),
+			$this->qtx_data(true),
 			$this->gutenberg_data(true)
 		);
 	}
@@ -239,12 +244,15 @@ class zu_Translate extends zukit_Plugin  {
 	// Custom blocks helpers --------------------------------------------------]
 
 	public function blocks_js_data() {
-		return $this->gutenberg_data();
+		return array_merge(
+			$this->qtx_data(),
+			$this->gutenberg_data()
+		);
 	}
 
 	public function blocks_enabled() {
 		// the block name can be any, since we do not create a block, only hooks
-		return $this->is_option('gutenberg') ? ['hooks_only'] : null;
+		return $this->is_installed_qtranslate() && $this->is_option('gutenberg') ? ['hooks_only'] : null;
 	}
 
 
