@@ -11,7 +11,6 @@ trait zu_TranslateQT {
 
 	private function init_qtx_support() {
 		$qt_config = $this->get_qt_config();
-	zu_log($qt_config);
 		$this->is_multilang = $this->is_installed_qtranslate() && !empty($qt_config);
 		if($this->is_multilang) {
 			$this->qtx_version = defined('QTX_VERSION') ? QTX_VERSION : false;
