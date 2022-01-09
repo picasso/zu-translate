@@ -6,6 +6,7 @@ const { select } = wp.data;
 // Internal dependencies
 
 import { getExternalData, getInputValue, changeInputValue, addInputListener } from './../utils.js';
+import { whenNodeInserted} from './../when-node.js';
 import { getLangContent } from './../raw-utils.js';
 import { getLang, getRaw, getHooks, setRaw, updateRaw, addHook } from './use-store.js';
 import { supportedAtts, supportedKeys } from './raw-store.js';
@@ -34,6 +35,9 @@ export function setRawAttributes(addListeners = true) {
 				setRaw(attr, value);
 				addInputListener(selector, getListener(attr));
 				syncContent = true;
+				// 'title' does not require 'inserted hook' as it is not removed from the page
+				// when the attribute Panel is closed
+				if(attr !== 'title') attachInsertedHooks(attr, selector);
 			} else {
 				addInputListener(selector, getListener(attr));
 				// if the language has been switched while editing blocks
@@ -116,4 +120,18 @@ forEach(supportedKeys, attr => {
 
 function getListener(attr) {
 	return listeners[attr] ?? noop;
+}
+
+const sidebarRoot = '.edit-post-sidebar > .components-panel';
+
+function attachInsertedHooks(attr, selector) {
+	whenNodeInserted(sidebarRoot, selector, () => {
+		if(activateDebug) Zubug.info(`Node Inserted for {"${attr}"}`);
+		// synchronize switching for newly created element
+		switchRawAttributes(null, attr);
+		// add the listener again (maybe the previous one was removed with the element or maybe not)
+		// NOTE from Docs: if multiple identical EventListeners are registered on the same EventTarget
+		// with the same parameters, the duplicate instances are discarded.
+		addInputListener(selector, getListener(attr));
+	});
 }
