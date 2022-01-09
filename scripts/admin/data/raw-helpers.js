@@ -18,8 +18,11 @@ const activateDebug = false;
 // NB! set them only for the first time when values in 'store' are undefined
 // all subsequent calls should be ignored - it's necessary as the document editing panel
 // will be mounted and unmounted every time when switching to blocks editing
+// NB! for the first time (when values are undefined) also synchronize the displayed value with the current language
+// since the current language may differ from the server language if the 'session' support is active
 export function setRawAttributes(addListeners = true) {
 	const { getEditedPostAttribute } = select('core/editor');
+	let syncContent = false;
 	forEach(supportedAtts, (selector, attr) => {
 		if(addListeners) {
 			let value = getRaw(attr);
@@ -28,6 +31,7 @@ export function setRawAttributes(addListeners = true) {
 				if(attr === 'title' && value === 'Auto Draft') value = '';
 				setRaw(attr, value);
 				addInputListener(selector, getListener(attr));
+				syncContent = true;
 			} else {
 				addInputListener(selector, getListener(attr));
 				// if the language has been switched while editing blocks
@@ -41,6 +45,7 @@ export function setRawAttributes(addListeners = true) {
 			addInputListener(selector, getListener(attr), false);
 		}
 	});
+	if(syncContent) switchRawAttributes();
 }
 
 // update RAW attributes before changing language
@@ -64,8 +69,9 @@ export function switchRawAttributes(lang, onlyAtts = null) {
 		if(onlyAtts === null || includes(onlyAtts, attr)) {
 			const rawValue = getRaw(attr);
 			if(rawValue !== undefined) {
-				const renderedValue = getLangContent(rawValue, editorLang);
-				changeInputValue(selector, renderedValue, true);
+				const currentValue = getInputValue(selector);
+				const shouldBeValue = getLangContent(rawValue, editorLang);
+				if(currentValue !== shouldBeValue) changeInputValue(selector, shouldBeValue, true);
 			}
 		}
 	});
