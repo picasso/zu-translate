@@ -172,11 +172,12 @@ trait zu_TranslateGutenberg {
 		$this->supported_blocks = $this->snippets('array_without_keys', $supported, $excluded);
 	}
 
-	private function gutenberg_data($include_fullset = false) {
+	private function gutenberg_data($settings_data = false) {
 		return [
-			'supported' => ($include_fullset ? $this->supported_data : $this->supported_blocks) ?? [],
+			'supported' => ($settings_data ? $this->supported_data : $this->supported_blocks) ?? [],
 			'lang'		=> $this->get_url_param('language'),
 			'sync'		=> $this->is_option('blockeditor.sync'),
+			'session'	=> $this->is_option('blockeditor.session'),
 			'flags'		=> $this->is_option('flags'),
 		];
 	}

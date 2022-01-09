@@ -80,6 +80,10 @@ const gutenberg = {
 		label: __('Synchronize language switching', 'zu-translate'),
 		help: __('Switching a language in one block will lead to language switching in all editable blocks.', 'zu-translate'),
 	},
+	session: {
+		label: __('Support session language', 'zu-translate'),
+		help: __('During one session, language switching on different pages will be synchronized.', 'zu-translate'),
+	},
 	custom: {
 		nameLabel: __('Block name', 'zu-translate'),
 		nameHelp: __('The block name must contain a **namespace** and a **slash**, for example, `core/quote`', 'zu-translate'),

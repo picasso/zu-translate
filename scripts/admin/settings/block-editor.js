@@ -1,12 +1,28 @@
 // WordPress dependencies
 
-const { get, map, isEmpty, mapKeys, castArray, join, split, compact, includes, without, omit, keys, has } = lodash;
+const {
+	isEmpty,
+	castArray,
+	get,
+	has,
+	map,
+	mapKeys,
+	join,
+	split,
+	compact,
+	includes,
+	without,
+	pick,
+	omit,
+	keys,
+} = lodash;
 const { __ } = wp.i18n;
 const { Button, CheckboxControl, ToggleControl } = wp.components;
 const { useCallback, useState } = wp.element;
 
 // Zukit dependencies
 
+const { toggleOption } = wp.zukit.render;
 const { ZukitDivider, ZukitPanel, AdvTextControl, ListInputControl } = wp.zukit.components;
 const { simpleMarkdown, getExternalData, messageWithError } = wp.zukit.utils;
 const { scrollTop } = wp.zukit.jq;
@@ -38,9 +54,9 @@ const ZutranslateBlockEditor = ({
 }) => {
 
 	const { createNotice } = noticeOperations;
-	const blockEditorOps = get(options, blockEditorKey, {});
-	const excludedBlocks = get(blockEditorOps, 'excluded', []);
-	const { sync, excluded, custom: customBlocks } = blockEditorOps;
+	const beOptions = get(options, blockEditorKey, {});
+	// const excludedBlocks = get(beOptions, 'excluded', []);
+	const { sync, excluded: excludedBlocks, custom: customBlocks } = beOptions;
 
 	const [ customName, setCustomName ] = useState('');
 	const [ customAtts, setCustomAtts ] = useState('');
@@ -61,9 +77,9 @@ const ZutranslateBlockEditor = ({
 	}, [updateOptions]);
 
 	const excludeBlock = useCallback((checked, block) => {
-		if(checked) updateBEOptions({ excluded: without(excluded, block) });
-		else updateBEOptions({ excluded: [...excluded, block] });
-	}, [excluded, updateBEOptions]);
+		if(checked) updateBEOptions({ excluded: without(excludedBlocks, block) });
+		else updateBEOptions({ excluded: [...excludedBlocks, block] });
+	}, [excludedBlocks, updateBEOptions]);
 
 	const addBlock = useCallback(() => {
 		const { name, atts, error } = testCustomBlock(customName, customAtts, customBlocks);
@@ -89,6 +105,7 @@ const ZutranslateBlockEditor = ({
 
 	return (
 			<ZukitPanel id="gutenberg" options={ options } initialOpen={ true }>
+				{ toggleOption(pick(data, ['sync', 'session']), beOptions, updateBEOptions) }
 				<ToggleControl
 					label={ data.sync.label }
 					help={ simpleMarkdown(data.sync.help, { br: true }) }
