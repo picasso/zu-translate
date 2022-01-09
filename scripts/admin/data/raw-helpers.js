@@ -5,12 +5,14 @@ const { select } = wp.data;
 
 // Internal dependencies
 
-import { getInputValue, changeInputValue, addInputListener } from './../utils.js';
+import { getExternalData, getInputValue, changeInputValue, addInputListener } from './../utils.js';
 import { getLangContent } from './../raw-utils.js';
 import { getLang, getRaw, getHooks, setRaw, updateRaw, addHook } from './use-store.js';
 import { supportedAtts, supportedKeys } from './raw-store.js';
 
 const activateDebug = false;
+
+const activateSync = getExternalData('sync', false);
 
 // helpers for RAW attributes -------------------------------------------------]
 
@@ -80,16 +82,18 @@ export function switchRawAttributes(lang, onlyAtts = null) {
 // call all registered hooks besides associated with 'clientId'
 // this will lead to switching language for blocks associated with these hooks
 export function syncBlocks(clientId) {
-	const hooks = getHooks();
-	if(activateDebug) {
-		Zubug.info(`Sync initiated from {${clientId}}`, { hookCount: Object.keys(hooks).length, hooks });
-	}
-	forEach(hooks, (hook, id) => {
-		if(id !== clientId) {
-			if(activateDebug) Zubug.info(`calling hook for {${id}}`);
-			hook();
+	if(activateSync) {
+		const hooks = getHooks();
+		if(activateDebug) {
+			Zubug.info(`Sync initiated from {${clientId}}`, { hookCount: Object.keys(hooks).length, hooks });
 		}
-	});
+		forEach(hooks, (hook, id) => {
+			if(id !== clientId) {
+				if(activateDebug) Zubug.info(`calling hook for {${id}}`);
+				hook();
+			}
+		});
+	}
 }
 
 // because the document editing panel will be mounted and unmounted every time when switching to blocks editing

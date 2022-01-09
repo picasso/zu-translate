@@ -13,13 +13,14 @@ const { useForceUpdater } = wp.zukit.data;
 
 // Internal dependencies
 
-import { isSupported, getTranslated } from './../utils.js';
+import { isSupported, getExternalData, getTranslated } from './../utils.js';
 import { hasRaw, switchContent, createRawContent, maybeFixRawContent, updateRawContent } from './../raw-utils.js';
 import { changeLang, useOnLangChange, useLangHook } from './../data/use-store.js';
 import { syncBlocks } from './../data/raw-helpers.js';
 import LangControl from './../components/lang-control.js';
 
 const activateDebug = false;
+const activateSync = getExternalData('sync', false);
 
 const BlockEditLang = (props) => {
 	const {
@@ -41,20 +42,27 @@ const BlockEditLang = (props) => {
 	// create a list of attributes and an array of their values ('translatedAtts' is string - see 'utils.js')
 	const [translatedAtts, translatedValues] = getTranslated(name, attributes);
 	// callback for replacing the values of all 'translated' attributes for the required language
-	const replaceContent = useCallback(lang => {
-		const { raw } = rawRef.current;
-		const atts = switchContent(raw, lang, translatedAtts);
-		rawRef.current.lang = lang;
-		setAttributes({ qtxLang: lang, ...atts });
+	const replaceContent = useCallback((lang, prevLang = false) => {
+		if(!activateSync && !prevLang) prevLang = lang;
+		if(lang !== prevLang) {
+			const { raw } = rawRef.current;
+			const atts = switchContent(raw, lang, translatedAtts);
+			rawRef.current.lang = lang;
+			setAttributes({ qtxLang: lang, ...atts });
+		}
 	}, [translatedAtts, setAttributes]);
 
 	const onChangeLang = useCallback(lang => {
 		const { id, lang: prevLang } = rawRef.current;
-		changeLang(lang);
-		forceUpdate();
-		syncBlocks(id);
+		if(activateSync) {
+			changeLang(lang);
+			forceUpdate();
+			syncBlocks(id);
+		} else {
+			replaceContent(lang, prevLang);
+		}
 		if(activateDebug) Zubug.info(`{${id}} Language switched to [${prevLang} -> ${lang}]`);
-	}, [forceUpdate]);
+	}, [forceUpdate, replaceContent]);
 
 	const forceUpdate = useForceUpdater();
 	// in the hook is checked if the language has changed, then we call 'replaceContent'
@@ -65,6 +73,7 @@ const BlockEditLang = (props) => {
 	// synchronize, create RAW if does not exist and maybe fix it - on mounting only
 	useEffect(() => {
 		// if we already have RAW - synchronize the first time 'qtxLang' attribute and 'editorLang'
+		// only if 'activateSync' is true, otherwise do not synchronize
 		if(qtxLang !== editorLang && hasRaw(rawRef)) replaceContent(editorLang);
 		// if RAW does not exist - create it
 		if(!hasRaw(rawRef)) {
@@ -109,14 +118,16 @@ const BlockEditLang = (props) => {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [...translatedValues, setAttributes]);
 
+	const controlLang = activateSync ? editorLang : qtxLang ?? editorLang;
+
 	return useMemo(() => (
 		<InspectorControls>
 			<LangControl.Panel
-				lang={ editorLang }
+				lang={ controlLang }
 				onClick={ onChangeLang }
 			/>
 		</InspectorControls>
-	), [editorLang, onChangeLang]);
+	), [controlLang, onChangeLang]);
 }
 
 // HOC in which we add a language editing panel if the block fits our requirements
