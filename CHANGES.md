@@ -1,3 +1,7 @@
+#### 1.4.7 / 2022-01-09
+
+* added `get_full_filepath` scripts helper
+
 #### 1.4.6 / 2022-01-04
 
 ##### Core

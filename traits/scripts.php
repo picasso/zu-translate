@@ -35,6 +35,11 @@ trait zukit_Scripts {
 		return sprintf($is_style ? '/%2$s/%1$s.css' : '/%2$s/%1$s.min.js', $file, $dir);
 	}
 
+    public function get_full_filepath($file, $is_style = false, $is_frontend = false) {
+        $filepath = $this->get_filepath($is_style, $is_frontend, $file);
+		return $this->sprintf_dir($filepath);
+	}
+
     public function get_version($filename = '', $refresh = false) {
         if(is_null($filename)) return null; // if set to null, no version is added
         return $refresh ? $this->filename_version($filename) : $this->version;
