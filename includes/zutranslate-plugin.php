@@ -279,6 +279,28 @@ function zutranslate($file = null) {
 	return zu_Translate::instance($file);
 }
 
+// Public methods -------------------------------------------------------------]
+
+function zutrans_is_multilang() {
+	return zutranslate()->is_multilang();
+}
+
+function zutrans_register_translated_blocks($blocks) {
+	return zutranslate()->register_translated_blocks();
+}
+
+function zutrans_get_all_languages($sorted = true) {
+	return zutranslate()->get_all_languages($sorted);
+}
+
+function zutrans_convert_text($text, $lang = null, $flags = 0) {
+	return zutranslate()->convert_text($text, $lang, $flags);
+}
+
+function zutrans_convert_url($url, $lang = null, $flags = 0) {
+	return zutranslate()->convert_url($url, $lang);
+}
+
 // Additional Classes & Functions ---------------------------------------------]
 
 // require_once('addons/???.php');

@@ -63,8 +63,6 @@ If `shortcode` is used in the menu, use the following template to describe the s
 
 `#before+zu-lang?class=my-switcher&as_code=true&linkclass=none#`
 
-
-
 ## Download
 
 + [Zu Translate on GitHub](https://github.com/picasso/zu-translate/archive/refs/heads/master.zip)
@@ -80,9 +78,33 @@ If `shortcode` is used in the menu, use the following template to describe the s
 In order to take advantage of the switching language implemented in this plugin, plugins and themes can add their custom blocks using these functions:
 
 + __zutrans_is_multilang()__
-+ __zutrans_register_blocks(`$blocks`)__
++ __zutrans_register_translated_blocks(`$blocks`)__
 + __zutrans_get_all_languages(`$sorted = true`)__
 + __zutrans_convert_text(`$text`, `$lang = null`, `$flags = 0`)__
 + __zutrans_convert_url(`$url`, `$lang = null`, `$flags = 0`)__
 
 If you are using the __Zukit__ framework, you can use the internal methods of your class - `snippets` and `_snippets`.
+
+```php
+// for regular theme or plugin
+protected function register_my_blocks() {
+    add_action('init', function() {
+        if(function_exists('zutrans_register_translated_blocks')) {
+            zutrans_register_translated_blocks([
+				'myplugin/mega'     => ['title' => 'Mega Block', 'atts' => 'content'],
+                'myplugin/super'    => ['title' => 'Super Block', 'atts' => ['text', 'note']],
+			]);
+        }
+    });
+}
+
+// for a theme or plugin that uses the 'Zukit' framework
+public function init() {
+    if($this->_snippets('is_multilang')) {
+        $this->snippets('register_translated_blocks', [
+            'myplugin/mega'     => ['title' => 'Mega Block', 'atts' => 'content'],
+            'myplugin/super'    => ['title' => 'Super Block', 'atts' => ['text', 'note']],
+        ]);
+    }
+}
+```
