@@ -1,3 +1,16 @@
+#### 1.1.0 / 2022-01-10
+
+* implemented `register_translated_blocks` method
+* added public methods
+* completed the analysis of standard WP blocks
+* disabled `core/table` block (until the processing of array as the attribute)
+* processing such cases where the rendered block was NOT found in `$content`
+* implemented `getEditorBlocks` which recursively collect all IDs
+* replaced `getBlockOrder` on `getEditorBlocks` in order not to miss the inner block IDs
+* included in `parse_blocks` all inner blocks
+* added a check if the attribute has already been added
+* added a note about the current implementation
+
 #### 1.0.3 / 2022-01-09
 * restored option to add Language Switcher to post/pages list
 * refactoring `admin-edit` script to support support for `Quick Edit` and post/pages list
