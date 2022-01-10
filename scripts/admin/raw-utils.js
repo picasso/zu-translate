@@ -102,7 +102,8 @@ export function switchContent(raw, lang, translatedAtts) {
 const delimiters = ['[]', '{}', '<!-- -->'];
 
 function hasRawBlocks(text) {
-	const blocks = qtranxj_get_split_blocks(text ?? '');
+	if(!_.isString(text)) return false;
+	const blocks = qtranxj_get_split_blocks(text);
 	// no language separator found - there are no translations
 	return blocks?.length > 1;
 }
@@ -124,7 +125,7 @@ function splitRawContent(raw) {
 }
 
 function getTranslatedBlocks(raw) {
-	return qtranxj_split(raw ?? '');
+	return _.isString(raw) ? qtranxj_split(raw) : [];
 }
 
 // if RAW was created for wrong amount of attributes

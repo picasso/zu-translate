@@ -21,25 +21,22 @@ trait zu_TranslateSupportedBlocks {
 		'core/image'			=> ['name' => 'Image', 'atts' => 'caption'],
 		'core/gallery'			=> ['name' => 'Gallery', 'atts' => 'caption'],
 		'core/audio'			=> ['name' => 'Audio', 'atts' => 'caption'],
-		// 'core/cover'			=> ['name' => 'Cover', 'atts' => ['value', '???']],
 		'core/file'				=> ['name' => 'File', 'atts' => 'downloadButtonText'],
-		// 'core/media-text'			=> ['name' => 'Media & Text', 'atts' => ['value', '???']],
 		'core/video'			=> ['name' => 'Video', 'atts' => 'caption'],
 	];
 
-	// NOTE: unfinished
 	private $wp_design_blocks = [
 		'core/button'			=> ['name' => 'Button', 'atts' => 'text'],
+		'core/more'				=> ['name' => 'More', 'atts' => 'customText'],
 	];
 
-	// NOTE: unfinished
 	private $wp_widgets_blocks = [
-		// 'core/button'			=> ['name' => 'Button', 'atts' => 'text'],
+		'core/html'				=> ['name' => 'Custom HTML', 'atts' => 'content'],
+		'core/search'			=> ['name' => 'Search', 'atts' => ['label', 'placeholder']],
 	];
 
-	// NOTE: unfinished
 	private $wp_theme_blocks = [
-		// 'core/button'			=> ['name' => 'Button', 'atts' => 'text'],
+		// as far as i understand, there is no content here, which requires translation
 	];
 
 	private $wp_embeds_blocks = [

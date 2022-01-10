@@ -118,7 +118,7 @@ trait zu_TranslateGutenberg {
 		if(strpos($content, 'qtxRaw') !== false) {
 // zu_log($content);
 			$blocks = $this->get_supported_blocks($content);
-// zu_log($blocks, parse_blocks($content));
+// zu_log($blocks);
 			foreach($blocks as $block) {
 				[$raw_content, $lang] = $this->get_block_atts($block);
 				if($raw_content) {
