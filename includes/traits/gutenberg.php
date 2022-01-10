@@ -113,7 +113,7 @@ trait zu_TranslateGutenberg {
 		$content = $post->post_content;
 		// at first quick check if we have at least one 'qtxRaw' attribute
 		if(strpos($content, 'qtxRaw') !== false) {
-			$blocks = parse_blocks($content);
+			$blocks = $this->get_supported_blocks($content);
 			foreach($blocks as $block) {
 				[$raw_content, $lang] = $this->get_block_atts($block);
 				if($raw_content) {
@@ -127,6 +127,25 @@ trait zu_TranslateGutenberg {
 			return true;
 		}
 		return false;
+	}
+
+	private function get_supported_blocks($blocks_or_content) {
+		$blocks = is_string($blocks_or_content) ? parse_blocks($blocks_or_content) : $blocks_or_content;
+		$supported_blocks = [];
+		foreach($blocks as $block) {
+			$blockName = $block['blockName'];
+			if(array_key_exists($block['blockName'], $this->supported_blocks)) {
+				$supported_blocks[] = $block;
+			}
+			// recursively collect all 'innerBlocks'
+			if(!empty($block['innerBlocks'])) {
+				$supported_blocks = array_merge(
+					$supported_blocks,
+					$this->get_supported_blocks($block['innerBlocks'])
+				);
+			}
+		}
+		return $supported_blocks;
 	}
 
 	private function get_block_atts($block) {
