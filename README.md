@@ -14,7 +14,7 @@ This plugin is not independent. It adds functionality and implements *Gutenberg*
 
 ## Description
 
-After the WordPress changed the `TinyMCE` to the Block Editor (*Gutenberg*), editing the multilingual content significantly complicated. The old algorithms of the __qTranslate-XT__ plugin, which successfully worked before - stopped working. This plugin is an attempt to find a new solution for editing multilingual content in the Block Editor. In addition, there were always nuances that did not suit me in __qTranslate-XT__ plugin. Solutions of these "*problems*" are also implemented in this plugin. Use it or not - already your choice.
+After the WordPress changed the `TinyMCE` to the Block Editor (*Gutenberg*), editing the multilingual content significantly complicated. The old algorithms of the __qTranslate-XT__ plugin, which successfully worked before - stopped working. This plugin is an attempt to find a new solution for editing multilingual content in the Block Editor. In addition, there were always nuances that did not suit me in __qTranslate-XT__ plugin. Solutions of these "*problems*" are also implemented in this plugin. Use it or not - that's your choice.
 
 > &#x1F383; Testing this plugin cannot be called comprehensive. Therefore, use it at your own risk.
 
@@ -26,22 +26,24 @@ After the WordPress changed the `TinyMCE` to the Block Editor (*Gutenberg*), edi
 * Control of the appearance of buttons to switch language
 * Ability to switch language in the list of posts/pages
 * Support for __Quick Edit__ in the list of posts/pages
-<!-- * Ability to switch language in the modal window of __Media Library__ -->
 * Supports adding a language switcher to any post or page using a `shortcode`
 * Ability to use `shortcode` in the WordPress __menu__
+<!-- * Ability to switch language in the modal window of __Media Library__ -->
 
 ### Shortcode attributes
 
-You can also personalize the form by adding attributes to the shortcode:
+You can configure the language switcher using these attributes:
 
 * __class__ - additional classes that will be added to the main element: `class="my-switcher"`
 * __as_code__ - use language codes as the name of the switcher items: `as_code=true`
-* __unsorted__ - if sorted (default) then the active language will be always on top: `unsorted=true`
-* __post_id__ - post ID for which you want to create a language switcher (default for the current post): `post_id=123`
+* __unsorted__ - when sorted (default) then the active language will be always on top: `unsorted=true`
+* __post_id__ - post ID for which you want to create the switcher (*default for the current post*): `post_id=123`
 
 If `shortcode` is used in the menu, use the following template to describe the shortcode:
 
-`#location+tag?attribute1=value1&attribute2=value2&linkclass=red-color,bold#`
+```basic
+#location+tag?attribute1=value1&attribute2=value2&linkclass=red_color,bold#
+```
 
 * __location__ - a position where the result of the shortcode will be inserted. Possible options - `after`|`before`|`url`, that is, before link, after link or instead of the link itself
 * __tag__ - the name of shortcode
@@ -55,7 +57,7 @@ If `shortcode` is used in the menu, use the following template to describe the s
 
 `[zu-lang unsorted=true as_code=true]`
 
-* With custom class for Post ID 1209:
+* With custom class for post ID 1209:
 
 `[zu-lang class="my-switcher" post_id=1209]`
 
@@ -75,7 +77,7 @@ If `shortcode` is used in the menu, use the following template to describe the s
 
 ## Public methods
 
-In order to take advantage of the switching language implemented in this plugin, plugins and themes can add their custom blocks using these functions:
+In order to take advantage of the Gutenberg support implemented in this plugin, plugins and themes can add their custom blocks using the public methods:
 
 + __zutrans_is_multilang()__
 + __zutrans_register_translated_blocks(`$blocks`)__
@@ -83,7 +85,7 @@ In order to take advantage of the switching language implemented in this plugin,
 + __zutrans_convert_text(`$text`, `$lang = null`, `$flags = 0`)__
 + __zutrans_convert_url(`$url`, `$lang = null`, `$flags = 0`)__
 
-If you are using the __Zukit__ framework, you can use the internal methods of your class - `snippets` and `_snippets`.
+If you are using the [Zukit framework](https://github.com/picasso/zukit), you can use the internal methods of your class - `snippets` and `_snippets`.
 
 ```php
 // for regular theme or plugin
