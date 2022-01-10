@@ -1,5 +1,7 @@
 <?php
 
+include_once('blocks.php');
+
 // Support for WordPress Block Editor -----------------------------------------]
 
 trait zu_TranslateGutenberg {
@@ -9,15 +11,9 @@ trait zu_TranslateGutenberg {
 	// 'supported_blocks' - is a list of all registered blocks minus blocks from 'excluded' list
 	private $supported_blocks = null;
 	private $multicontent_separator = '[,]';
-	private $default_blocks = [
-		'core/paragraph'		=> ['name' => 'Paragraph', 'atts' => 'content'],
-		'core/heading'			=> ['name' => 'Heading', 'atts' => 'content'],
-		'core/list'				=> ['name' => 'List', 'atts' => 'values'],
-		'core/quote'			=> ['name' => 'Quote', 'atts' => ['value', 'citation']],
-		'core/preformatted'		=> ['name' => 'Preformatted', 'atts' => 'content'],
-		'core/pullquote'		=> ['name' => 'Pullquote', 'atts' => ['value', 'citation']],
-		'core/verse'			=> ['name' => 'Verse', 'atts' => 'content'],
-	];
+
+
+	use zu_TranslateSupportedBlocks;
 
 	private function init_gutenberg_support() {
 		if($this->is_option('gutenberg')) {
@@ -166,7 +162,7 @@ trait zu_TranslateGutenberg {
 
 	private function assign_supported_blocks() {
 		$supported = $this->get_option('blockeditor.custom', []);
-		$supported = array_merge(is_array($supported) ? $supported : [], $this->default_blocks);
+		$supported = array_merge(is_array($supported) ? $supported : [], $this->get_wp_supported_blocks());
 		$this->supported_data = $supported;
 		$excluded = $this->get_option('blockeditor.excluded', []);
 		$this->supported_blocks = $this->snippets('array_without_keys', $supported, $excluded);
