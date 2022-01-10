@@ -5,7 +5,7 @@ const { includes } = lodash;
 const { createHigherOrderComponent } = wp.compose;
 const { InspectorControls } = wp.blockEditor;
 const { useEffect, useCallback, useRef, useMemo } = wp.element;
-const { select } = wp.data;
+// const { select } = wp.data;
 
 // Zukit dependencies
 
@@ -13,7 +13,7 @@ const { useForceUpdater } = wp.zukit.data;
 
 // Internal dependencies
 
-import { isSupported, getExternalData, getTranslated } from './../utils.js';
+import { isSupported, getExternalData, getTranslated, getEditorBlocks } from './../utils.js';
 import { hasRaw, switchContent, createRawContent, maybeFixRawContent, updateRawContent } from './../raw-utils.js';
 import { changeLang, useOnLangChange, useLangHook } from './../data/use-store.js';
 import { syncBlocks } from './../data/raw-helpers.js';
@@ -138,12 +138,17 @@ const withRawEditControl = createHigherOrderComponent(BlockEdit => {
 			clientId,
 		} = props;
 
-		const { getBlockOrder } = select('core/block-editor');
-		// 'getBlockOrder' returns all block client IDs in the editor, check if our block is in this list
+		const editorIds = getEditorBlocks();
+
+		// 'getEditorBlocks' returns all block client IDs in the editor, check if our block is in this list
 		// NOTE: sometimes the blocks of those types that we support are created, but these blocks are not edited in the editor -
 		// for example, blocks for visual preview of the editable block
-		const isEditableBlock = includes(getBlockOrder(), clientId);
-		if(!isEditableBlock && activateDebug) Zubug.info(`Block [${name}] with id {${clientId}} was skipped`);
+		const isEditableBlock = includes(editorIds, clientId);
+
+		if(activateDebug) {
+			if(!isEditableBlock) Zubug.info(`Block [${name}] with id {${clientId}} was skipped`, { editableBlocks: editorIds });
+			else Zubug.info(`Block [${name}] isEditable and {${isSupported(name) ? 'isSupported' : 'is NOT Supported'}}`);
+		}
 
 		return (
 			<>
