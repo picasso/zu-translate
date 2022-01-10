@@ -14,7 +14,8 @@ trait zu_TranslateSupportedBlocks {
 		'core/preformatted'		=> ['name' => 'Preformatted', 'atts' => 'content'],
 		'core/pullquote'		=> ['name' => 'Pullquote', 'atts' => ['value', 'citation']],
 		'core/verse'			=> ['name' => 'Verse', 'atts' => 'content'],
-		// 'core/table'			=> ['name' => 'Verse', 'atts' => 'content'],
+		// NOTE: when is ready the processing of the attribute which is array
+		// 'core/table'			=> ['name' => 'Table', 'atts' => ['caption', 'head', 'body', 'foot']],
 	];
 
 	private $wp_media_blocks = [
