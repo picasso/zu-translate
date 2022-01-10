@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { isNil, assign } = lodash;
+const { isNil, assign, has } = lodash;
 // const { __ } = wp.i18n;
 const { addFilter } = wp.hooks;
 // const { useEffect, useCallback } = wp.element; // cloneElement, useState, useEffect, useLayoutEffect
@@ -14,16 +14,18 @@ import withRawEditControl from './raw-edit.js';
 function addRawAttribute(settings, name) {
 	if(!isNil(settings.attributes)) {
 		if(isSupported(name)) {
-			// Zubug.data({ settings });
-			settings.attributes = assign({}, settings.attributes, {
-				qtxRaw: {
-					type: 'string',
-				},
-				qtxLang: {
-					type: 'string',
-				},
-			});
-			// Zubug.info(`added attributes to {${name}}`);
+			// maybe we have already added attributes to this block?
+			// sometimes blocks are registered several times (who knows why?)
+			if(!has(settings, 'attributes.qtxRaw')) {
+				settings.attributes = assign({}, settings.attributes, {
+					qtxRaw: {
+						type: 'string',
+					},
+					qtxLang: {
+						type: 'string',
+					},
+				});
+			}
 		}
 	}
 	return settings;
@@ -49,17 +51,19 @@ subscribe(() => {
     }
 });
 
-// const filterBlocks = (settings) => {
-//     console.log(settings.name)
+// // Collect information on registered blocks
+// const filterBlocks = (settings, name) => {
+//     console.log(settings.name, name);
+// 	if(settings.name === 'core/button') console.log('settings', settings);
 //     // we need to pass along the settings object
 //     // even if we haven't modified them!
 //     return settings;
 // }
 //
 // addFilter(
-//     'blocks.registerBlockType', // hook name, very important!
-//     'zu/test', // your name, very arbitrary!
-//     filterBlocks // function to run
+//     'blocks.registerBlockType',
+//     'zu/test',
+//     filterBlocks
 // );
 
 
