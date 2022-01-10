@@ -133,6 +133,7 @@ class zu_Translate extends zukit_Plugin  {
 
 	protected function construct_more() {
 		add_filter('qtranslate_admin_config', [$this, 'update_qtx_config']);
+		$this->get_all_registered_blocks();
 	}
 
 	public function update_qtx_config($admin_config) {

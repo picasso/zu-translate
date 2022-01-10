@@ -48,6 +48,21 @@ trait zu_TranslateAjax {
 		}, 99);
 	}
 
+	private function get_all_registered_blocks() {
+		add_action('init', function() {
+			$all_registered = WP_Block_Type_Registry::get_instance()->get_all_registered();
+			// zu_log($all_registered);
+			$all_blocks = [];
+			foreach($all_registered as $name => $data) {
+				$all_blocks[$name] = [
+					'title'	=> $data->title,
+					'atts'	=> array_keys($data->attributes),
+				];
+			}
+			zu_log($all_blocks);
+		}, 99);
+	}
+
 	private function reset_supported_blocks() {
 		$this->assign_supported_blocks();
 		return $this->create_notice('infodata', // combine 'info' with 'data'
