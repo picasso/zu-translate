@@ -13,33 +13,33 @@ trait zu_TranslateSupportedBlocks {
 	private $external_blocks = [];
 
 	private $wp_text_blocks = [
-		'core/paragraph'		=> ['name' => 'Paragraph', 'atts' => 'content'],
-		'core/heading'			=> ['name' => 'Heading', 'atts' => 'content'],
-		'core/list'				=> ['name' => 'List', 'atts' => 'values'],
-		'core/quote'			=> ['name' => 'Quote', 'atts' => ['value', 'citation']],
-		'core/preformatted'		=> ['name' => 'Preformatted', 'atts' => 'content'],
-		'core/pullquote'		=> ['name' => 'Pullquote', 'atts' => ['value', 'citation']],
-		'core/verse'			=> ['name' => 'Verse', 'atts' => 'content'],
+		'core/paragraph'		=> ['title' => 'Paragraph', 'atts' => 'content'],
+		'core/heading'			=> ['title' => 'Heading', 'atts' => 'content'],
+		'core/list'				=> ['title' => 'List', 'atts' => 'values'],
+		'core/quote'			=> ['title' => 'Quote', 'atts' => ['value', 'citation']],
+		'core/preformatted'		=> ['title' => 'Preformatted', 'atts' => 'content'],
+		'core/pullquote'		=> ['title' => 'Pullquote', 'atts' => ['value', 'citation']],
+		'core/verse'			=> ['title' => 'Verse', 'atts' => 'content'],
 		// NOTE: when is ready the processing of the attribute which is array
-		// 'core/table'			=> ['name' => 'Table', 'atts' => ['caption', 'head', 'body', 'foot']],
+		// 'core/table'			=> ['title' => 'Table', 'atts' => ['caption', 'head', 'body', 'foot']],
 	];
 
 	private $wp_media_blocks = [
-		'core/image'			=> ['name' => 'Image', 'atts' => 'caption'],
-		'core/gallery'			=> ['name' => 'Gallery', 'atts' => 'caption'],
-		'core/audio'			=> ['name' => 'Audio', 'atts' => 'caption'],
-		'core/file'				=> ['name' => 'File', 'atts' => 'downloadButtonText'],
-		'core/video'			=> ['name' => 'Video', 'atts' => 'caption'],
+		'core/image'			=> ['title' => 'Image', 'atts' => 'caption'],
+		'core/gallery'			=> ['title' => 'Gallery', 'atts' => 'caption'],
+		'core/audio'			=> ['title' => 'Audio', 'atts' => 'caption'],
+		'core/file'				=> ['title' => 'File', 'atts' => 'downloadButtonText'],
+		'core/video'			=> ['title' => 'Video', 'atts' => 'caption'],
 	];
 
 	private $wp_design_blocks = [
-		'core/button'			=> ['name' => 'Button', 'atts' => 'text'],
-		'core/more'				=> ['name' => 'More', 'atts' => 'customText'],
+		'core/button'			=> ['title' => 'Button', 'atts' => 'text'],
+		'core/more'				=> ['title' => 'More', 'atts' => 'customText'],
 	];
 
 	private $wp_widgets_blocks = [
-		'core/html'				=> ['name' => 'Custom HTML', 'atts' => 'content'],
-		'core/search'			=> ['name' => 'Search', 'atts' => ['label', 'placeholder']],
+		'core/html'				=> ['title' => 'Custom HTML', 'atts' => 'content'],
+		'core/search'			=> ['title' => 'Search', 'atts' => ['label', 'placeholder']],
 	];
 
 	private $wp_theme_blocks = [

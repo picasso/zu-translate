@@ -84,7 +84,7 @@ const ZutranslateBlockEditor = ({
 		const { name, atts, error } = testCustomBlock(customName, customAtts, customBlocks);
 
 		if(error === null) {
-			updateBEOptions({ custom: { ...customBlocks, [name]: { name, atts } } });
+			updateBEOptions({ custom: { ...customBlocks, [name]: { title: name, atts } } });
 			setCustomName('');
 			setCustomAtts('');
 		} else {
@@ -107,10 +107,10 @@ const ZutranslateBlockEditor = ({
 				{ toggleOption(pick(data, ['sync', 'session']), beOptions, updateBEOptions) }
 				<h3 className="__subtitle">{ data.blockTitle }</h3>
 				<div className="__supported">
-					{ map(standardBlocks, ({ name, atts }, key) =>
+					{ map(standardBlocks, ({ title, atts }, key) =>
 						<CheckboxControl
 							key={ key }
-							label={ name }
+							label={ title }
 							help={ contentAtts(atts) }
 							checked={ !includes(excludedBlocks, key) }
 							onChange={ (value) => excludeBlock(value, key) }
@@ -121,10 +121,10 @@ const ZutranslateBlockEditor = ({
 					<>
 						<ZukitDivider bottomHalf size={ 2 }/>
 						<div className="__supported">
-							{ map(customBlocks, ({ name, atts }, key) =>
+							{ map(customBlocks, ({ title, atts }, key) =>
 								<CheckboxControl
 									key={ key }
-									label={ name }
+									label={ title }
 									help={ contentAtts(atts) }
 									checked={ !includes(excludedBlocks, key) }
 									onChange={ (value) => excludeBlock(value, key) }
