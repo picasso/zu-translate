@@ -1,6 +1,7 @@
 // WordPress dependencies
 
 const _ = lodash;
+const { select } = wp.data;
 
 // Zukit dependencies
 
@@ -40,6 +41,20 @@ export function getTranslated(name, attributes) {
 
 export function isSupported(name) {
 	return _.includes(supportedBlocks, name);
+}
+
+// selector which returns an array containing all block client IDs in the editor.
+// Optionally accepts a root client ID of the block list for which
+// the order should be returned, defaulting to the top-level block order.
+const { getBlockOrder } = select('core/block-editor');
+// recursively collect all IDs of 'editable blocks' on the page.
+export function getEditorBlocks(ids = null) {
+	if(_.isNil(ids)) ids = getBlockOrder();
+	return _.reduce(ids, (blocks, id) => {
+		const innerIds = getBlockOrder(id);
+		const nestedIds = innerIds.length ? getEditorBlocks(innerIds) : innerIds;
+		return [...blocks, ...nestedIds];
+	}, ids);
 }
 
 // DOM manipulations ----------------------------------------------------------]
