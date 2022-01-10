@@ -93,9 +93,9 @@ protected function register_my_blocks() {
     add_action('init', function() {
         if(function_exists('zutrans_register_translated_blocks')) {
             zutrans_register_translated_blocks([
-				'myplugin/mega'     => ['title' => 'Mega Block', 'atts' => 'content'],
+                'myplugin/mega'     => ['title' => 'Mega Block', 'atts' => 'content'],
                 'myplugin/super'    => ['title' => 'Super Block', 'atts' => ['text', 'note']],
-			]);
+            ]);
         }
     });
 }
