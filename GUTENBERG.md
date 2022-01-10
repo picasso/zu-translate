@@ -43,8 +43,7 @@ For each supported block on the page and for each content attribute, we get the 
 
 ## For Non-Regular Blocks
 
-Currently, the 'title' and 'excerpt' attributes are supported as non-regular blocks.
-For non-regular blocks, the algorithm is as follows:
+Currently, the `'title'` and `'excerpt'` attributes are supported as non-regular blocks (*but the addition of new blocks is already included in the algorithm*). For non-regular blocks, the algorithm is as follows:
 
 * In the filter `rest_prepare_{$post_type}` we add the RAW values for the required attributes to the REST response;
 
@@ -56,7 +55,7 @@ For non-regular blocks, the algorithm is as follows:
 
 * For each tracked attribute, an __input element__ (`textarea` or `input`) is found and an `EventListener` is attached to it. Since when switching to the block editing mode, as well as when closing the panels (*where the attribute is located*), all input elements will be deleted and our `EventListeners` will die along with them - we also add a __Mutation Observer__ and watch when these input elements reappear in the DOM, and then we add the `EventListener` again;
 
-* Do the initial synchronization of the current language;
+* Do the initial synchronization for the active language;
 
 * When the tracked attribute changes, our `EventListeners` receive notifications and we change the RAW value in the store;
 
