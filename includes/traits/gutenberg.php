@@ -1,6 +1,6 @@
 <?php
 
-include_once('blocks.php');
+include_once('supported.php');
 
 // Support for WordPress Block Editor -----------------------------------------]
 
@@ -109,18 +109,38 @@ trait zu_TranslateGutenberg {
 		return $response;
 	}
 
+	// NOTE: now the case is not processed when one (or more) attribute is in content, and the other is
+	// in the special comment to the block (<!-- wp:<block name>)
+	// I have not met such a situation, but suddenly it is possible?
 	private function restore_post_content($post) {
 		$content = $post->post_content;
 		// at first quick check if we have at least one 'qtxRaw' attribute
 		if(strpos($content, 'qtxRaw') !== false) {
+// zu_log($content);
 			$blocks = $this->get_supported_blocks($content);
+// zu_log($blocks, parse_blocks($content));
 			foreach($blocks as $block) {
 				[$raw_content, $lang] = $this->get_block_atts($block);
 				if($raw_content) {
 					$block_content = render_block($block);
-					$block_raw_content = $this->restore_block_raw($block_content, $raw_content, $lang);
-// zu_logc('str_replace', $block_content, $block_raw_content);
-					$content = str_replace($block_content, $block_raw_content, $content);
+					// if the rendered block was found in '$content', then replace the content
+					if(strpos($content, $block_content) !== false) {
+						$block_raw_content = $this->restore_block_raw($block_content, $raw_content, $lang);
+						$content = str_replace($block_content, $block_raw_content, $content);
+// zu_logc('replace content', $block_content, $block_raw_content);
+					} else {
+						// if the rendered block was NOT found in '$content',
+						// then replace the values in a special comment with the attributes of the block
+						$blockName = strip_core_block_namespace($block['blockName']);
+						if(preg_match_all("/<!-- wp:{$blockName}.+?-->/m", $content, $matches)) {
+							foreach($matches as $comment_block) {
+								$block_raw_content = $this->restore_block_raw($comment_block[0], $raw_content, $lang);
+								$content = str_replace($comment_block[0], $block_raw_content, $content);
+// zu_logc('replace comment', $comment_block[0], $block_raw_content);
+							}
+						}
+					}
+// zu_log_if($block['blockName'] == 'core/paragraph', $block_content, $block_raw_content, $block);
 				}
 			}
 			$post->post_content = $content;
