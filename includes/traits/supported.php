@@ -75,13 +75,14 @@ trait zu_TranslateSupportedBlocks {
 
 	private function get_all_supported_blocks() {
 		return array_merge(
+			// all WP standard blocks
 			$this->wp_text_blocks,
 			$this->wp_media_blocks,
 			$this->wp_design_blocks,
 			$this->wp_widgets_blocks,
 			$this->wp_theme_blocks,
 			$this->wp_embeds_blocks,
-
+			// and all registered external blocks
 			$this->external_blocks
 		);
 	}

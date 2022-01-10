@@ -268,6 +268,8 @@ class zu_Translate extends zukit_Plugin  {
 		$this->register_snippet('convert_text');
 		$this->register_snippet('convert_url');
 		$this->register_snippet('convert_term');
+
+		$this->register_snippet('register_translated_blocks');
 	}
 }
 

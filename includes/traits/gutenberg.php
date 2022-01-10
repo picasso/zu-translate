@@ -6,19 +6,14 @@ include_once('supported.php');
 
 trait zu_TranslateGutenberg {
 
-	// 'supported_data' - is a list of all registered blocks, those by default and added by the user
-	private $supported_data = null;
-	// 'supported_blocks' - is a list of all registered blocks minus blocks from 'excluded' list
-	private $supported_blocks = null;
 	private $multicontent_separator = '[,]';
-
 
 	use zu_TranslateSupportedBlocks;
 
 	private function init_gutenberg_support() {
 		if($this->is_option('gutenberg')) {
 			$this->assign_supported_blocks();
-			if(!empty($this->supported_blocks)) {
+			if(!empty($this->get_registered_data('blocks'))) {
 				add_filter('the_posts', [$this, 'pre_render_posts'], 0, 2);
 				add_action('rest_api_init', [$this, 'rest_api_init']);
 
@@ -151,21 +146,22 @@ trait zu_TranslateGutenberg {
 
 	private function get_supported_blocks($blocks_or_content) {
 		$blocks = is_string($blocks_or_content) ? parse_blocks($blocks_or_content) : $blocks_or_content;
-		$supported_blocks = [];
+		$found_blocks = [];
+		$registered_blocks = $this->get_registered_data('blocks');
 		foreach($blocks as $block) {
 			$blockName = $block['blockName'];
-			if(array_key_exists($block['blockName'], $this->supported_blocks)) {
-				$supported_blocks[] = $block;
+			if(array_key_exists($block['blockName'], $registered_blocks)) {
+				$found_blocks[] = $block;
 			}
 			// recursively collect all 'innerBlocks'
 			if(!empty($block['innerBlocks'])) {
-				$supported_blocks = array_merge(
-					$supported_blocks,
+				$found_blocks = array_merge(
+					$found_blocks,
 					$this->get_supported_blocks($block['innerBlocks'])
 				);
 			}
 		}
-		return $supported_blocks;
+		return $found_blocks;
 	}
 
 	private function get_block_atts($block) {
@@ -199,17 +195,9 @@ trait zu_TranslateGutenberg {
 		return $enabled_post_types;
 	}
 
-	private function assign_supported_blocks() {
-		$supported = $this->get_option('blockeditor.custom', []);
-		$supported = array_merge(is_array($supported) ? $supported : [], $this->get_wp_supported_blocks());
-		$this->supported_data = $supported;
-		$excluded = $this->get_option('blockeditor.excluded', []);
-		$this->supported_blocks = $this->snippets('array_without_keys', $supported, $excluded);
-	}
-
 	private function gutenberg_data($settings_data = false) {
 		return [
-			'supported' => ($settings_data ? $this->supported_data : $this->supported_blocks) ?? [],
+			'supported' => $this->get_registered_data($settings_data ? 'all' : 'blocks'),
 			'lang'		=> $this->get_url_param('language'),
 			'sync'		=> $this->is_option('blockeditor.sync'),
 			'session'	=> $this->is_option('blockeditor.session'),
