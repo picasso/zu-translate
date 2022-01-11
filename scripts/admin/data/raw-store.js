@@ -9,7 +9,8 @@ import { getExternalData, getSessionLang, storeSessionLang } from './../utils.js
 import { updateRawContent } from './../raw-utils.js';
 
 const supportSession = getExternalData('session', false);
-const editorLang = supportSession ? getSessionLang() : getExternalData('lang', 'en');
+const sessionLang = supportSession ? getSessionLang() : null;
+const editorLang = sessionLang ?? getExternalData('lang', 'en');
 
 // Create and register Zu Translate store -------------------------------------]
 

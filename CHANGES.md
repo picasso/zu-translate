@@ -1,5 +1,4 @@
 #### 1.1.0 / 2022-01-10
-
 * implemented `register_translated_blocks` method
 * added public methods
 * completed the analysis of standard WP blocks
