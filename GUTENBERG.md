@@ -67,9 +67,10 @@ Currently, the `'title'` and `'excerpt'` attributes are supported as non-regular
 
 ## Known Problems and Pitfalls
 
-* Later I will add here a list of issues to be resolved
-*
-*
-*
-*
-*
+* если атрибутов несколько и их значения будут равны, то тогда при замене атрибутов на их RAW значения произойдет путаница. Непонятно, насколько такая ситуация реальна... и как с ней бороться?
+* Непонятно что произойдет после конвертации страницы которая была редактирована в классическом редакторе и потом переключилась на Гутенберг
+* JS:createRawContent - the option when more than one attribute contained RAW is not processed, this seems to be impossible because before this plugin the RAW was not split by attributes
+* JS:qTranslateConfig:setupLanguageSwitch - we have to call `setupLanguageSwitch` since `'qtx'` does not export the `onTabSwitch` function. If this function was available for integration, it was much easier
+* PHP:modify_rest_response - нужно ли 'editor_lang' сейчас??
+* PHP:restore_post_content - now the case is not processed when one (or more) attribute is in content, and the other is in the special comment to the block (`<!-- wp:<block name>`). I have not met such a situation, but suddenly it is possible?
+* `'core/table'` cannot be translated - first I need to implement the processing of the attribute which is an array of values that require translation
