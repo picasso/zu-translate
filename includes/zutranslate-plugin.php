@@ -107,12 +107,24 @@ class zu_Translate extends zukit_Plugin  {
 	}
 
 	protected function extend_debug_options() {
-		// return [
-		// 	'show_id'	=> [
-		// 		'label'		=> __('Display Attachment Id', 'zu-translate'),
-		// 		'value'		=> false,
-		// 	],
-		// ];
+		return [
+			'edit_lang'	=> [
+				'label'		=> __('Enable logging in `EditLang`', 'zu-translate'),
+				'value'		=> false,
+			],
+			'raw_store'	=> [
+				'label'		=> __('Enable logging in `Raw Store`', 'zu-translate'),
+				'value'		=> false,
+			],
+			'raw_helpers'	=> [
+				'label'		=> __('Enable logging in `Raw Helpers`', 'zu-translate'),
+				'value'		=> false,
+			],
+			'post_saving'	=> [
+				'label'		=> __('Enable logging in `Post Saving`', 'zu-translate'),
+				'value'		=> false,
+			],
+		];
 	}
 
 	protected function extend_debug_actions() {

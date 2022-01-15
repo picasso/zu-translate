@@ -68,6 +68,7 @@ Currently, the `'title'` and `'excerpt'` attributes are supported as non-regular
 ## Known Problems and Pitfalls
 
 * implement that after switching the language, the status of the editor left "unchanged" if before switching it was "unchanged". That is, to avoid Gutenberg to detect that data changes occurred if we just switched the language
+* при публикации нового материала показывается документ "Are you ready to publish?" где видны RAW значения имени сайта
 * если атрибутов несколько и их значения будут равны, то тогда при замене атрибутов на их RAW значения произойдет путаница. Непонятно, насколько такая ситуация реальна... и как с ней бороться?
 * Непонятно что произойдет после конвертации страницы которая была редактирована в классическом редакторе и потом переключилась на Гутенберг
 * JS:createRawContent - the option when more than one attribute contained RAW is not processed, this seems to be impossible because before this plugin the RAW was not split by attributes

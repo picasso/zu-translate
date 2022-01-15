@@ -11,8 +11,7 @@ import { getLangContent } from './../raw-utils.js';
 import { getLang, getRaw, getHooks, setRaw, updateRaw, addHook } from './use-store.js';
 import { supportedAtts, supportedKeys } from './raw-store.js';
 
-const activateDebug = false;
-
+const enableDebug = getExternalData('debug.raw_helpers', false);
 const activateSync = getExternalData('sync', false);
 
 // helpers for RAW attributes -------------------------------------------------]
@@ -44,7 +43,7 @@ export function setRawAttributes(addListeners = true) {
 				// then synchronize switching for newly created elements (for example, 'excerpt')
 				// 'title' does not require synchronization as it is not removed from the page while editing blocks
 				if(attr !== 'title') switchRawAttributes(null, attr);
-				if(activateDebug) Zubug.info(`set for {${attr}} is ignored, current value = ${value}`);
+				if(enableDebug) Zubug.info(`set for {${attr}} is ignored, current value = ${value}`);
 			}
 		} else {
 			// with the third argument equal to false listener will be removed
@@ -88,12 +87,12 @@ export function switchRawAttributes(lang, onlyAtts = null) {
 export function syncBlocks(clientId) {
 	if(activateSync) {
 		const hooks = getHooks();
-		if(activateDebug) {
+		if(enableDebug) {
 			Zubug.info(`Sync initiated from {${clientId}}`, { hookCount: Object.keys(hooks).length, hooks });
 		}
 		forEach(hooks, (hook, id) => {
 			if(id !== clientId) {
-				if(activateDebug) Zubug.info(`calling hook for {${id}}`);
+				if(enableDebug) Zubug.info(`calling hook for {${id}}`);
 				hook();
 			}
 		});
@@ -126,7 +125,7 @@ const sidebarRoot = '.edit-post-sidebar > .components-panel';
 
 function attachInsertedHooks(attr, selector) {
 	whenNodeInserted(sidebarRoot, selector, () => {
-		if(activateDebug) Zubug.info(`Node Inserted for {"${attr}"}`);
+		if(enableDebug) Zubug.info(`Node Inserted for {"${attr}"}`);
 		// synchronize switching for newly created element
 		switchRawAttributes(null, attr);
 		// add the listener again (maybe the previous one was removed with the element or maybe not)

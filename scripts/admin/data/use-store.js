@@ -8,9 +8,10 @@ const { apiFetch } = wp;
 
 // Internal dependencies
 
+import { getExternalData } from './../utils.js';
 import { ZUTRANSLATE_STORE, supportedKeys } from './raw-store.js';
 
-const activateDebug = false;
+const enableDebug = getExternalData('debug.post_saving', false);
 
 // Custom hooks & helpers for 'store' -----------------------------------------]
 
@@ -73,7 +74,7 @@ export function useLangHook(clientId, updater) {
 const { isSavingPost } = select('core/editor');
 
 apiFetch.use((options, next) => {
-	if(activateDebug) Zubug.data({ options, isSavingPost: isSavingPost() });
+	if(enableDebug) Zubug.data({ options, isSavingPost: isSavingPost() });
 	if(isSavingPost() && includes(['PUT', 'POST'], options.method)) {
 		const { data } = options;
 		const newOptions = { ...options, data: { ...data, editor_lang: getLang() } };
@@ -85,7 +86,7 @@ apiFetch.use((options, next) => {
 				}
 			});
 		}
-		if(activateDebug) Zubug.data({ newOptions });
+		if(enableDebug) Zubug.data({ newOptions });
 		return next(newOptions);
 	}
 	return next(options);

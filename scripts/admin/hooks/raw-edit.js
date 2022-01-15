@@ -19,8 +19,8 @@ import { changeLang, useOnLangChange, useLangHook } from './../data/use-store.js
 import { syncBlocks } from './../data/raw-helpers.js';
 import LangControl from './../components/lang-control.js';
 
-const activateDebug = false;
 const activateSync = getExternalData('sync', false);
+const enableDebug = getExternalData('debug.edit_lang', false);
 
 const BlockEditLang = (props) => {
 	const {
@@ -61,7 +61,7 @@ const BlockEditLang = (props) => {
 		} else {
 			replaceContent(lang, prevLang);
 		}
-		if(activateDebug) Zubug.info(`{${id}} Language switched to [${prevLang} -> ${lang}]`);
+		if(enableDebug) Zubug.info(`{${id}} Language switched to [${prevLang} -> ${lang}]`);
 	}, [forceUpdate, replaceContent]);
 
 	const forceUpdate = useForceUpdater();
@@ -81,7 +81,7 @@ const BlockEditLang = (props) => {
 			rawRef.current.raw = raw;
 			rawRef.current.lang = editorLang;
 			setAttributes({ qtxLang: editorLang, qtxRaw: raw, ...update });
-			if(activateDebug) Zubug.data({
+			if(enableDebug) Zubug.data({
 				lang: qtxLang,
 				raw,
 				update,
@@ -92,7 +92,7 @@ const BlockEditLang = (props) => {
 			// fix if RAW was created for wrong amount of attributes
 			const { raw, id } = rawRef.current;
 			const fixedRaw = maybeFixRawContent(raw, editorLang, translatedValues);
-			if(activateDebug) Zubug.data({
+			if(enableDebug) Zubug.data({
 				raw,
 				fixedRaw: fixedRaw !== false ? fixedRaw : null,
 				translatedValues,
@@ -111,7 +111,7 @@ const BlockEditLang = (props) => {
 			if(updatedRaw !== rawRef.current.raw) {
 				rawRef.current.raw = updatedRaw;
 				setAttributes({ qtxRaw: updatedRaw });
-				if(activateDebug) Zubug.data({ updatedRaw, translatedValues }, `Raw updated: {${rawRef.current.id}}`);
+				if(enableDebug) Zubug.data({ updatedRaw, translatedValues }, `Raw updated: {${rawRef.current.id}}`);
 			}
 		}
 	// we used a spread element in the dependency array -> we can't statically verify the correct dependencies
@@ -145,7 +145,7 @@ const withRawEditControl = createHigherOrderComponent(BlockEdit => {
 		// for example, blocks for visual preview of the editable block
 		const isEditableBlock = includes(editorIds, clientId);
 
-		if(activateDebug) {
+		if(enableDebug) {
 			if(!isEditableBlock) Zubug.info(`Block [${name}] with id {${clientId}} was skipped`, { editableBlocks: editorIds });
 			else Zubug.info(`Block [${name}] isEditable and {${isSupported(name) ? 'isSupported' : 'is NOT Supported'}}`);
 		}

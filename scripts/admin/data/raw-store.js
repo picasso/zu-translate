@@ -11,6 +11,7 @@ import { updateRawContent } from './../raw-utils.js';
 const supportSession = getExternalData('session', false);
 const sessionLang = supportSession ? getSessionLang() : null;
 const editorLang = sessionLang ?? getExternalData('lang', 'en');
+const enableDebug = getExternalData('debug.raw_store', false);
 
 // Create and register Zu Translate store -------------------------------------]
 
@@ -35,8 +36,6 @@ const initialState = {
     lang: editorLang,
     hooks: {},
 };
-
-const activateDebug = false;
 
 function storeReducer(state = initialState, action) {
     const { type, key, value } = action;
@@ -87,7 +86,7 @@ function storeReducer(state = initialState, action) {
             break;
     }
 
-    if(activateDebug) Zubug.data({ state, type, key, value, isEqual: isEqual(state, interim) });
+    if(enableDebug) Zubug.data({ state, type, key, value, isEqual: isEqual(state, interim) });
     return isEqual(state, interim) ? state : interim;
 }
 
