@@ -57,6 +57,18 @@ export function getEditorBlocks(ids = null) {
 	}, ids);
 }
 
+
+// const { getEditedEntityRecord, getEntityRecordEdits } = select('core');
+// editEntityRecord
+// deleteEntityRecord
+// const { hasChangedContent, hasNonPostEntityChanges } = select('core/editor');
+// isEditedPostEmpty
+// isEditedPostDirty
+// isAutosavingPost
+// isCleanNewPost
+// isEditedPostAutosaveable
+// Actions
+
 // DOM manipulations ----------------------------------------------------------]
 
 export function getInputValue(selector) {
