@@ -98,7 +98,7 @@ trait zu_TranslateGutenberg {
 		}
 		if($update_data) {
 			// NOTE: нужно ли 'editor_lang' сейчас??
-			$response_data['editor_lang'] = $lang;
+			// $response_data['editor_lang'] = $lang;
 			$response->set_data($response_data);
 		}
 		return $response;
@@ -150,6 +150,8 @@ trait zu_TranslateGutenberg {
 		$registered_blocks = $this->get_registered_data('blocks');
 		foreach($blocks as $block) {
 			$blockName = $block['blockName'];
+			// if 'blockName' is null, we are dealing with a 'pre-Gutenberg' post ('Classic editor' block?)
+			if(is_null($blockName)) continue;
 			if(array_key_exists($block['blockName'], $registered_blocks)) {
 				$found_blocks[] = $block;
 			}
