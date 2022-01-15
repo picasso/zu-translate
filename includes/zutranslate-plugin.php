@@ -74,7 +74,8 @@ class zu_Translate extends zukit_Plugin  {
 	}
 
 	protected function extend_metadata($metadata) {
-		$metadata['description'] = 'Enhances **qTranslate-XT** with some features and `Gutenberg` support (WordPress Block Editor).';
+		$metadata['description'] = str_replace('qTranslate-XT', '**qTranslate-XT**', $metadata['description']);
+		$metadata['description'] = str_replace('Gutenberg', '`Gutenberg`', $metadata['description']);
 		return $metadata;
 	}
 
@@ -189,21 +190,25 @@ class zu_Translate extends zukit_Plugin  {
 	protected function custom_admin_submenu() {
 
 		return [
-			// 'reorder'	=>	[
-			// 	[
-			// 		'menu'				=> 	'qtranslate-xt',
-			// 		'after_index2'		=>	'zuplus-settings',
-			// 	],
-			// 	[
-			// 		'menu'				=> 	'zutranslate-settings',
-			// 		'after_index'		=>	'qtranslate-xt',
-			// 	],
-			// ],
-			// 'separator'	=>	[
-			// 	[
-			// 		'before_index'		=> 	'qtranslate-xt',
-			// 	],
-			// ],
+			'reorder'	=>	[
+				[
+					'menu'		=> 'qtranslate-xt',
+					'after'		=> 'zumedia-settings',
+				],
+				[
+					'onfail'	=> true,
+					'menu'		=> 'qtranslate-xt',
+					'after'		=> 'options-privacy.php',
+				],
+				[
+					'menu'		=> 'zutranslate-settings',
+					'after'		=> 'qtranslate-xt',
+				],
+			],
+			'separator'	=>	[
+					'before'	=> 	'qtranslate-xt',
+					'after'		=> 	'zutranslate-settings',
+			],
 		];
 	}
 
