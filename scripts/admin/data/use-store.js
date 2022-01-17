@@ -1,15 +1,15 @@
 // WordPress dependencies
 
-const { isEmpty, isEqual, keys, forEach, reduce, includes, some, has, set } = lodash;
+const { keys, forEach, includes, some, has, set } = lodash;
 const { usePrevious } = wp.compose;
 const { useEffect  } = wp.element; // useCallback, useRef
-const { subscribe, select, dispatch } = wp.data;
+const { select, dispatch } = wp.data; // subscribe,
 const { apiFetch } = wp;
 
 // Internal dependencies
 
 import { getExternalData } from './../utils.js';
-import { getLangContent } from './../raw-utils.js';
+import { beforeLanguageSwitch, afterLanguageSwitch } from './edited-entity.js';
 import { ZUTRANSLATE_STORE, supportedKeys } from './raw-store.js';
 
 const enableDebug = getExternalData('debug.post_saving', false);
@@ -89,38 +89,38 @@ export function syncBlocks(clientId) {
 			}
 		});
 	}
-	afterLanguageSwitch();
+	afterLanguageSwitch(clientId, activateSync);
 }
 
 // Hook on the post saving ----------------------------------------------------]
 
-const { isSavingPost, getCurrentPost } = select('core/editor');
-let skipSavingPost = true;
+const { isSavingPost } = select('core/editor');
+let skipSavingPost = false;
 
 apiFetch.use((options, next) => {
 	if(enableDebug) Zubug.data({ options, isSavingPost: isSavingPost() });
 	if(isSavingPost() && includes(['PUT', 'POST'], options.method)) {
 		if(skipSavingPost) {
 			// if(enableDebug)
-			Zubug.info('*Emulate saving post');
-			skipSavingPost = false;
-			const data = getCurrentPost();
-			const edited = getEditedPost();
-
-			// const result = next(options);
-			Zubug.data({ data, edited, isEqual: isEqual(edited, data) });
-			return Promise.resolve(
-					// we don't have headers because we "emulate" this request
-					// new window.Response(
-					// 	JSON.stringify(edited),
-					// 	{
-					// 		status: 200,
-					// 		statusText: 'OK',
-					// 		headers: {},
-					// 	}
-					// )
-					edited
-				);
+			Zubug.info('*apiFetch - emulate saving post');
+			// skipSavingPost = false;
+			// const data = getCurrentPost();
+			// const edited = getEditedPost();
+			//
+			// // const result = next(options);
+			// Zubug.data({ data, edited, isEqual: isEqual(edited, data) });
+			// return Promise.resolve(
+			// 		// we don't have headers because we "emulate" this request
+			// 		// new window.Response(
+			// 		// 	JSON.stringify(edited),
+			// 		// 	{
+			// 		// 		status: 200,
+			// 		// 		statusText: 'OK',
+			// 		// 		headers: {},
+			// 		// 	}
+			// 		// )
+			// 		edited
+			// 	);
 		} else {
 			const { data } = options;
 			const newOptions = { ...options, data: { ...data, editor_lang: getLang() } };
@@ -153,136 +153,3 @@ apiFetch.use((options, next) => {
 // 		)
 // 	);
 // }
-
-// Maintaining 'non-modified' content -----------------------------------------]
-
-const {
-	isEditedPostDirty,
-	getPostEdits,
-	getCurrentPostType,
-	getCurrentPostId,
- } = select('core/editor');
-// hasChangedContent,
-// hasNonPostEntityChanges,
-// isEditedPostEmpty
-// isEditedPostDirty
-// isAutosavingPost
-// isCleanNewPost
-// isEditedPostAutosaveable
-// Actions
-
-// editPost(kind, name, recordId, edits:{expert: ''})
-// editEntityRecord(kind, name, recordId, edits, options = {})
-// edits: { blocks: undefined, selection: undefined, content: undefined }
-
-
-let isPostDirty = false;
-subscribe(() => {
-    if(isEditedPostDirty()) {
-		if(!isPostDirty) {
-			isPostDirty = true;
-			if(enableDebug) {
-				Zubug.info('!EditedPost is {Dirty}');
-				editDetails();
-			}
-		}
-    } else {
-		if(isPostDirty) {
-			isPostDirty = false;
-			if(enableDebug) {
-				Zubug.info('*Edited Post is {Clean}}');
-				editDetails();
-			}
-		}
-    }
-});
-
-
-const {
-	getEntityRecordEdits,
-	getEntityRecordNonTransientEdits,
-	getEditedEntityRecord,
-} = select('core');
-// editEntityRecord
-// deleteEntityRecord
-//
-const { editEntityRecord, receiveEntityRecords } = dispatch('core');
-
-export function storeTest() {
-	Zubug.info('?storeTest - Emulate saving post');
-	const postType = getCurrentPostType();
-	const postId = getCurrentPostId();
-	const updatedRecord = getEditedEntityRecord('postType', postType, postId);
-	const nonTransientEdits = getEntityRecordNonTransientEdits('postType', postType, postId);
-	// yield external_wp_data_["controls"].select('core', 'getEntityRecordNonTransientEdits', kind, name, recordId);
-	const edits = {
-		id: postId,
-		...nonTransientEdits
-	};
-	receiveEntityRecords('postType', postType, updatedRecord, undefined, true, edits);
-}
-
-
-let updateStorage = {};
-function beforeLanguageSwitch(lang) {
-	updateStorage = {};
-	if(isPostDirty) return;
-	forEach(supportedKeys, attr => {
-		const rawValue = getRaw(attr);
-		const contentValue = getLangContent(rawValue, lang);
-		updateStorage[attr] = contentValue;
-	});
-}
-
-function afterLanguageSwitch() {
-	if(isEmpty(updateStorage)) return;
-
-	const postType = getCurrentPostType();
-	const postId = getCurrentPostId();
-	const nonTransientEdits = getEntityRecordNonTransientEdits('postType', postType, postId);
-
-	const edits = reduce(keys(nonTransientEdits), (acc, attr) => set(acc, attr, updateStorage[attr]), {});
-
-	if(!isEmpty(edits)) {
-		editEntityRecord('postType', postType, postId, edits);
-	}
-}
-
-function getEditedPost() {
-	const postType = getCurrentPostType();
-	const postId = getCurrentPostId();
-	return getEditedEntityRecord('postType', postType, postId);
-}
-
-let postSaved = true;
-subscribe(() => {
-    if(isSavingPost()) {
-		postSaved = false;
-		editDetails('before Saving Post');
-		if(enableDebug) Zubug.info('{isSavingPost}');
-    } else {
-		if(!postSaved) {
-            if(enableDebug) Zubug.info('~Post Saved~');
-			editDetails('after Post Saved');
-            postSaved = true;
-        }
-    }
-});
-
-
-function editDetails(message) {
-	if(enableDebug && message) Zubug.info(`called from {"${message}"}`);
-	const postType = getCurrentPostType();
-	const postId = getCurrentPostId();
-
-	const isDirty = isEditedPostDirty();
-	if(enableDebug) Zubug.data({
-		isDirty,
-		isPostDirty,
-		// hasChangedContent: hasChangedContent(),
-		getPostEdits: getPostEdits(),
-		getEntityRecordEdits: getEntityRecordEdits('postType', postType, postId),
-		getEntityRecordNonTransientEdits: getEntityRecordNonTransientEdits('postType', postType, postId),
-		getEditedEntityRecord: getEditedEntityRecord('postType', postType, postId),
-	});
-}

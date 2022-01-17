@@ -12,12 +12,11 @@ const { useForceUpdater } = wp.zukit.data;
 
 import metadata from './metadata.js';
 import LangControl from './../components/lang-control.js';
-import { changeLang, getLang, useOnLangChange, syncBlocks, storeTest } from './../data/use-store.js';
+import { changeLang, getLang, useOnLangChange, syncBlocks } from './../data/use-store.js';
 import { setRawAttributes, switchRawAttributes, registerRootUpdater } from './../data/raw-helpers.js';
+import { rootClientId, storeTest } from './../data/edited-entity.js';
 
 // LangControlSetting Component
-
-const rootClientId = 'rawRoot';
 
 const LangControlSetting = ({
 	forceUpdate: forceUpdateParent,

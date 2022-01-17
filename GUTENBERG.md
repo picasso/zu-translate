@@ -67,12 +67,12 @@ Currently, the `'title'` and `'excerpt'` attributes are supported as non-regular
 
 ## Known Problems and Pitfalls
 
-* implement that after switching the language, the status of the editor left "unchanged" if before switching it was "unchanged". That is, to avoid Gutenberg to detect that data changes occurred if we just switched the language
-* при публикации нового материала показывается документ "Are you ready to publish?" где видны RAW значения имени сайта
-* если атрибутов несколько и их значения будут равны, то тогда при замене атрибутов на их RAW значения произойдет путаница. Непонятно, насколько такая ситуация реальна... и как с ней бороться?
-* Непонятно что произойдет после конвертации страницы которая была редактирована в классическом редакторе и потом переключилась на Гутенберг
-* JS:createRawContent - the option when more than one attribute contained RAW is not processed, this seems to be impossible because before this plugin the RAW was not split by attributes
-* JS:qTranslateConfig:setupLanguageSwitch - we have to call `setupLanguageSwitch` since `'qtx'` does not export the `onTabSwitch` function. If this function was available for integration, it was much easier
-* PHP:modify_rest_response - нужно ли 'editor_lang' сейчас??
-* PHP:restore_post_content - now the case is not processed when one (or more) attribute is in content, and the other is in the special comment to the block (`<!-- wp:<block name>`). I have not met such a situation, but suddenly it is possible?
-* `'core/table'` cannot be translated - first I need to implement the processing of the attribute which is an array of values that require translation
+- [x] ~~implement that after switching the language, the status of the editor left "unchanged" if before switching it was "unchanged". That is, to avoid Gutenberg to detect that data changes occurred if we just switched the language~~
+- [ ] when publishing new material, the message "Are you ready to publish?" appears in which the RAW values of the site name are visible
+- [ ] if there are several attributes and their values will be equal, then when replacing the attributes with their RAW values, confusion will occur (on the front-end). It is not clear how real this situation is... and how to deal with it?
+- [ ] It is not clear what will happen after converting a page that was edited in the classic editor and then switched to Gutenberg
+- [ ] JS:createRawContent - the option when more than one attribute contained RAW is not processed, this seems to be impossible because before this plugin the RAW was not split by attributes
+- [ ] JS:qTranslateConfig:setupLanguageSwitch - we have to call `setupLanguageSwitch` since `'qtx'` does not export the `onTabSwitch` function. If this function was available for integration, it was much easier
+- [ ] PHP:modify_rest_response - is the `editor_lang` attribute needed now?
+- [ ] PHP:restore_post_content - now the case is not processed when one (or more) attribute is in content, and the other is in the special comment to the block (`<!-- wp:<block name>`). I have not met such a situation, but suddenly it is possible?
+- [ ] `'core/table'` cannot be translated - first I need to implement the processing of the attribute which is an array of values that require translation
