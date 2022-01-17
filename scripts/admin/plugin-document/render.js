@@ -1,6 +1,7 @@
 // WordPress dependencies
 
 const { useCallback, useEffect } = wp.element;
+const { Button } = wp.components;
 
 // Zukit dependencies
 
@@ -11,8 +12,8 @@ const { useForceUpdater } = wp.zukit.data;
 
 import metadata from './metadata.js';
 import LangControl from './../components/lang-control.js';
-import { changeLang, getLang, useOnLangChange } from './../data/use-store.js';
-import { setRawAttributes, switchRawAttributes, registerRootUpdater, syncBlocks } from './../data/raw-helpers.js';
+import { changeLang, getLang, useOnLangChange, syncBlocks, storeTest } from './../data/use-store.js';
+import { setRawAttributes, switchRawAttributes, registerRootUpdater } from './../data/raw-helpers.js';
 
 // LangControlSetting Component
 
@@ -50,10 +51,13 @@ const LangControlSetting = ({
 	}, []);
 
 	return (
+		<>
 		<LangControl
 			lang={ editorLang }
 			onClick={ setLanguage }
 		/>
+		<Button isSecondary onClick={ storeTest }>Test</Button>
+		</>
 	);
 }
 

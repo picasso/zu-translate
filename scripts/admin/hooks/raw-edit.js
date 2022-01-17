@@ -15,8 +15,7 @@ const { useForceUpdater } = wp.zukit.data;
 
 import { isSupported, getExternalData, getTranslated, getEditorBlocks } from './../utils.js';
 import { hasRaw, switchContent, createRawContent, maybeFixRawContent, updateRawContent } from './../raw-utils.js';
-import { changeLang, useOnLangChange, useLangHook } from './../data/use-store.js';
-import { syncBlocks } from './../data/raw-helpers.js';
+import { changeLang, useOnLangChange, useLangHook, syncBlocks } from './../data/use-store.js';
 import LangControl from './../components/lang-control.js';
 
 const activateSync = getExternalData('sync', false);

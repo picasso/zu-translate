@@ -4,7 +4,7 @@ const { isNil, assign, has } = lodash;
 // const { __ } = wp.i18n;
 const { addFilter } = wp.hooks;
 // const { useEffect, useCallback } = wp.element; // cloneElement, useState, useEffect, useLayoutEffect
-const { select, subscribe } = wp.data; //
+// const { select, subscribe } = wp.data;
 
 // Internal dependencies
 
@@ -36,20 +36,20 @@ addFilter('editor.BlockEdit', 'zu/translate', withRawEditControl);
 
 // NOTE: All experiments left here --------------------------------------------]
 
-const { isSavingPost } = select('core/editor');
-let postSaved = true;
-
-subscribe(() => {
-    if(isSavingPost()) {
-		postSaved = false;
-		Zubug.info('{isSavingPost}');
-    } else {
-		if(!postSaved) {
-            Zubug.info('~Post Saved~');
-            postSaved = true;
-        }
-    }
-});
+// const { isSavingPost } = select('core/editor');
+// let postSaved = true;
+//
+// subscribe(() => {
+//     if(isSavingPost()) {
+// 		postSaved = false;
+// 		Zubug.info('{isSavingPost}');
+//     } else {
+// 		if(!postSaved) {
+//             Zubug.info('~Post Saved~');
+//             postSaved = true;
+//         }
+//     }
+// });
 
 // // Collect information on registered blocks
 // const filterBlocks = (settings, name) => {

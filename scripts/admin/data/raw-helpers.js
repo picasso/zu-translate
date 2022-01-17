@@ -12,7 +12,6 @@ import { getLang, getRaw, getHooks, setRaw, updateRaw, addHook } from './use-sto
 import { supportedAtts, supportedKeys } from './raw-store.js';
 
 const enableDebug = getExternalData('debug.raw_helpers', false);
-const activateSync = getExternalData('sync', false);
 
 // helpers for RAW attributes -------------------------------------------------]
 
@@ -50,7 +49,9 @@ export function setRawAttributes(addListeners = true) {
 			addInputListener(selector, getListener(attr), false);
 		}
 	});
-	if(syncContent) switchRawAttributes();
+	if(syncContent) {
+		switchRawAttributes();
+	}
 }
 
 // update RAW attributes before changing language
@@ -82,23 +83,6 @@ export function switchRawAttributes(lang, onlyAtts = null) {
 	});
 }
 
-// call all registered hooks besides associated with 'clientId'
-// this will lead to switching language for blocks associated with these hooks
-export function syncBlocks(clientId) {
-	if(activateSync) {
-		const hooks = getHooks();
-		if(enableDebug) {
-			Zubug.info(`Sync initiated from {${clientId}}`, { hookCount: Object.keys(hooks).length, hooks });
-		}
-		forEach(hooks, (hook, id) => {
-			if(id !== clientId) {
-				if(enableDebug) Zubug.info(`calling hook for {${id}}`);
-				hook();
-			}
-		});
-	}
-}
-
 // because the document editing panel will be mounted and unmounted every time when switching to blocks editing
 // we register the root hook only once and do not remove it on unmounting
 export function registerRootUpdater() {
@@ -108,6 +92,8 @@ export function registerRootUpdater() {
 		addHook(rootClientId, switchRawAttributes);
 	}
 }
+
+// listeners on changes and on DOM 'insert' -----------------------------------]
 
 // we need to pre-create listeners for each attribute,
 // since we cannot use arrow function directly when adding listener - later we won't be able to remove such listener
