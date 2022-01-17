@@ -120,6 +120,10 @@ class zu_Translate extends zukit_Plugin  {
 				'label'		=> __('Enable logging in `Raw Helpers`', 'zu-translate'),
 				'value'		=> false,
 			],
+			'edited_entity' => [
+				'label'		=> __('Enable logging in `Entity`', 'zu-translate'),
+				'value'		=> false,
+			],
 			'post_saving'	=> [
 				'label'		=> __('Enable logging in `Post Saving`', 'zu-translate'),
 				'value'		=> false,
