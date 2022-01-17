@@ -5,11 +5,13 @@ const { select } = wp.data;
 
 // Internal dependencies
 
-import { getExternalData, getInputValue, changeInputValue, addInputListener } from './../utils.js';
+import { getExternalData, getInputValue, addInputListener } from './../utils.js'; // changeInputValue,
 import { whenNodeInserted} from './../when-node.js';
 import { getLangContent } from './../raw-utils.js';
-import { getLang, getRaw, getHooks, setRaw, updateRaw, addHook } from './use-store.js';
 import { supportedAtts, supportedKeys } from './raw-store.js';
+import { getLang, getRaw, getHooks, setRaw, updateRaw, addHook } from './use-store.js';
+import { getEntityAttributes, updateEntityAttributes } from './edited-entity.js';
+
 
 const enableDebug = getExternalData('debug.raw_helpers', false);
 
@@ -71,16 +73,20 @@ export function updateRawAttributes(onlyAtts = null) {
 export function switchRawAttributes(lang, onlyAtts = null) {
 	const editorLang = lang ?? getLang();
 	onlyAtts = onlyAtts === null ? null : castArray(onlyAtts);
-	forEach(supportedAtts, (selector, attr) => {
-		if(onlyAtts === null || includes(onlyAtts, attr)) {
+	const atts = getEntityAttributes(onlyAtts);
+	const edits = {};
+	forEach(atts, (value, attr) => {
+		// if(onlyAtts === null || includes(onlyAtts, attr)) {
 			const rawValue = getRaw(attr);
 			if(rawValue !== undefined) {
-				const currentValue = getInputValue(selector);
+				// const currentValue = getInputValue(selector);
 				const shouldBeValue = getLangContent(rawValue, editorLang);
-				if(currentValue !== shouldBeValue) changeInputValue(selector, shouldBeValue, true);
+				if(value !== shouldBeValue) edits[attr] = shouldBeValue;
+				// changeInputValue(selector, shouldBeValue, true);
 			}
-		}
+		// }
 	});
+	updateEntityAttributes(edits);
 }
 
 // because the document editing panel will be mounted and unmounted every time when switching to blocks editing
