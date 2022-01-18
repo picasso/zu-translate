@@ -14,16 +14,14 @@ window.Zubug = { ...(wp.zukit.debug  || {}) };
 
 // import { qtranxj_split, qtranxj_get_split_blocks, qtranxj_split_blocks } from './qblocks.js';
 
-
 // перед вызовами 'getExternalData' нужно один раз вызвать 'externalData'
 externalData('zutranslate_blocks_data');
 
 const supportedData = getExternalData('supported', {});
-// export const editorLang = getExternalData('lang', 'en');
-
 // const delimiters = ['[]', '{}', '<!-- -->'];
 const supportedBlocks = _.keys(supportedData);
 
+export const getDebug = (enable) => enable ? Zubug : _.transform(_.keys(Zubug), (acc, key) => acc[key] = _.noop, {});
 
 export function getTranslatedAtts(name) {
 	return _.castArray(_.get(supportedData, [name, 'atts']));
