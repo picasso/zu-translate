@@ -127,7 +127,7 @@ const storeActions = {
     },
 };
 
-registerStore(ZUTRANSLATE_STORE, {
+const store = registerStore(ZUTRANSLATE_STORE, {
     reducer: storeReducer,
     actions: storeActions,
     selectors: {
@@ -143,3 +143,5 @@ registerStore(ZUTRANSLATE_STORE, {
     },
     controls: {},
 });
+
+export const subscribe = store.subscribe;
