@@ -10,7 +10,7 @@ const { apiFetch } = wp;
 
 import { getExternalData } from './../utils.js';
 import { beforeLanguageSwitch, afterLanguageSwitch } from './edited-entity.js';
-import { ZUTRANSLATE_STORE, supportedKeys } from './raw-store.js';
+import { ZUTRANSLATE_STORE, subscribe, supportedKeys } from './raw-store.js';
 
 const enableDebug = getExternalData('debug.post_saving', false);
 const activateSync = getExternalData('sync', false);
@@ -54,13 +54,17 @@ export function changeLang(value) {
 	}
 }
 
-export function useOnLangChange(callback) {
+export function useOnLangChange(clientId, callback) {
 	const editorLang = getLang();
 	const prev = usePrevious(editorLang);
 	// if the previous language value is defined and not equal to the current value - call the 'callback' function
 	useEffect(() => {
-		if(prev !== undefined && prev !== editorLang) callback(editorLang);
-	}, [prev, editorLang, callback]);
+		if(prev !== undefined && prev !== editorLang) {
+			callback(editorLang);
+			Zubug.data({ clientId });
+			Zubug.infoWithId(clientId, '+{Component updated LANG}');
+		}
+	}, [prev, editorLang, clientId, callback]);
 	return editorLang;
 }
 
@@ -137,6 +141,11 @@ apiFetch.use((options, next) => {
 		}
 	}
 	return next(options);
+});
+
+subscribe(() => {
+	// if(enableDebug)
+	Zubug.info('?RAW store updated', { lang: getLang() });
 });
 
 

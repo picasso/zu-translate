@@ -24,7 +24,7 @@ const LangControlSetting = ({
 
 	const forceUpdate = useForceUpdater();
 	// in the hook is checked if the language has changed, then we call 'switchRawAttributes'
-	const editorLang = useOnLangChange(switchRawAttributes);
+	const editorLang = useOnLangChange(rootClientId, switchRawAttributes);
 
 	useEffect(() => {
 		// set the initial RAW attributes on mounting the component and add listeners

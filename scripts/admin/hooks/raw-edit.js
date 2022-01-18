@@ -65,7 +65,7 @@ const BlockEditLang = (props) => {
 
 	const forceUpdate = useForceUpdater();
 	// in the hook is checked if the language has changed, then we call 'replaceContent'
-	const editorLang = useOnLangChange(replaceContent);
+	const editorLang = useOnLangChange(clientId, replaceContent);
 	// register 'forceUpdate' for subsequent language synchronization
 	useLangHook(clientId, forceUpdate);
 
