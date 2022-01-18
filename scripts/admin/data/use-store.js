@@ -12,7 +12,7 @@ import { getExternalData, getDebug } from './../utils.js';
 import { beforeLanguageSwitch, afterLanguageSwitch } from './edited-entity.js';
 import { ZUTRANSLATE_STORE, supportedKeys } from './raw-store.js';
 
-const enableDebug = getExternalData('debug.post_saving', false);
+const enableDebug = getExternalData('debug.sync_blocks', false);
 const activateSync = getExternalData('sync', false);
 const debug = getDebug(enableDebug);
 

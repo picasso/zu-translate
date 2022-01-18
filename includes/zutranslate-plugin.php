@@ -124,8 +124,8 @@ class zu_Translate extends zukit_Plugin  {
 				'label'		=> __('Enable logging in `Entity`', 'zu-translate'),
 				'value'		=> false,
 			],
-			'post_saving'	=> [
-				'label'		=> __('Enable logging in `Post Saving`', 'zu-translate'),
+			'sync_blocks'	=> [
+				'label'		=> __('Enable logging in `Sync Blocks`', 'zu-translate'),
 				'value'		=> false,
 			],
 		];
