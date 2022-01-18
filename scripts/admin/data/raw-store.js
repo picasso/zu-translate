@@ -1,17 +1,18 @@
 // WordPress dependencies
 
-const { keys, isEqual, get, omit } = lodash;
+const { keys, isEqual, get, omit, without } = lodash;
 const { registerStore } = wp.data;
 
 // Internal dependencies
 
-import { getExternalData, getSessionLang, storeSessionLang } from './../utils.js';
+import { getExternalData, getDebug, getSessionLang, storeSessionLang } from './../utils.js';
 import { updateRawContent } from './../raw-utils.js';
 
 const supportSession = getExternalData('session', false);
 const sessionLang = supportSession ? getSessionLang() : null;
 const editorLang = sessionLang ?? getExternalData('lang', 'en');
 const enableDebug = getExternalData('debug.raw_store', false);
+const debug = getDebug(enableDebug);
 
 // Create and register Zu Translate store -------------------------------------]
 
@@ -30,11 +31,14 @@ const TYPES = {
     UPDATE_RAW: 'UPDATE_RAW',
     SET_HOOK: 'SET_HOOK',
     REMOVE_HOOK: 'REMOVE_HOOK',
+	WATCH: 'WATCH',
+    UNWATCH: 'UNWATCH',
 }
 
 const initialState = {
     lang: editorLang,
     hooks: {},
+	watched: [],
 };
 
 function storeReducer(state = initialState, action) {
@@ -84,9 +88,26 @@ function storeReducer(state = initialState, action) {
                 hooks: omit(state.hooks, key),
             };
             break;
+
+		case TYPES.WATCH:
+            interim = {
+                ...state,
+                watched: [
+                    ...state.watched,
+                    value,
+                ],
+            };
+            break;
+
+        case TYPES.UNWATCH:
+            interim = {
+                ...state,
+                watched: without(state.watched, value),
+            };
+            break;
     }
 
-    if(enableDebug) Zubug.data({ state, type, key, value, isEqual: isEqual(state, interim) });
+    debug.data({ state, type, key, value, isEqual: isEqual(state, interim) });
     return isEqual(state, interim) ? state : interim;
 }
 
@@ -125,6 +146,18 @@ const storeActions = {
             key: id,
 		};
     },
+	addWatched(id) {
+        return {
+			type: TYPES.WATCH,
+			value: id,
+		};
+    },
+    removeWatched(id) {
+        return {
+			type: TYPES.UNWATCH,
+            value: id,
+		};
+    },
 };
 
 const store = registerStore(ZUTRANSLATE_STORE, {
@@ -139,6 +172,9 @@ const store = registerStore(ZUTRANSLATE_STORE, {
         },
         getHooks(state) {
             return get(state, 'hooks');
+        },
+		getWatched(state) {
+            return get(state, 'watched');
         },
     },
     controls: {},

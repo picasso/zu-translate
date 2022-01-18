@@ -8,12 +8,13 @@ const { apiFetch } = wp;
 
 // Internal dependencies
 
-import { getExternalData } from './../utils.js';
+import { getExternalData, getDebug } from './../utils.js';
 import { beforeLanguageSwitch, afterLanguageSwitch } from './edited-entity.js';
-import { ZUTRANSLATE_STORE, subscribe, supportedKeys } from './raw-store.js';
+import { ZUTRANSLATE_STORE, supportedKeys } from './raw-store.js';
 
 const enableDebug = getExternalData('debug.post_saving', false);
 const activateSync = getExternalData('sync', false);
+const debug = getDebug(enableDebug);
 
 // Custom hooks & helpers for 'store' -----------------------------------------]
 
@@ -44,6 +45,16 @@ export function addHook(id, hook) {
 	setHook(id, hook);
 }
 
+export function addWatched(id) {
+	const { addWatched } = dispatch(ZUTRANSLATE_STORE);
+	addWatched(id);
+}
+
+export function removeWatched(id) {
+	const { removeWatched } = dispatch(ZUTRANSLATE_STORE);
+	removeWatched(id);
+}
+
 // custom hook which get dispatch method for 'lang' change
 export function changeLang(value) {
     const { setLang } = dispatch(ZUTRANSLATE_STORE);
@@ -61,8 +72,8 @@ export function useOnLangChange(clientId, callback) {
 	useEffect(() => {
 		if(prev !== undefined && prev !== editorLang) {
 			callback(editorLang);
-			Zubug.data({ clientId });
-			Zubug.infoWithId(clientId, '+{Component updated LANG}');
+			removeWatched(clientId);
+			debug.infoWithId(clientId, '-*{Component unWatched}');
 		}
 	}, [prev, editorLang, clientId, callback]);
 	return editorLang;
@@ -81,15 +92,16 @@ export function useLangHook(clientId, updater) {
 // call all registered hooks besides associated with 'clientId'
 // this will lead to switching language for blocks associated with these hooks
 export function syncBlocks(clientId) {
+	addWatched(clientId);
+	debug.infoWithId(clientId, '-!{Component Watched} - master');
 	if(activateSync) {
 		const hooks = getHooks();
-		if(enableDebug) {
-			Zubug.info(`Sync initiated from {${clientId}}`, { hookCount: Object.keys(hooks).length, hooks });
-		}
+		debug.infoWithId(clientId, '-Sync initiated', { hookCount: Object.keys(hooks).length, hooks });
 		forEach(hooks, (hook, id) => {
 			if(id !== clientId) {
-				if(enableDebug) Zubug.info(`calling hook for {${id}}`);
 				hook();
+				addWatched(id);
+				debug.infoWithId(id, '-!calling hook + {Component Watched}');
 			}
 		});
 	}
@@ -102,17 +114,16 @@ const { isSavingPost } = select('core/editor');
 let skipSavingPost = false;
 
 apiFetch.use((options, next) => {
-	if(enableDebug) Zubug.data({ options, isSavingPost: isSavingPost() });
 	if(isSavingPost() && includes(['PUT', 'POST'], options.method)) {
 		if(skipSavingPost) {
 			// if(enableDebug)
-			Zubug.info('*apiFetch - emulate saving post');
+			debug.info('*apiFetch - emulate saving post');
 			// skipSavingPost = false;
 			// const data = getCurrentPost();
 			// const edited = getEditedPost();
 			//
 			// // const result = next(options);
-			// Zubug.data({ data, edited, isEqual: isEqual(edited, data) });
+			// debug.data({ data, edited, isEqual: isEqual(edited, data) });
 			// return Promise.resolve(
 			// 		// we don't have headers because we "emulate" this request
 			// 		// new window.Response(
@@ -136,18 +147,12 @@ apiFetch.use((options, next) => {
 					}
 				});
 			}
-			if(enableDebug) Zubug.data({ newOptions });
+			debug.data({ newOptions });
 			return next(newOptions);
 		}
 	}
 	return next(options);
 });
-
-subscribe(() => {
-	// if(enableDebug)
-	Zubug.info('?RAW store updated', { lang: getLang() });
-});
-
 
 // helper function that sends a success response
 // function sendSuccessResponse(responseData) {
