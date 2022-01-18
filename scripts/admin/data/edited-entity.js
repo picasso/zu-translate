@@ -6,8 +6,8 @@ const { subscribe, select, dispatch } = wp.data;
 
 // Internal dependencies
 
-import { getExternalData } from './../utils.js';
-import { supportedKeys } from './raw-store.js';
+import { getExternalData, getDebug } from './../utils.js';
+import { ZUTRANSLATE_STORE, subscribe as subscribeRawStore, supportedKeys } from './raw-store.js';
 
 
 const { getEntityRecordNonTransientEdits, getEditedEntityRecord } = select('core');
@@ -16,6 +16,7 @@ const { isEditedPostDirty, getCurrentPostType, getCurrentPostId } = select('core
 const { isSavingPost } = select('core/editor');
 
 const enableDebug = getExternalData('debug.edited_entity', false);
+const debug = getDebug(enableDebug);
 
 // hasChangedContent,
 // hasNonPostEntityChanges,
@@ -37,7 +38,7 @@ export function getEntityAttributes(onlyAtts = null) {
 
 export function updateEntityAttributes(edits) {
 	if(!isEmpty(edits)) {
-		if(enableDebug) Zubug.info('Update Entity Attributes', edits);
+		debug.info('-Update {Entity Attributes}', edits);
 		collectEdits(edits);
 		const postType = getCurrentPostType();
 		const postId = getCurrentPostId();
@@ -86,18 +87,13 @@ function collectEdits(edits, canCollect = false) {
 
 // Maintaining 'non-modified' content -----------------------------------------]
 
-
-// editPost(kind, name, recordId, edits:{expert: ''})
-// editEntityRecord(kind, name, recordId, edits, options = {})
-// edits: { blocks: undefined, selection: undefined, content: undefined }
-
-
 let isPostDirty = false;
 subscribe(() => {
     if(isEditedPostDirty()) {
 		if(!isPostDirty) {
 			isPostDirty = true;
 			debugPostStatus();
+			if(!shouldResetEdits) debug.data({ nonTransientEdits: getNonTransientEdits() });
 		}
     } else {
 		if(isPostDirty) {
@@ -107,15 +103,25 @@ subscribe(() => {
     }
 });
 
+let isTracking = false;
+subscribeRawStore(() => {
+	if(isTracking && completedTracking()) {
+		isTracking = false;
+		debug.info('-*RAW store tracking is {completed}', { shouldResetEdits });
+		resetEdits();
+	}
+});
+
 let shouldResetEdits = false;
 export function beforeLanguageSwitch() {
-	debugPostStatus('beforeLanguageSwitch');
+	debugLanguageSwitch('before');
 	if(isPostDirty) return;
 	shouldResetEdits = true;
 }
 
 export function afterLanguageSwitch(clientId, activateSync) {
 	if(!shouldResetEdits) return;
+	isTracking = true;
 
 	const edits = [];
 	if(clientId === rootClientId) {
@@ -126,12 +132,30 @@ export function afterLanguageSwitch(clientId, activateSync) {
 		if(activateSync) edits.push('atts');
 	}
 	collectEdits(edits, true);
-	debugPostStatus('afterLanguageSwitch', { clientId, activateSync, shouldResetEdits });
+	debugLanguageSwitch('after', { clientId, activateSync, shouldResetEdits });
+}
+
+function completedTracking() {
+	const watched = select(ZUTRANSLATE_STORE).getWatched();
+	return watched.length === 0;
+}
+
+function resetEdits() {
+	const nonTransientEdits = getNonTransientEdits();
+	debugPostStatus('{resetEdits}', keys(nonTransientEdits)); // { shouldResetEdits, nonTransientEdits }
+	if(!isEmpty(nonTransientEdits)) {
+		// pull(shouldResetEdits, ...keys(nonTransientEdits));
+		// if(isEmpty(shouldResetEdits)) {
+			emulateSavingPost(nonTransientEdits);
+			shouldResetEdits = false;
+		// }
+	}
 }
 
 // let isWaitingForClean = false;
 subscribe(() => {
-    if(isArray(shouldResetEdits) && isPostDirty) {
+	const enable = false;
+    if(enable && isArray(shouldResetEdits) && isPostDirty) {
 		// isWaitingForClean = true;
 		const nonTransientEdits = getNonTransientEdits();
 		debugPostStatus('{shouldResetEdits}', { shouldResetEdits, nonTransientEdits });
@@ -149,34 +173,25 @@ subscribe(() => {
 	}
 });
 
-export function emulateSavingPost() {
-	if(enableDebug) Zubug.info('*Emulate {Saving Post}');
+export function emulateSavingPost(postEdits) {
 	const postType = getCurrentPostType();
 	const postId = getCurrentPostId();
 	const updatedRecord = getEditedEntityRecord('postType', postType, postId);
-	const nonTransientEdits = getNonTransientEdits(postType, postId); //getEntityRecordNonTransientEdits('postType', postType, postId);
+	const nonTransientEdits = postEdits ?? getNonTransientEdits(postType, postId);
 	// yield external_wp_data_["controls"].select('core', 'getEntityRecordNonTransientEdits', kind, name, recordId);
 	const edits = {
 		id: postId,
 		...nonTransientEdits
 	};
-	if(enableDebug) Zubug.data({ nonTransientEdits, record: pick(updatedRecord, keys(nonTransientEdits)) });
+	debug.info('-*Emulate {Saving Post}', postId, nonTransientEdits, updatedRecord);
+
+	// debug.data({ edits, record: pick(updatedRecord, keys(nonTransientEdits)) });
 	receiveEntityRecords('postType', postType, updatedRecord, undefined, true, edits);
 }
 
 export function storeTest() {
-	Zubug.info('?storeTest - Emulate saving post');
+	debug.info('-?storeTest - Activated manually');
 	emulateSavingPost();
-	// const postType = getCurrentPostType();
-	// const postId = getCurrentPostId();
-	// const updatedRecord = getEditedEntityRecord('postType', postType, postId);
-	// const nonTransientEdits = getEntityRecordNonTransientEdits('postType', postType, postId);
-	// // yield external_wp_data_["controls"].select('core', 'getEntityRecordNonTransientEdits', kind, name, recordId);
-	// const edits = {
-	// 	id: postId,
-	// 	...nonTransientEdits
-	// };
-	// receiveEntityRecords('postType', postType, updatedRecord, undefined, true, edits);
 }
 
 
@@ -186,10 +201,10 @@ let postSaved = true;
 subscribe(() => {
     if(isSavingPost()) {
 		postSaved = false;
-		if(enableDebug) Zubug.info('?{Saving Post...}');
+		debug.info('-?{Saving Post...}');
     } else {
 		if(!postSaved) {
-            if(enableDebug) Zubug.info('*{Post Saved}');
+            debug.info('-*{Post Saved}');
             postSaved = true;
         }
     }
@@ -200,10 +215,20 @@ function debugPostStatus(message, more) {
 		const status = isPostDirty ? 'dirty' : 'clean';
 		const desc = message ? `${message} - ` : '';
 		const info = `-${isPostDirty ? '!' : '*'}${desc}Post is {${status}}`;
-		if(more) Zubug.info(info, cloneDeep(more));
-		else Zubug.info(info);
+		if(more) debug.info(info, cloneDeep(more));
+		else debug.info(info);
 	}
 }
+
+function debugLanguageSwitch(when, more) {
+	if(enableDebug) {
+		const status = isPostDirty ? 'dirty' : 'clean';
+		const info = `-${when === 'before' ? '?' : '+'}{${when} Language Switch} - Post is {${status}}`;
+		if(more) debug.info(info, cloneDeep(more));
+		else debug.info(info);
+	}
+}
+
 
 // function debugPostEdits(message, edits) {
 // 	if(enableDebug) {

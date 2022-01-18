@@ -5,15 +5,15 @@ const { select } = wp.data;
 
 // Internal dependencies
 
-import { getExternalData, getInputValue, addInputListener } from './../utils.js'; // changeInputValue,
+import { getExternalData, getDebug, getInputValue, addInputListener } from './../utils.js'; // changeInputValue,
 import { whenNodeInserted} from './../when-node.js';
 import { getLangContent } from './../raw-utils.js';
 import { supportedAtts, supportedKeys } from './raw-store.js';
 import { getLang, getRaw, getHooks, setRaw, updateRaw, addHook } from './use-store.js';
 import { getEntityAttributes, updateEntityAttributes } from './edited-entity.js';
 
-
 const enableDebug = getExternalData('debug.raw_helpers', false);
+const debug = getDebug(enableDebug);
 
 // helpers for RAW attributes -------------------------------------------------]
 
@@ -44,7 +44,7 @@ export function setRawAttributes(addListeners = true) {
 				// then synchronize switching for newly created elements (for example, 'excerpt')
 				// 'title' does not require synchronization as it is not removed from the page while editing blocks
 				if(attr !== 'title') switchRawAttributes(null, attr);
-				if(enableDebug) Zubug.info(`set for {${attr}} is ignored, current value = ${value}`);
+				debug.info(`set for {${attr}} is ignored, current value = ${value}`);
 			}
 		} else {
 			// with the third argument equal to false listener will be removed
@@ -117,7 +117,7 @@ const sidebarRoot = '.edit-post-sidebar > .components-panel';
 
 function attachInsertedHooks(attr, selector) {
 	whenNodeInserted(sidebarRoot, selector, () => {
-		if(enableDebug) Zubug.info(`Node Inserted for {"${attr}"}`);
+		debug.info(`-Node Inserted for {"${attr}"}`);
 		// synchronize switching for newly created element
 		switchRawAttributes(null, attr);
 		// add the listener again (maybe the previous one was removed with the element or maybe not)
