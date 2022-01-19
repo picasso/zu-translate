@@ -27,17 +27,6 @@ const LangControlSetting = ({
 	// in the hook is checked if the language has changed, then we call 'switchRawAttributes'
 	const editorLang = useOnLangChange(rootClientId, switchRawAttributes);
 
-	useEffect(() => {
-		// set the initial RAW attributes on mounting the component and add listeners
-		setRawAttributes();
-		// register 'rootUpdater' for subsequent language synchronization
-		registerRootUpdater(rootClientId);
-		return () => {
-			// with argument equal to false all listeners will be removed
-			setRawAttributes(false);
-		}
-	}, []);
-
 	// switch the language, call the update of the component and its parent -
 	// since the update does not happen by itself because we do not store the language value in the component state
 	// (changing the content of the element to the value corresponding to the new language will occur in 'useOnLangChange' hook)
@@ -47,6 +36,19 @@ const LangControlSetting = ({
 		forceUpdateParent();
 		syncBlocks(rootClientId);
 	// 'forceUpdate' and 'forceUpdateParent' never change
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	useEffect(() => {
+		// register 'rootUpdater' for subsequent language synchronization
+		registerRootUpdater(rootClientId);
+		// set the initial RAW attributes on mounting the component and add listeners
+		setRawAttributes(true, setLanguage);
+		return () => {
+			// with argument equal to false all listeners will be removed
+			setRawAttributes(false);
+		}
+	// 'setLanguage' never changes
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 

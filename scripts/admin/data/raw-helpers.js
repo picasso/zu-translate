@@ -5,13 +5,15 @@ const { select } = wp.data;
 
 // Internal dependencies
 
-import { getExternalData, getDebug, getInputValue, addInputListener } from './../utils.js'; // changeInputValue,
+import { getExternalData, getDebug, getSessionLang, getInputValue, addInputListener } from './../utils.js';
 // import { whenNodeInserted} from './../when-node.js';
 import { getLangContent } from './../raw-utils.js';
 import { supportedAtts, supportedKeys } from './raw-store.js';
 import { getLang, getRaw, setRaw, updateRaw, addHook } from './use-store.js';
 import { getEntityAttributes, updateEntityAttributes } from './edited-entity.js';
 
+const supportSession = getExternalData('session', false);
+const sessionLang = supportSession ? getSessionLang() : null;
 const enableDebug = getExternalData('debug.raw_helpers', false);
 const debug = getDebug(enableDebug);
 
@@ -23,9 +25,9 @@ const debug = getDebug(enableDebug);
 // will be mounted and unmounted every time when switching to blocks editing
 // NB! for the first time (when values are undefined) also synchronize the displayed value with the current language
 // since the current language may differ from the server language if the 'session' support is active
-export function setRawAttributes(addListeners = true) {
+export function setRawAttributes(addListeners = true, langSetter = null) {
 	const { getEditedPostAttribute } = select('core/editor');
-	let syncContent = false;
+	const initAttributes = getRaw('title') === undefined;
 	forEach(supportedAtts, (selector, attr) => {
 		if(addListeners) {
 			let value = getRaw(attr);
@@ -34,7 +36,6 @@ export function setRawAttributes(addListeners = true) {
 				if(attr === 'title' && value === 'Auto Draft') value = '';
 				setRaw(attr, value);
 				addInputListener(selector, getListener(attr));
-				syncContent = true;
 				// 'title' does not require 'inserted hook' as it is not removed from the page
 				// when the attribute Panel is closed
 				// if(attr !== 'title') attachInsertedHooks(attr, selector);
@@ -51,9 +52,16 @@ export function setRawAttributes(addListeners = true) {
 			addInputListener(selector, getListener(attr), false);
 		}
 	});
-	if(syncContent) {
-		switchRawAttributes();
+
+	if(sessionLang && initAttributes && langSetter) {
+		const editorLang = getLang();
+		if(sessionLang !== editorLang) {
+			langSetter(sessionLang);
+		}
 	}
+	// if(syncContent) {
+	// 	switchRawAttributes();
+	// }
 }
 
 // update RAW attributes before changing language
