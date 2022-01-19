@@ -33,7 +33,7 @@ const options = {
 		depends: 'appearance',
 	},
 	list: {
-		label: 	__('Add Language Switcher to post/pages list', 'zu-translate'),
+		label: 	__('Add `Language Switcher` to post/pages list', 'zu-translate'),
 		help:	__('Ability to switch language on a list of posts/pages and support for **Quick Edit**.', 'zu-translate'),
 	},
 	// NOTE: not yet restored after refactoring
