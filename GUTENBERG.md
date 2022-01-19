@@ -73,6 +73,6 @@ Currently, the `'title'` and `'excerpt'` attributes are supported as non-regular
 - [ ] It is not clear what will happen after converting a page that was edited in the classic editor and then switched to Gutenberg
 - [ ] JS:createRawContent - the option when more than one attribute contained RAW is not processed, this seems to be impossible because before this plugin the RAW was not split by attributes
 - [ ] JS:qTranslateConfig:setupLanguageSwitch - we have to call `setupLanguageSwitch` since `'qtx'` does not export the `onTabSwitch` function. If this function was available for integration, it was much easier
-- [ ] PHP:modify_rest_response - is the `editor_lang` attribute needed now?
+- [x] ~~PHP:modify_rest_response - is the `editor_lang` attribute needed now?~~
 - [ ] PHP:restore_post_content - now the case is not processed when one (or more) attribute is in content, and the other is in the special comment to the block (`<!-- wp:<block name>`). I have not met such a situation, but suddenly it is possible?
 - [ ] `'core/table'` cannot be translated - first I need to implement the processing of the attribute which is an array of values that require translation

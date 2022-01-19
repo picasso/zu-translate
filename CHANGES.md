@@ -1,3 +1,17 @@
+#### 1.2.0 / 2022-01-20
+* added `unsaved` option to control unsaved changes after language switching
+* support session lang with `unsaved` option
+* optimization of hooks
+* added `subscribe` function for the __ZUTRANSLATE_STORE__
+* added `watched` prop, `WATCH` and `UNWATCH` actions to __ZUTRANSLATE_STORE__
+* refactoring `switchRawAttributes` with `Edited Entity`
+* synced `enableDebug` vars with plugin Debug Options
+* improved debug messages
+* use new keys (refactored) for `custom_admin_submenu` options
+* __Zukit__ updated to version 1.4.9
+* fixed bug with `sessionLang`
+* small improvements
+
 #### 1.1.0 / 2022-01-10
 * implemented `register_translated_blocks` method
 * added public methods
