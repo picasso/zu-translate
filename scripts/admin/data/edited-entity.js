@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { isEmpty, keys, pick, cloneDeep } = lodash; // isArray, includes, pull, some, 
+const { isEmpty, keys, pick, cloneDeep } = lodash; // isArray, includes, pull, some,
 const { subscribe, select, dispatch } = wp.data;
 
 // Internal dependencies
@@ -111,19 +111,19 @@ let isTracking = false;
 subscribeCustomStore(() => {
 	if(isTracking && completedTracking()) {
 		isTracking = false;
-		debug.info('-*RAW store tracking is {completed}', { shouldResetEdits });
+		debug.info('-?RAW store tracking is {completed}', { shouldResetEdits });
 		resetEdits();
 	}
 });
 
 let shouldResetEdits = false;
-export function beforeLanguageSwitch() {
-	debugLanguageSwitch('before');
+export function beforeLanguageSwitch(lang) {
+	debugLanguageSwitch('before', lang);
 	if(isPostDirty) return;
 	shouldResetEdits = true;
 }
 
-export function afterLanguageSwitch() { // clientId, activateSync
+export function afterLanguageSwitch(lang) { // clientId, activateSync
 	if(!shouldResetEdits) return;
 	isTracking = true;
 
@@ -136,7 +136,7 @@ export function afterLanguageSwitch() { // clientId, activateSync
 	// 	if(activateSync) edits.push('atts');
 	// }
 	// collectEdits(edits, true);
-	// debugLanguageSwitch('after', { clientId, activateSync, shouldResetEdits });
+	debugLanguageSwitch('after', lang);
 }
 
 function completedTracking() {
@@ -223,11 +223,12 @@ function debugPostStatus(message, more) {
 	}
 }
 
-function debugLanguageSwitch(when, more) {
+function debugLanguageSwitch(when, lang) {
 	if(enableDebug) {
 		const status = isPostDirty ? 'dirty' : 'clean';
-		const info = `-${when === 'before' ? '?' : '+'}{${when} Language Switch} - Post is {${status}}`;
-		if(more) debug.info(info, cloneDeep(more));
-		else debug.info(info);
+		const info = `-${when === 'before' ? '?' : '+'}{${when}} Language Switch [${lang}] - Post is {${status}}`;
+		// if(more) debug.info(info, cloneDeep(more));
+		// else 
+		debug.info(info);
 	}
 }
