@@ -16,7 +16,8 @@ require_once('traits/exchange.php');
 
 class zukit_Plugin extends zukit_SingletonScripts {
 
-	private static $zukit_version = '1.4.7'; // .' (modified)';
+	private static $zukit_version = '1.4.9'; // .' (modified)';
+	private static $zukit_debug = false;
 
 	public $config;
 
@@ -35,7 +36,7 @@ class zukit_Plugin extends zukit_SingletonScripts {
 	// Options, admin basics, menu management and REST API support
 	use zukit_Options, zukit_Admin, zukit_AdminMenu, zukit_AjaxREST, zukit_Debug;
 
-	function singleton_config($file) {
+	protected function singleton_config($file) {
 		if(isset($file)) {
 			$this->data = Zukit::get_file_metadata($file);
 			$this->is_plugin = $this->data['Kind'] === 'Plugin';
@@ -126,6 +127,7 @@ class zukit_Plugin extends zukit_SingletonScripts {
 	protected function status() {}
 
 	public function zukit_ver() { return self::$zukit_version; }
+	public static function zukit_debug($toggle = true) { self::$zukit_debug = $toggle; }
 
 	// split the 'init' for plugins and themes
 	// the 'init' for plugins will be called before the themes
@@ -417,7 +419,7 @@ class zukit_Plugin extends zukit_SingletonScripts {
 				'data'		=> null,
 				'deps'		=> $js_deps,
 				'handle'	=> 'zukit',
-				'refresh'	=> $this->refresh_scripts,
+				'refresh'	=> self::$zukit_debug ? true : $this->refresh_scripts,
 			];
 			$this->admin_enqueue_script('!zukit', $zukit_params);
 			$this->admin_enqueue_style('!zukit', array_merge($zukit_params, ['deps'	=> $css_deps]));
@@ -560,7 +562,8 @@ class zukit_Plugin extends zukit_SingletonScripts {
 		$snippets = zu_snippets();
 		if($snippets->method_exists($func)) return call_user_func_array([$snippets, $func], $params);
 		else {
-			if($this->debug_mode && !$quiet) $this->logc('!Snippet called was not found!', $func);
+			$is_heartbeat = wp_doing_ajax() && isset($_POST['action']) && ($_POST['action'] === 'heartbeat');
+			if($this->debug_mode && !$quiet) $this->logc('!Snippet called was not found!', $func, $is_heartbeat);
 			return null;
 		}
 	}

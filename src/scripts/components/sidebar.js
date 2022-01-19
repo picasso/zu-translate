@@ -3,12 +3,13 @@
 const { get, map, isEmpty, isNil, omitBy, pickBy, some } = lodash;
 const { __ } = wp.i18n;
 const { useCallback } = wp.element;
-const { createSlotFill, PanelBody, PanelRow, Button, ExternalLink, ToggleControl, Spinner } = wp.components;
+const { createSlotFill, PanelBody, PanelRow, Button, ExternalLink, Spinner } = wp.components;
 
 // Internal dependencies
 
 import { mergeClasses, checkDependency, simpleMarkdown } from './../utils.js';
 import ZukitActionButton from './action-button.js';
+import ZukitToggle from './toggle.js';
 
 // Zukit Sidebar Component
 
@@ -127,7 +128,7 @@ const ZukitSidebar = ({
 			{ hasPanels &&
 				<PanelBody title={ __('Screen Options', 'zukit') } initialOpen={ false }>
 					{ map(panels, ({ label, value, help }, panelKey) =>
-						<ToggleControl
+						<ZukitToggle
 							key={ panelKey }
 							label={ label }
 							help={ help  }
@@ -140,7 +141,7 @@ const ZukitSidebar = ({
 			{ hasDebug &&
 				<PanelBody title={ getPanel({ type: 'title', id: debugSet }) } initialOpen={ false }>
 					{ map(debugOptions, ({ label, help }, key) =>
-						<ToggleControl
+						<ZukitToggle
 							key={ key }
 							label={ label }
 							help={ help  }

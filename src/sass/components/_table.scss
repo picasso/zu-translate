@@ -9,22 +9,25 @@ $table-row-stripe-color: rgba($table-basic-color, 0.1);
 
 $table-basic-font-size: 14px;
 
-%row {
+%row_flex {
 	width: 100%;
 	display: flex;
 	flex-flow: row nowrap;
 }
 
 .#{$table-component-class} {
-	display: flex;
-	flex-flow: column nowrap;
 	font-size: $table-basic-font-size;
 	color: $table-basic-color;
 	margin: 0.5rem;
 	line-height: 1.5;
 	border: 1px solid $table-border-color;
-	flex: 1 1 auto;
 	transition: height $transition-time $transition-function;
+
+	&.css-flex {
+		display: flex;
+		flex-flow: column nowrap;
+		flex: 1 1 auto;
+	}
 
 	&.is-loading {
 		border: 1px dashed rgba($table-border-color, 0.3);
@@ -43,16 +46,17 @@ $table-basic-font-size: 14px;
 	}
 
 	.head {
-		@extend %row;
 		font-weight: 700;
 		background-color: $table-header-color;
 		white-space: normal;
-		justify-content: center;
 		border-bottom: 1px solid $table-header-border-color;
+		@include in('<.css-flex') {
+			@extend %row_flex;
+			justify-content: center;
+		}
 	}
 
 	.row {
-		@extend %row;
 		background-color: $table-row-color;
 		border-bottom: 1px solid $table-border-color;
 		&:nth-of-type(even) {  // :nth-of-type(odd)
@@ -61,20 +65,40 @@ $table-basic-font-size: 14px;
 		&:last-child {
 			border-bottom-width: 0;
 		}
+		@include in('<.css-flex') {
+			@extend %row_flex;
+		}
+	}
+
+	&.css-grid {
+		border-bottom-width: 0;
+		.head {
+			display: grid;
+			border-bottom-width: 2px;
+		}
+		.body {
+			display: grid;
+		}
+		.cell {
+			border-bottom: 1px solid $table-border-color;
+		}
 	}
 
 	.cell {
 		display: flex;
-		flex-flow: row nowrap;
-		flex-grow: 1;
-		flex-basis: 0;
-		align-self: center;
+		align-items: center;
 		padding: 0.5em;
 		word-break: break-word;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		min-width: 0px;
 		white-space: nowrap;
+
+		@include in('<.css-flex') {
+			flex-flow: row nowrap;
+			flex-grow: 1;
+			flex-basis: 0;
+		}
 
 		// align direct SVG icon
 		.block-editor-block-icon {
@@ -94,34 +118,17 @@ $table-basic-font-size: 14px;
 		}
 
 		&.__zu_icon {
-			max-width: 60px;
+			@include in('<.css-flex') {
+				max-width: 60px;
+			}
 		}
 		&.__zu_strong {
 			font-weight: 700;
-		}
-		&.__zu_shrink, &.__zu_fixwidth {
-			flex-grow: 0;
-			flex-basis: auto;
-		}
-		&.__zu_fixwidth {
-			width: 10%;
-			// flex-grow: 0;
-			// flex-basis: auto;
-		}
-		&.__zu_markdown {
-			// margin: 0;
-			// font-size: $table-basic-font-size;
-			// font-style: normal;
-			// text-align: ;
-
 		}
 		&.__zu_link {
 			a {
 				text-decoration: none;
 			}
-		}
-		&.__zu_filler {
-			flex-grow: 3;
 		}
 	}
 }

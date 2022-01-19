@@ -1,5 +1,6 @@
 // Components
 import ZukitDivider from './divider.js';
+import ZukitToggle from './toggle.js';
 import ZukitPanel from './panel.js';
 import ZukitSidebar from './sidebar.js';
 import ZukitSkeleton from './skeleton.js';
@@ -20,6 +21,7 @@ export {
     ZukitSidebar,
     ZukitPanel,
     ZukitDivider,
+    ZukitToggle,
     ZukitTable,
 
     ConditionalWrap,

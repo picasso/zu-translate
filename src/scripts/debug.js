@@ -4,8 +4,6 @@ const _ = lodash;
 const { useEffect, useRef } = wp.element;
 const { usePrevious } = wp.compose;
 
-import zuPackage from './../../../package.json';
-
 // log levels (but errors are always shown!):
 //
 //      'short' || 1                - only milestone messages & warn (without data and annoying handlers)
@@ -33,14 +31,15 @@ import zuPackage from './../../../package.json';
 //      Zubug.response(route, data)     - output Ajax response information
 
 // Модификаторы цвета и шрифта (первый символ сообщения для log() и info()):
-//      '!' - console.info, bold, '#cc0096'
-//      '?' - bold, '#ff2020'
+//      '!' - console.info, bold, '#ff2020'
+//      '?' - bold, '#cc0096'
+//      '*' - '#1f993f'
+//      '+' - '#0070c9'
 //      '>' - начать группу
 //      '#' - bold, '#ffffff' на фоне '#e50039' в окружении ★★★
 
 // some internal vars
 const config = {
-    version: zuPackage.version || 'unknown',
     level: 'default',
     simplify: true,         // когда установлено, то пытается упростить вывод
                             //  - например, заменяет вывод массива с одним элементом на
@@ -168,8 +167,8 @@ function logWithColors(messages, messageColors,  ...data) {
         groupFunc = true;
     }
 
-    if(message1.startsWith('?')) color1 = dcolors.maybe;
-    if(message1.startsWith('!')) color1 = /application|framework/ig.test(message1) ? dcolors.framework : dcolors.attn;
+    if(message1.startsWith('?')) color1 = dcolors.mount;
+    if(message1.startsWith('!')) color1 = /application|framework/ig.test(message1) ? dcolors.framework : dcolors.alert;
 
     // special colors for selected messages
     if(message1.startsWith('#')) {
@@ -197,14 +196,14 @@ function logWithColors(messages, messageColors,  ...data) {
 
     // if starts with '!' - then make it BOLD and change console function
     if(message1.startsWith('!')) {
-        message1 = message1.replace(/^!/, '');
+        // message1 = message1.replace(/^!/, '');
         colors1 = colors1.replace('normal', 'bold');
         colors3 = colors3.replace('normal', 'bold');
         func = groupFunc ? console.groupCollapsed : console.info;
     }
     // if starts with '?' - then make it BOLD
     if(message1.startsWith('?')) {
-        message1 = message1.replace(/^\?/, '');
+        // message1 = message1.replace(/^\?/, '');
         colors1 = colors1.replace('normal', 'bold');
         colors3 = colors3.replace('normal', 'bold');
     }
@@ -216,6 +215,7 @@ function logWithColors(messages, messageColors,  ...data) {
         if(!message2) message1 += ' ★★★ ';
         else if(message3) message3 += ' ★★★ ';
     }
+    message1 = stripColorModifiers(message1);
 
     const [firstData, ...rest] = data;
     if(config.mods.forseNil || firstData !== undefined) {
@@ -269,7 +269,7 @@ function logWithColors2(message, ...data) {
     const func = config.colors.info ? console.info : console.log;
     const colors = getColors(colorBy(message));
 
-    let { format, items } = parseWithColors(message, colors);
+    let { format, items } = parseWithColors(stripColorModifiers(message), colors);
     if(!_.isEmpty(data)) format = format + '  ';
     _.forEach(data, item => {
         if(_.isString(item)) {
@@ -296,7 +296,7 @@ function log(message, ...data) {
     if(message) {
         message = message.trim();
 
-        let colors = [ colorBy(message),  dcolors.name, null ];
+        let colors = [ colorBy(message, true),  dcolors.name, null ];
         let param_regex = /\[\s*([^\]]+)]/i;
         // let color2 = /loading =|ver /ig.test(message) ? dcolors.navigate : dcolors.name;
 
@@ -437,7 +437,7 @@ function logAsOneString(chunks, ...data) {
 function renderComponent(maybeClientId) {
     const [clientId, clientId2] = _.castArray(maybeClientId);
     const component = componentName(clientId2 ? 'renderComponentWithId,renderComponent' : 'renderComponent');
-    const id = (clientId ?? clientId2)  ? ` with ${_bold(shortenId(clientId ?? clientId2))}` : '';
+    const id = (clientId ?? clientId2) ? withId(clientId ?? clientId2) : '';
     config.colors.render = true;
     setOpaqueColors('green');
     logAsOneString(`${_bold(component)}${id} ${_opaque('render')}`);
@@ -453,6 +453,7 @@ function dataInComponent(data, marker = false) {
     const altName = marker ? `:${_colored(String(marker))}` : '';
     const message = `${_bold(component)}${altName} ${arrowSymbol} value for ${isSingleKey ? _accented(key) : key}`;
     config.colors.data = true;
+    setOpaqueColors('brown');
     if(isSimpleType(value)) {
         logAsOneString(message, value);
     } else {
@@ -464,9 +465,13 @@ function dataInComponent(data, marker = false) {
 // display a formatted string and possibly some data
 function infoInComponent(messageData, ...data) {
     const [message, clientId] = _.castArray(messageData);
-    const id = clientId ? ` with ${_bold(shortenId(clientId))}` : '';
+    // minus - a special sign to skip the function name
+    const colorMod = stripColorModifiers(message, true);
+    const id = clientId ? withId(clientId) : '';
     const component = componentName(clientId ? 'infoInComponentWithId,infoInComponent' : 'infoInComponent');
-    const info = `${_bold(component)}${id} ${arrowSymbol} ${message}`;
+    const withName = _.startsWith(message, '-') ? false : component !== '?';
+    const spacer = withName || id ? ` ${arrowSymbol} ` : '';
+    const info = `${colorMod}${withName ? _bold(component) : ''}${id}${spacer}${stripColorModifiers(message)}`;
     config.colors.info = true;
     setOpaqueColors('blue');
     if(data.length === 0 || (data.length === 1 && isCompactType(data[0]))) {
@@ -481,7 +486,7 @@ function infoInComponent(messageData, ...data) {
 function useTraceUpdate(props, state = {}, trackClientId = false) {
     const ref = useRef({
         key: componentName(trackClientId ? 'useTraceUpdate,useTraceUpdateWithId' : 'useTraceUpdate'),
-        id: trackClientId ? ` with ${_bold(shortenId(props))}` : '',
+        id: trackClientId ? withId(props) : '',
     });
 
     const prevProps = usePrevious(props);
@@ -522,6 +527,10 @@ function useMountUnmount() {
 
 // to trace several instances of one component on the page --------------------]
 
+function withId(id) {
+    return ` with ID ${_bold(shortenId(id))}`;
+}
+
 function useTraceUpdateWithId(props, state = {}) {
     useTraceUpdate(props, state, true);
 }
@@ -536,9 +545,26 @@ function renderComponentWithId(clientId) {
 
 // Helpers for colored console & components debuging --------------------------]
 
-function colorBy(message) {
+const modRegex = /^[!|?|*|+|#|>]/;
+function stripColorModifiers(string, returnMod = false) {
+    // minus - a special sign to skip the function name - first remove it
+    const str = _.trimStart(string, '-');
+    return returnMod ? (modRegex.test(str) ? str[0] : '') : str.replace(modRegex, '');
+}
+
+function colorBy(message, obsoleteMode = false) {
     let color = dcolors.basic;
-    // first test with var names
+
+    if(!obsoleteMode) {
+        // first check special modifiers from which the string can start
+        if(message.startsWith('!')) return [dcolors.alert, true, { color: dcolors.white, bg: dcolors.alert }];
+        if(message.startsWith('?')) return [dcolors.mount, true, { color: dcolors.white, bg: dcolors.mount }];
+        if(message.startsWith('*')) return [dcolors.render, true, { color: dcolors.white, bg: dcolors.render }];
+        if(message.startsWith('+')) return [dcolors.info, true, { color: dcolors.white, bg: dcolors.info }];
+        if(message.startsWith('#')) return [dcolors.data, true, { color: dcolors.white, bg: dcolors.data }];
+    }
+
+    // then test with var names
     if(config.colors.info) return dcolors.info;
     if(config.colors.data) return dcolors.data;
     if(config.colors.trace) return dcolors.trace;
@@ -553,13 +579,14 @@ function colorBy(message) {
     return color;
 }
 
-function getColors(mainColor = dcolors.basic) {
-    const weightNormal = 'font-weight: normal;';
+function getColors(main = dcolors.basic) {
+    const [mainColor, mainBold, mainOpaque] = _.isArray(main) ? main : [main, false, null];
     const weightBold = 'font-weight: bold;';
+    const weightNormal = mainBold ? weightBold : 'font-weight: normal;';
     const padding = 'padding: 0 2px 0 2px;';
     const paddingBg = 'padding: 1px 3px 1px 3px;';
     const rounded = 'border-radius: 3px;';
-    const opaque = config.colors.opaque || { color: dcolors.white, bg: dcolors.alert };
+    const opaque = mainOpaque ?? config.colors.opaque ?? { color: dcolors.white, bg: dcolors.alert };
     return {
         normal: `${weightNormal} color: ${mainColor}`,
         accent: `${weightBold} ${paddingBg} ${rounded} color: ${dcolors.bold}; background: ${dcolors.boldBg}`,
@@ -576,6 +603,7 @@ function setOpaqueColors(color) {
     if(color === 'violet') config.colors.opaque = { color: dcolors.white, bg: dcolors.mount };
     if(color === 'orange') config.colors.opaque = { color: dcolors.white, bg: dcolors.name };
     if(color === 'blue') config.colors.opaque = { color: dcolors.white, bg: dcolors.info };
+    if(color === 'brown') config.colors.opaque = { color: dcolors.white, bg: dcolors.data };
 }
 
 // старая реализация через regex, сохранил тут для идей
@@ -684,7 +712,8 @@ function changedKeys(next, prev) {
 }
 
 function shortenId(props, forStorage = false) {
-    const shortened = (props && props.clientId) ? props.clientId.slice(-4) : 0;
+    const clientId = _.get(props, 'clientId', props);
+    const shortened = _.isString(clientId) ? clientId.slice(-4) : 0;
     return forStorage ? shortened : (shortened === 0 ? '?' : `✷✷✷-${shortened}`);
 }
 
@@ -855,7 +884,6 @@ function funcFromStack(frames, index = 0) {
 }
 
 export default {
-    get ver() { return config.version; },
 
     get level() { return logLevel(); },
     set level(val) { logLevel(val); },

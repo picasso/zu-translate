@@ -18,24 +18,20 @@ class zukit_Table {
 	private $cells = [];
 	private $row = [];
 	private $rows = [];
-	private $shrinked = false;
-	private $shrinked_cell = '__filler';
 
-	public function __construct($cells = [], $shrinked = false) {
+	public function __construct($cells = []) {
 		foreach($cells as $cell) {
 			$this->cells[$cell] = $this->generate_cell(ucwords($cell));
 		}
-		$this->shrinked = $shrinked;
-		if($shrinked) $this->cells[$this->shrinked_cell] = $this->empty_cell();
 
 		$count = count($this->cells);
+		$this->config['template'] = "repeat(${columns}, 1fr)";
 		$this->config['align'] = array_fill(0, $count, null);
 		$this->config['style'] = array_fill(0, $count, null);
 		$this->config['className'] = array_fill(0, $count, '');
 
 		foreach($this->cells as $cell => $content) {
-			$cell_class = $cell === $this->shrinked_cell ? '__zu_filler' : sprintf('cell__%s', $cell);
-			$this->config($cell, 'className', $cell_class);
+			$this->config($cell, 'className', "cell__$cell");
 		}
 	}
 
@@ -123,8 +119,12 @@ class zukit_Table {
 		$this->config($cells, 'className', '__zu_icon');
 	}
 
-	public function shrink($cells) {
-		$this->config($cells, 'className', '__zu_shrink');
+	public function fit_content($cells) {
+		$this->config($cells, 'className', '__zu_fitcontent');
+	}
+
+	public function minmax($cells, $min, $max = '1fr') {
+		$this->config($cells, 'className', "__zu_minmax($min,$max)");
 	}
 
 	public function fix_width($cells, $styles = null) {
@@ -243,10 +243,36 @@ class zukit_Table {
 	}
 
 	public function get($with_headers = true) {
+		$this->update_grid_template();
 		return array_filter([
 			'config'	=> $this->config,
 			'headers'	=> $with_headers ? array_values($this->cells) : null,
 			'rows'		=> $this->rows,
 		]);
+	}
+
+	private function update_grid_template() {
+		$grid = [];
+		foreach($this->config['className'] as $index => $className) {
+			$column = strpos($className, '__zu_icon') !== false ? 'minmax(auto, 80px)' : '1fr';
+			if(strpos($className, '__zu_fixwidth') !== false) {
+				$column = $this->config['style'][$index]['width'] ?? '1fr';
+				unset($this->config['style'][$index]['width']);
+			}
+			if(strpos($className, '__zu_fitcontent') !== false) {
+				$column = 'max-content';
+				$className = str_replace('__zu_fitcontent', '', $className);
+				$this->config['className'][$index] = $className;
+			}
+			if(strpos($className, '__zu_minmax') !== false) {
+				$regex = '/__zu_(minmax[^)]+\))/';
+				$column = preg_match($regex, $className, $matches) ? $matches[1] : '1fr';
+				$className = trim(preg_replace($regex, '', $className));
+				$this->config['className'][$index] = $className;
+			}
+			$this->config['className'][$index] = preg_replace('/\s+/', ' ', $className);
+			$grid[] = $column;
+		}
+		$this->config['template'] = implode(' ', $grid);
 	}
 }
