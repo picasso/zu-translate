@@ -137,12 +137,14 @@ export function afterLanguageSwitch(clientId, activateSync) {
 
 function completedTracking() {
 	const watched = select(ZUTRANSLATE_STORE).getWatched();
+	Zubug.info(`-!watched=${watched.length}`);
+	if(watched.length > 5) Zubug.data({ watched });
 	return watched.length === 0;
 }
 
 function resetEdits() {
 	const nonTransientEdits = getNonTransientEdits();
-	debugPostStatus('{resetEdits}', keys(nonTransientEdits)); // { shouldResetEdits, nonTransientEdits }
+	debugPostStatus('{resetEdits}', { nonTransientEdits: keys(nonTransientEdits) });
 	if(!isEmpty(nonTransientEdits)) {
 		// pull(shouldResetEdits, ...keys(nonTransientEdits));
 		// if(isEmpty(shouldResetEdits)) {
@@ -178,14 +180,11 @@ export function emulateSavingPost(postEdits) {
 	const postId = getCurrentPostId();
 	const updatedRecord = getEditedEntityRecord('postType', postType, postId);
 	const nonTransientEdits = postEdits ?? getNonTransientEdits(postType, postId);
-	// yield external_wp_data_["controls"].select('core', 'getEntityRecordNonTransientEdits', kind, name, recordId);
 	const edits = {
 		id: postId,
 		...nonTransientEdits
 	};
-	debug.info('-*Emulate {Saving Post}', postId, nonTransientEdits, updatedRecord);
-
-	// debug.data({ edits, record: pick(updatedRecord, keys(nonTransientEdits)) });
+	debug.info('-*Emulate {Saving Post}', postId, nonTransientEdits);
 	receiveEntityRecords('postType', postType, updatedRecord, undefined, true, edits);
 }
 

@@ -72,8 +72,8 @@ export function useOnLangChange(clientId, callback) {
 	useEffect(() => {
 		if(prev !== undefined && prev !== editorLang) {
 			callback(editorLang);
-			removeWatched(clientId);
 			debug.infoWithId(clientId, '-*{Component unWatched}');
+			removeWatched(clientId);
 		}
 	}, [prev, editorLang, clientId, callback]);
 	return editorLang;
@@ -92,16 +92,16 @@ export function useLangHook(clientId, updater) {
 // call all registered hooks besides associated with 'clientId'
 // this will lead to switching language for blocks associated with these hooks
 export function syncBlocks(clientId) {
-	addWatched(clientId);
 	debug.infoWithId(clientId, '-!{Component Watched} - master');
+	addWatched(clientId);
 	if(activateSync) {
 		const hooks = getHooks();
 		debug.infoWithId(clientId, '-Sync initiated', { hookCount: Object.keys(hooks).length, hooks });
 		forEach(hooks, (hook, id) => {
 			if(id !== clientId) {
 				hook();
-				addWatched(id);
 				debug.infoWithId(id, '-!calling hook + {Component Watched}');
+				addWatched(id);
 			}
 		});
 	}

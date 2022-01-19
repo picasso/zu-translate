@@ -107,8 +107,12 @@ function storeReducer(state = initialState, action) {
             break;
     }
 
-    debug.data({ state, type, key, value, isEqual: isEqual(state, interim) });
-    return isEqual(state, interim) ? state : interim;
+	const hasChanged = !isEqual(state, interim);
+    debug.data(
+		{ type, key, value, prev: state, state: hasChanged ? interim : '=prev' },
+		hasChanged ? 'effective change' : 'same as the previous'
+	);
+    return hasChanged ? interim : state;
 }
 
 const storeActions = {
