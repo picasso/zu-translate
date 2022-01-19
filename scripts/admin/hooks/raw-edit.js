@@ -15,7 +15,8 @@ const { useForceUpdater } = wp.zukit.data;
 
 import { isSupported, getExternalData, getDebug, getTranslated, getEditorBlocks } from './../utils.js';
 import { hasRaw, switchContent, createRawContent, maybeFixRawContent, updateRawContent } from './../raw-utils.js';
-import { changeLang, useOnLangChange, useLangHook, syncBlocks } from './../data/use-store.js';
+import { changeLang, useOnLangChange, useLangHook } from './../data/use-store.js';
+import { syncCompleted, syncBlocks } from './../data/sync-blocks.js';
 import LangControl from './../components/lang-control.js';
 
 const activateSync = getExternalData('sync', false);
@@ -43,13 +44,14 @@ const BlockEditLang = (props) => {
 	const [translatedAtts, translatedValues] = getTranslated(name, attributes);
 	// callback for replacing the values of all 'translated' attributes for the required language
 	const replaceContent = useCallback((lang, prevLang = false) => {
+		const { raw, id } = rawRef.current;
 		if(!activateSync && !prevLang) prevLang = lang;
 		if(lang !== prevLang) {
-			const { raw } = rawRef.current;
 			const atts = switchContent(raw, lang, translatedAtts);
 			rawRef.current.lang = lang;
 			setAttributes({ qtxLang: lang, ...atts });
 		}
+		syncCompleted(id);
 	}, [translatedAtts, setAttributes]);
 
 	const forceUpdate = useForceUpdater();

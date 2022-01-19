@@ -6,8 +6,8 @@ const { subscribe, select, dispatch } = wp.data;
 // Internal dependencies
 
 import { getExternalData, getDebug } from './../utils.js';
-import { ZUTRANSLATE_STORE, subscribe as subscribeCustomStore, supportedKeys } from './raw-store.js';
-
+import { subscribe as subscribeCustomStore, supportedKeys } from './raw-store.js';
+import { entityState, getWatched, syncCompleted } from './sync-blocks.js';
 
 const { getEntityRecordNonTransientEdits, getEditedEntityRecord } = select('core');
 const { editEntityRecord, receiveEntityRecords } = dispatch('core');
@@ -16,8 +16,6 @@ const { isSavingPost } = select('core/editor');
 
 const enableDebug = getExternalData('debug.edited_entity', false);
 const debug = getDebug(enableDebug);
-
-export const rootClientId = 'rawRoot';
 
 // Attributes of the object Entity --------------------------------------------]
 
@@ -35,8 +33,7 @@ export function updateEntityAttributes(edits) {
 		const postType = getCurrentPostType();
 		const postId = getCurrentPostId();
 		editEntityRecord('postType', postType, postId, edits);
-		debug.infoWithId(rootClientId, '-*{Component unWatched}');
-		removeWatched(rootClientId);
+		syncCompleted();
 	}
 }
 
@@ -49,95 +46,69 @@ function getNonTransientEdits(name = null, recordId = null) {
 // let keepAttributes = []
 // function collectEdits(edits, canCollect = false) {
 // 	const editKeys = isArray(edits) ? edits : keys(edits);
-// 	if(!isArray(shouldResetEdits) && canCollect) shouldResetEdits = [];
+// 	if(!isArray(entityState.shouldResetEdits) && canCollect) entityState.shouldResetEdits = [];
 //
-// 	if(isArray(shouldResetEdits)) {
-// 		if(includes(shouldResetEdits, 'atts')) pull(shouldResetEdits, 'atts');
+// 	if(isArray(entityState.shouldResetEdits)) {
+// 		if(includes(entityState.shouldResetEdits, 'atts')) pull(entityState.shouldResetEdits, 'atts');
 // 		if(includes(edits, 'atts') && some(keepAttributes, key => includes(supportedKeys, key)))  pull(edits, 'atts');
-// 		shouldResetEdits.push(...editKeys, ...keepAttributes);
+// 		entityState.shouldResetEdits.push(...editKeys, ...keepAttributes);
 // 		keepAttributes = [];
 // 		// } else {
-// 		// 	shouldResetEdits.push(...editKeys);
+// 		// 	entityState.shouldResetEdits.push(...editKeys);
 // 		// }
 // 	} else {
 // 		keepAttributes = editKeys;
 // 	}
 // }
 
-
-// helper function that sends a success response
-// function sendSuccessResponse(responseData) {
-// 	return Promise.resolve(
-// 		new window.Response(
-// 			JSON.stringify(responseData.body),
-// 			{
-// 				status: 200,
-// 				statusText: 'OK',
-// 				headers: responseData.headers ?? {},
-// 			}
-// 		)
-// 	);
-// }
-
-// Helpers for 'store' --------------------------------------------------------]
-
-function getWatched() {
-	return select(ZUTRANSLATE_STORE).getWatched();
-}
-
-function removeWatched(id) {
-	dispatch(ZUTRANSLATE_STORE).removeWatched(id);
-}
-
 // Maintaining 'non-modified' content -----------------------------------------]
 
-let isPostDirty = false;
 subscribe(() => {
     if(isEditedPostDirty()) {
-		if(!isPostDirty) {
-			isPostDirty = true;
-			debugPostStatus();
-			if(!shouldResetEdits) debug.data({ nonTransientEdits: getNonTransientEdits() });
+		if(!entityState.isPostDirty) {
+			entityState.isPostDirty = true;
+			debugPostStatus(
+				!entityState.shouldResetEdits ? { nonTransientEdits: getNonTransientEdits() } : undefined
+			);
 		}
     } else {
-		if(isPostDirty) {
-			isPostDirty = false;
+		if(entityState.isPostDirty) {
+			entityState.isPostDirty = false;
 			debugPostStatus();
 		}
     }
 });
 
-let isTracking = false;
 subscribeCustomStore(() => {
-	if(isTracking && completedTracking()) {
-		isTracking = false;
-		debug.info('-?RAW store tracking is {completed}', { shouldResetEdits });
+	if(entityState.isTracking && completedTracking()) {
+		entityState.isTracking = false;
+		debug.info('-#RAW store tracking is {completed}', entityState);
 		resetEdits();
 	}
 });
 
-let shouldResetEdits = false;
-export function beforeLanguageSwitch(lang) {
-	debugLanguageSwitch('before', lang);
-	if(isPostDirty) return;
-	shouldResetEdits = true;
-}
 
-export function afterLanguageSwitch(lang) { // clientId, activateSync
-	if(!shouldResetEdits) return;
-	isTracking = true;
-
-	// const edits = [];
-	// if(clientId === rootClientId) {
-	// 	edits.push('atts');
-	// 	if(activateSync) edits.push('content');
-	// } else {
-	// 	edits.push('content');
-	// 	if(activateSync) edits.push('atts');
-	// }
-	// collectEdits(edits, true);
-	debugLanguageSwitch('after', lang);
-}
+// export function beforeLanguageSwitch(lang) {
+// 	debugLanguageSwitch('before', lang);
+// 	if(isPostDirty) return;
+// 	// entityState.shouldResetEdits = true;
+// }
+//
+// export function afterLanguageSwitch(lang) { // clientId, activateSync
+// 	if(!entityState.shouldResetEdits) return;
+// 	// entityState.isTracking = true;
+//
+// 	// const edits = [];
+// 	// if(clientId === rootClientId) {
+// 	// 	edits.push('atts');
+// 	// 	if(activateSync) edits.push('content');
+// 	// } else {
+// 	// 	edits.push('content');
+// 	// 	if(activateSync) edits.push('atts');
+// 	// }
+// 	// collectEdits(edits, true);
+// 	debugLanguageSwitch('after', lang);
+// }
 
 function completedTracking() {
 	const watched = getWatched();
@@ -150,31 +121,28 @@ function resetEdits() {
 	const nonTransientEdits = getNonTransientEdits();
 	debugPostStatus('{resetEdits}', keys(nonTransientEdits));
 	if(!isEmpty(nonTransientEdits)) {
-		// pull(shouldResetEdits, ...keys(nonTransientEdits));
-		// if(isEmpty(shouldResetEdits)) {
-			emulateSavingPost(nonTransientEdits);
-			shouldResetEdits = false;
-		// }
+		emulateSavingPost(nonTransientEdits);
+		entityState.shouldResetEdits = false;
 	}
 }
 
 // let isWaitingForClean = false;
 // subscribe(() => {
 // 	const enable = false;
-//     if(enable && isArray(shouldResetEdits) && isPostDirty) {
+//     if(enable && isArray(entityState.shouldResetEdits) && isPostDirty) {
 // 		// isWaitingForClean = true;
 // 		const nonTransientEdits = getNonTransientEdits();
-// 		debugPostStatus('{shouldResetEdits}', { shouldResetEdits, nonTransientEdits });
+// 		debugPostStatus('{entityState.shouldResetEdits}', { entityState.shouldResetEdits, nonTransientEdits });
 // 		if(!isEmpty(nonTransientEdits)) {
-// 			pull(shouldResetEdits, ...keys(nonTransientEdits));
-// 			if(isEmpty(shouldResetEdits)) {
+// 			pull(entityState.shouldResetEdits, ...keys(nonTransientEdits));
+// 			if(isEmpty(entityState.shouldResetEdits)) {
 // 				emulateSavingPost();
 // 			}
 // 		}
 //     }
-// 	if(isArray(shouldResetEdits) && isEmpty(shouldResetEdits) && !isPostDirty) {
-// 		debugPostStatus('{shouldResetEdits isEmpty}');
-// 		shouldResetEdits = false;
+// 	if(isArray(entityState.shouldResetEdits) && isEmpty(entityState.shouldResetEdits) && !isPostDirty) {
+// 		debugPostStatus('{entityState.shouldResetEdits isEmpty}');
+// 		entityState.shouldResetEdits = false;
 // 		// isWaitingForClean = false;
 // 	}
 // });
@@ -188,7 +156,7 @@ export function emulateSavingPost(postEdits) {
 		id: postId,
 		...nonTransientEdits
 	};
-	debug.info('-*Emulate {Saving Post}', postId, nonTransientEdits);
+	debug.info(`-*Emulate {Saving Post} [${postId}]`, nonTransientEdits);
 	receiveEntityRecords('postType', postType, updatedRecord, undefined, true, edits);
 }
 
@@ -196,7 +164,6 @@ export function storeTest() {
 	debug.info('-?storeTest - Activated manually');
 	emulateSavingPost();
 }
-
 
 // Internal debug helpers -----------------------------------------------------]
 
@@ -215,20 +182,10 @@ subscribe(() => {
 
 function debugPostStatus(message, more) {
 	if(enableDebug) {
-		const status = isPostDirty ? 'dirty' : 'clean';
+		const status = entityState.isPostDirty ? 'dirty' : 'clean';
 		const desc = message ? `${message} - ` : '';
-		const info = `-${isPostDirty ? '!' : '*'}${desc}Post is {${status}}`;
+		const info = `-${entityState.isPostDirty ? '!' : '*'}${desc}Post is {${status}}`;
 		if(more) debug.info(info, cloneDeep(more));
 		else debug.info(info);
-	}
-}
-
-function debugLanguageSwitch(when, lang) {
-	if(enableDebug) {
-		const status = isPostDirty ? 'dirty' : 'clean';
-		const info = `-${when === 'before' ? '?' : '+'}{${when}} Language Switch [${lang}] - Post is {${status}}`;
-		// if(more) debug.info(info, cloneDeep(more));
-		// else 
-		debug.info(info);
 	}
 }

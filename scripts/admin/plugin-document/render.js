@@ -12,9 +12,10 @@ const { useForceUpdater } = wp.zukit.data;
 
 import metadata from './metadata.js';
 import LangControl from './../components/lang-control.js';
-import { changeLang, getLang, useOnLangChange, syncBlocks } from './../data/use-store.js';
+import { changeLang, getLang, useOnLangChange } from './../data/use-store.js';
+import { rootClientId, syncBlocks } from './../data/sync-blocks.js';
 import { setRawAttributes, switchRawAttributes, registerRootUpdater } from './../data/raw-helpers.js';
-import { rootClientId, storeTest } from './../data/edited-entity.js';
+import { storeTest } from './../data/edited-entity.js';
 
 // LangControlSetting Component
 
@@ -30,7 +31,7 @@ const LangControlSetting = ({
 		// set the initial RAW attributes on mounting the component and add listeners
 		setRawAttributes();
 		// register 'rootUpdater' for subsequent language synchronization
-		registerRootUpdater();
+		registerRootUpdater(rootClientId);
 		return () => {
 			// with argument equal to false all listeners will be removed
 			setRawAttributes(false);

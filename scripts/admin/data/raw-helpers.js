@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { forEach, castArray, includes, has, noop } = lodash;
+const { forEach, castArray, includes, noop } = lodash;
 const { select } = wp.data;
 
 // Internal dependencies
@@ -9,7 +9,7 @@ import { getExternalData, getDebug, getInputValue, addInputListener } from './..
 // import { whenNodeInserted} from './../when-node.js';
 import { getLangContent } from './../raw-utils.js';
 import { supportedAtts, supportedKeys } from './raw-store.js';
-import { getLang, getRaw, getHooks, setRaw, updateRaw, addHook } from './use-store.js';
+import { getLang, getRaw, setRaw, updateRaw, addHook } from './use-store.js';
 import { getEntityAttributes, updateEntityAttributes } from './edited-entity.js';
 
 const enableDebug = getExternalData('debug.raw_helpers', false);
@@ -72,31 +72,23 @@ export function updateRawAttributes(onlyAtts = null) {
 // (if 'onlyAtts' is not null - select content for these attributes only)
 export function switchRawAttributes(lang, onlyAtts = null) {
 	const editorLang = lang ?? getLang();
-	onlyAtts = onlyAtts === null ? null : castArray(onlyAtts);
-	const atts = getEntityAttributes(onlyAtts);
+	// const names = onlyAtts === null ? null : castArray(onlyAtts);
+	const attributes = getEntityAttributes(onlyAtts === null ? null : castArray(onlyAtts));
 	const edits = {};
-	forEach(atts, (value, attr) => {
-		// if(onlyAtts === null || includes(onlyAtts, attr)) {
-			const rawValue = getRaw(attr);
-			if(rawValue !== undefined) {
-				// const currentValue = getInputValue(selector);
-				const shouldBeValue = getLangContent(rawValue, editorLang);
-				if(value !== shouldBeValue) edits[attr] = shouldBeValue;
-				// changeInputValue(selector, shouldBeValue, true);
-			}
-		// }
+	forEach(attributes, (value, attr) => {
+		const rawValue = getRaw(attr);
+		if(rawValue !== undefined) {
+			const shouldBeValue = getLangContent(rawValue, editorLang);
+			if(value !== shouldBeValue) edits[attr] = shouldBeValue;
+		}
 	});
 	updateEntityAttributes(edits);
 }
 
 // because the document editing panel will be mounted and unmounted every time when switching to blocks editing
 // we register the root hook only once and do not remove it on unmounting
-export function registerRootUpdater() {
-	const rootClientId = 'rawRoot';
-	const hooks = getHooks();
-	if(!has(hooks, rootClientId)) {
-		addHook(rootClientId, switchRawAttributes);
-	}
+export function registerRootUpdater(rootId) {
+	addHook(rootId, switchRawAttributes);
 }
 
 // listeners on changes and on DOM 'insert' -----------------------------------]

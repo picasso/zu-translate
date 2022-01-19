@@ -9,11 +9,12 @@ const { apiFetch } = wp;
 // Internal dependencies
 
 import { getExternalData, getDebug } from './../utils.js';
-import { beforeLanguageSwitch, afterLanguageSwitch } from './edited-entity.js';
 import { ZUTRANSLATE_STORE, supportedKeys } from './raw-store.js';
+// import { addWatched } from './sync-blocks.js'; // , removeWatched
+// import { notifySync } from './edited-entity.js'; // beforeLanguageSwitch, afterLanguageSwitch,
 
 const enableDebug = getExternalData('debug.sync_blocks', false);
-const activateSync = getExternalData('sync', false);
+// const activateSync = getExternalData('sync', false);
 const debug = getDebug(enableDebug);
 
 // Custom hooks & helpers for 'store' -----------------------------------------]
@@ -26,9 +27,9 @@ export function getRaw(key) {
 	return select(ZUTRANSLATE_STORE).getRaw(key);
 }
 
-export function getHooks() {
-	return select(ZUTRANSLATE_STORE).getHooks();
-}
+// export function getHooks() {
+// 	return select(ZUTRANSLATE_STORE).getHooks();
+// }
 
 export function setRaw(attribute, value) {
 	const { setRaw: setRawValue } = dispatch(ZUTRANSLATE_STORE);
@@ -41,28 +42,35 @@ export function updateRaw(attribute, value) {
 }
 
 export function addHook(id, hook) {
-	const { setHook } = dispatch(ZUTRANSLATE_STORE);
-	setHook(id, hook);
+	const hooks = select(ZUTRANSLATE_STORE).getHooks();
+	if(!has(hooks, id)) {
+		dispatch(ZUTRANSLATE_STORE).setHook(id, hook);
+	}
+	// setHook(id, hook);
 }
 
-export function addWatched(id, isOriginator = false) {
-	const { addWatched } = dispatch(ZUTRANSLATE_STORE);
-	addWatched(id);
-	debug.infoWithId(id, `-!{Component Watched}${isOriginator ? '- [originator]' : ''}`);
+export function removeHook(id) {
+	dispatch(ZUTRANSLATE_STORE).removeHook(id);
 }
 
-export function removeWatched(id) {
-	const { removeWatched } = dispatch(ZUTRANSLATE_STORE);
-	removeWatched(id);
-	debug.infoWithId(id, '-*{Component unWatched}');
-}
+// export function addWatched(id, isOriginator = false) {
+// 	const { addWatched } = dispatch(ZUTRANSLATE_STORE);
+// 	addWatched(id);
+// 	debug.infoWithId(id, `-!{Component Watched}${isOriginator ? ' [originator]' : ''}`);
+// }
+//
+// export function removeWatched(id) {
+// 	const { removeWatched } = dispatch(ZUTRANSLATE_STORE);
+// 	removeWatched(id);
+// 	debug.infoWithId(id, '-*{Component unWatched}');
+// }
 
 // custom hook which get dispatch method for 'lang' change
 export function changeLang(value) {
     const { setLang } = dispatch(ZUTRANSLATE_STORE);
 	const currentLang = getLang();
     if(value !== currentLang) {
-		beforeLanguageSwitch(currentLang);
+		// beforeLanguageSwitch(currentLang);
 		setLang(value);
 	}
 }
@@ -74,7 +82,7 @@ export function useOnLangChange(clientId, callback) {
 	useEffect(() => {
 		if(prev !== undefined && prev !== editorLang) {
 			callback(editorLang);
-			removeWatched(clientId);
+			// removeWatched(clientId);
 		}
 	}, [prev, editorLang, clientId, callback]);
 	return editorLang;
@@ -82,8 +90,8 @@ export function useOnLangChange(clientId, callback) {
 
 export function useLangHook(clientId, updater) {
 	useEffect(() => {
-		const { setHook, removeHook } = dispatch(ZUTRANSLATE_STORE);
-		setHook(clientId, updater);
+		// const { setHook, removeHook } = dispatch(ZUTRANSLATE_STORE);
+		addHook(clientId, updater);
 		return () => removeHook(clientId);
 	// 'clientId' and 'updater' never change, 'useEffect' will be called only on mounting and unmounting the component
 	// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,23 +100,25 @@ export function useLangHook(clientId, updater) {
 
 // call all registered hooks besides associated with 'clientId'
 // this will lead to switching language for blocks associated with these hooks
-export function syncBlocks(clientId) {
-	addWatched(clientId, true);
-	if(activateSync) {
-		const hooks = getHooks();
-		debug.infoWithId(clientId, '-Sync initiated', { hookCount: Object.keys(hooks).length, hooks });
-		forEach(hooks, (hook, id) => {
-			if(id !== clientId) {
-				// always add watched ID before calling the hook, because inside the hook may be logic
-				// to remove this ID from the 'watched' list
-				// for example, in the language switch logic for 'non-block' attributes
-				addWatched(id);
-				hook();
-			}
-		});
-	}
-	afterLanguageSwitch(clientId, activateSync);
-}
+// export function syncBlocks(clientId) {
+// 	notifySync('before', activateSync);
+// 	addWatched(clientId, true);
+// 	if(activateSync) {
+// 		const hooks = getHooks();
+// 		debug.infoWithId(clientId, '-Sync initiated', { hookCount: Object.keys(hooks).length, hooks });
+// 		forEach(hooks, (hook, id) => {
+// 			if(id !== clientId) {
+// 				// always add watched ID before calling the hook, because inside the hook may be logic
+// 				// to remove this ID from the 'watched' list
+// 				// for example, in the language switch logic for 'non-block' attributes
+// 				addWatched(id);
+// 				hook();
+// 			}
+// 		});
+// 	}
+// 	notifySync('after', activateSync);
+// 	// afterLanguageSwitch(clientId, activateSync);
+// }
 
 // Hook on the post saving ----------------------------------------------------]
 
