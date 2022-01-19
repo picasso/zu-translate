@@ -5,12 +5,10 @@ const { registerStore } = wp.data;
 
 // Internal dependencies
 
-import { getExternalData, getDebug, getSessionLang, storeSessionLang } from './../utils.js';
+import { getExternalData, getDebug } from './../utils.js';
 import { updateRawContent } from './../raw-utils.js';
 
-const supportSession = getExternalData('session', false);
-const sessionLang = supportSession ? getSessionLang() : null;
-const editorLang = sessionLang ?? getExternalData('lang', 'en');
+const editorLang = getExternalData('lang', 'en');
 const enableDebug = getExternalData('debug.raw_store', false);
 const debug = getDebug(enableDebug);
 
@@ -131,7 +129,6 @@ const storeActions = {
 		};
     },
     setLang(value) {
-		if(supportSession) storeSessionLang(value);
         return {
 			type: TYPES.SET_LANG,
 			value,

@@ -8,13 +8,11 @@ const { apiFetch } = wp;
 
 // Internal dependencies
 
-import { getExternalData, getDebug } from './../utils.js';
+import { getExternalData, getDebug, storeSessionLang } from './../utils.js';
 import { ZUTRANSLATE_STORE, supportedKeys } from './raw-store.js';
-// import { addWatched } from './sync-blocks.js'; // , removeWatched
-// import { notifySync } from './edited-entity.js'; // beforeLanguageSwitch, afterLanguageSwitch,
 
+const supportSession = getExternalData('session', false);
 const enableDebug = getExternalData('debug.sync_blocks', false);
-// const activateSync = getExternalData('sync', false);
 const debug = getDebug(enableDebug);
 
 // Custom hooks & helpers for 'store' -----------------------------------------]
@@ -26,10 +24,6 @@ export function getLang() {
 export function getRaw(key) {
 	return select(ZUTRANSLATE_STORE).getRaw(key);
 }
-
-// export function getHooks() {
-// 	return select(ZUTRANSLATE_STORE).getHooks();
-// }
 
 export function setRaw(attribute, value) {
 	const { setRaw: setRawValue } = dispatch(ZUTRANSLATE_STORE);
@@ -46,31 +40,18 @@ export function addHook(id, hook) {
 	if(!has(hooks, id)) {
 		dispatch(ZUTRANSLATE_STORE).setHook(id, hook);
 	}
-	// setHook(id, hook);
 }
 
 export function removeHook(id) {
 	dispatch(ZUTRANSLATE_STORE).removeHook(id);
 }
 
-// export function addWatched(id, isOriginator = false) {
-// 	const { addWatched } = dispatch(ZUTRANSLATE_STORE);
-// 	addWatched(id);
-// 	debug.infoWithId(id, `-!{Component Watched}${isOriginator ? ' [originator]' : ''}`);
-// }
-//
-// export function removeWatched(id) {
-// 	const { removeWatched } = dispatch(ZUTRANSLATE_STORE);
-// 	removeWatched(id);
-// 	debug.infoWithId(id, '-*{Component unWatched}');
-// }
-
 // custom hook which get dispatch method for 'lang' change
 export function changeLang(value) {
     const { setLang } = dispatch(ZUTRANSLATE_STORE);
 	const currentLang = getLang();
     if(value !== currentLang) {
-		// beforeLanguageSwitch(currentLang);
+		if(supportSession) storeSessionLang(value);
 		setLang(value);
 	}
 }
