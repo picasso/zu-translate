@@ -10,11 +10,18 @@ import { ZUTRANSLATE_STORE } from './raw-store.js';
 
 const enableDebug = getExternalData('debug.sync_blocks', false);
 const activateSync = getExternalData('sync', false);
+const cleanUnsaved = getExternalData('unsaved', false);
+
 const debug = getDebug(enableDebug);
 
 export const rootClientId = 'rawRoot';
 
 // Helpers for 'store' --------------------------------------------------------]
+
+// we need to know when all changes are committed in 'Entity'
+// to do this, we add a block ID to the 'watched' list before the changes
+// and then remove this ID when the changes were made
+// when the 'watched' list becomes empty - all changes were are committed
 
 export function getWatched() {
 	return select(ZUTRANSLATE_STORE).getWatched();
@@ -42,7 +49,7 @@ function getHooks() {
 
 // Sync blocks ----------------------------------------------------------------]
 
-// store some 'Entity' states to synchronize blocks and reset 'Dirty' status
+// store some 'Entity' states to synchronize blocks and reset 'dirty' editing state
 export const entityState = {
 	isPostDirty: false,
 	isTracking: false,
@@ -75,11 +82,13 @@ export function syncCompleted(id) {
 
 function notifySync(when, isEnabled) {
 	debugSync(when, isEnabled);
-	if(when === 'before' && !entityState.isPostDirty) {
-		entityState.shouldResetEdits = true;
-	}
-	if(when === 'after' && entityState.shouldResetEdits) {
-		entityState.isTracking = true;
+	if(cleanUnsaved) {
+		if(when === 'before' && !entityState.isPostDirty) {
+			entityState.shouldResetEdits = true;
+		}
+		if(when === 'after' && entityState.shouldResetEdits) {
+			entityState.isTracking = true;
+		}
 	}
 }
 
@@ -91,7 +100,7 @@ function debugSync(when, isEnabled) {
 	const status = isPostDirty ? 'dirty' : 'clean';
 	const option = isEnabled ? 'enabled' : 'disabled';
 	const action = `${isBefore ? '?' : '#'}{${isBefore ? 'initiated' : 'completed'}}`;
-	const reset = shouldResetEdits ? 'should! {reset} edits' : 'continue {without} reset';
+	const reset = cleanUnsaved ? ('reset is ' + (shouldResetEdits ? '{enabled}' : '{disabled}')) : 'clean "unsaved" is {disabled}';
 	const after = isBefore ? `Hooks count [${keys(getHooks()).length}]` : reset;
 	const info = `-${action} Sync Blocks [${option}] - Post is {${status}}, ${after}`;
 	debug.info(info);

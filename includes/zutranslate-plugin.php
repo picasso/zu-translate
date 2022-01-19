@@ -46,6 +46,7 @@ class zu_Translate extends zukit_Plugin  {
 					'custom'			=> [],			// see 'traits/gutenberg.php'
 					'excluded'			=> [], 			// see 'traits/gutenberg.php'
 					'sync'				=> true,
+					'unsaved'			=> true,
 					'session'			=> true,
 				],
 				'switcher'			=> [

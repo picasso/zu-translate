@@ -203,6 +203,7 @@ trait zu_TranslateGutenberg {
 			'lang'		=> $this->get_url_param('language'),
 			'sync'		=> $this->is_option('blockeditor.sync'),
 			'session'	=> $this->is_option('blockeditor.session'),
+			'unsaved'	=> $this->is_option('blockeditor.unsaved'),
 			'debug'		=> $this->get_option('_debug'),
 			'flags'		=> $this->is_option('flags'),
 		];

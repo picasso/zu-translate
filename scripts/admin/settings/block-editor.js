@@ -104,7 +104,7 @@ const ZutranslateBlockEditor = ({
 
 	return (
 			<ZukitPanel id="gutenberg" options={ options } initialOpen={ true }>
-				{ toggleOption(pick(data, ['sync', 'session']), beOptions, updateBEOptions) }
+				{ toggleOption(pick(data, ['sync', 'session', 'unsaved']), beOptions, updateBEOptions) }
 				<h3 className="__subtitle">{ data.blockTitle }</h3>
 				<div className="__supported">
 					{ map(standardBlocks, ({ title, atts }, key) =>
