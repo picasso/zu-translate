@@ -13,13 +13,14 @@ const { useForceUpdater } = wp.zukit.data;
 
 // Internal dependencies
 
-import { isSupported, getExternalData, getTranslated, getEditorBlocks } from './../utils.js';
+import { isSupported, getExternalData, getDebug, getTranslated, getEditorBlocks } from './../utils.js';
 import { hasRaw, switchContent, createRawContent, maybeFixRawContent, updateRawContent } from './../raw-utils.js';
 import { changeLang, useOnLangChange, useLangHook, syncBlocks } from './../data/use-store.js';
 import LangControl from './../components/lang-control.js';
 
 const activateSync = getExternalData('sync', false);
 const enableDebug = getExternalData('debug.edit_lang', false);
+const debug = getDebug(enableDebug);
 
 const BlockEditLang = (props) => {
 	const {
@@ -51,6 +52,12 @@ const BlockEditLang = (props) => {
 		}
 	}, [translatedAtts, setAttributes]);
 
+	const forceUpdate = useForceUpdater();
+	// in the hook is checked if the language has changed, then we call 'replaceContent'
+	const editorLang = useOnLangChange(clientId, replaceContent);
+	// register 'forceUpdate' for subsequent language synchronization
+	useLangHook(clientId, forceUpdate);
+
 	const onChangeLang = useCallback(lang => {
 		const { id, lang: prevLang } = rawRef.current;
 		if(activateSync) {
@@ -60,14 +67,8 @@ const BlockEditLang = (props) => {
 		} else {
 			replaceContent(lang, prevLang);
 		}
-		if(enableDebug) Zubug.info(`{${id}} Language switched to [${prevLang} -> ${lang}]`);
+		debug.info(`{${id}} Language switched to [${prevLang} -> ${lang}]`);
 	}, [forceUpdate, replaceContent]);
-
-	const forceUpdate = useForceUpdater();
-	// in the hook is checked if the language has changed, then we call 'replaceContent'
-	const editorLang = useOnLangChange(clientId, replaceContent);
-	// register 'forceUpdate' for subsequent language synchronization
-	useLangHook(clientId, forceUpdate);
 
 	// synchronize, create RAW if does not exist and maybe fix it - on mounting only
 	useEffect(() => {
@@ -80,7 +81,7 @@ const BlockEditLang = (props) => {
 			rawRef.current.raw = raw;
 			rawRef.current.lang = editorLang;
 			setAttributes({ qtxLang: editorLang, qtxRaw: raw, ...update });
-			if(enableDebug) Zubug.data({
+			debug.data({
 				lang: qtxLang,
 				raw,
 				update,
@@ -91,7 +92,7 @@ const BlockEditLang = (props) => {
 			// fix if RAW was created for wrong amount of attributes
 			const { raw, id } = rawRef.current;
 			const fixedRaw = maybeFixRawContent(raw, editorLang, translatedValues);
-			if(enableDebug) Zubug.data({
+			debug.data({
 				raw,
 				fixedRaw: fixedRaw !== false ? fixedRaw : null,
 				translatedValues,
@@ -110,7 +111,7 @@ const BlockEditLang = (props) => {
 			if(updatedRaw !== rawRef.current.raw) {
 				rawRef.current.raw = updatedRaw;
 				setAttributes({ qtxRaw: updatedRaw });
-				if(enableDebug) Zubug.data({ updatedRaw, translatedValues }, `Raw updated: {${rawRef.current.id}}`);
+				debug.data({ updatedRaw, translatedValues }, `Raw updated: {${rawRef.current.id}}`);
 			}
 		}
 	// we used a spread element in the dependency array -> we can't statically verify the correct dependencies
@@ -144,10 +145,8 @@ const withRawEditControl = createHigherOrderComponent(BlockEdit => {
 		// for example, blocks for visual preview of the editable block
 		const isEditableBlock = includes(editorIds, clientId);
 
-		if(enableDebug) {
-			if(!isEditableBlock) Zubug.info(`Block [${name}] with id {${clientId}} was skipped`, { editableBlocks: editorIds });
-			else Zubug.info(`Block [${name}] isEditable and {${isSupported(name) ? 'isSupported' : 'is NOT Supported'}}`);
-		}
+		if(!isEditableBlock) debug.info(`Block [${name}] with id {${clientId}} was skipped`, { editableBlocks: editorIds });
+		else debug.info(`Block [${name}] isEditable and {${isSupported(name) ? 'isSupported' : 'is NOT Supported'}}`);
 
 		return (
 			<>
