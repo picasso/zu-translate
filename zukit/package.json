@@ -1,7 +1,7 @@
 {
     "name": "zukit",
-    "version": "1.4.7",
-    "testedWP": "5.8.2",
+    "version": "1.4.9",
+    "testedWP": "5.8.3",
     "requiresPHP": ">=7.2.0",
     "repository": {
         "type": "git",
@@ -19,15 +19,14 @@
     "license": "MIT",
     "scripts": {},
     "devDependencies": {
-        "@wordpress/eslint-plugin": "^7.2.1",
-        "eslint": "^7.24.0",
-        "eslint-plugin-react": "^7.23.2",
-        "eslint-plugin-react-hooks": "^4.1.2",
-        "replace-in-file": "^6.1.0",
-        "typescript": "^4.0.3"
+        "@wordpress/eslint-plugin": "^9.3.0",
+        "eslint": "^8.2.0",
+        "eslint-plugin-react": "^7.26.1",
+        "eslint-plugin-react-hooks": "^4.2.0",
+        "replace-in-file": "^6.3.2",
+        "typescript": "^4.5.2"
     },
     "dependencies": {
         "classnames": "^2.2.6"
-    },
-    "optionalDependencies": {}
+    }
 }

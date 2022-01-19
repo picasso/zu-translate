@@ -13,6 +13,8 @@ if(!class_exists('Zukit')) {
 			'min_wp'	=> '5.3.0',
 		);
 
+		private static $files = array();
+
 		// The constructor should always be private to prevent direct
 	    // construction calls with the `new` operator.
 		private function __construct() {}
@@ -83,6 +85,7 @@ if(!class_exists('Zukit')) {
 
 			$meta = get_file_data($file, $default_headers, $is_theme ? 'theme' : 'plugin');
 			$meta['Kind'] = $is_theme ? 'Theme' : 'Plugin';
+			$meta['File'] = $cache_id;
 			$meta['URI'] = $is_theme ? $meta['ThemeURI'] : $meta['PluginURI'];
 			$meta['GitHubURI'] = $meta['GitHubURI'] ? $meta['GitHubURI'] : ($is_theme ? $meta['GitHubThemeURI'] : $meta['GitHubPluginURI']);
 			set_transient($cache_id, $meta, self::$cache_time);
@@ -145,6 +148,21 @@ if(!class_exists('Zukit')) {
 				return false;
 			}
 			return true;
+		}
+
+		public static function keep_file($file) {
+			self::$files[self::keypath($file)] = $file;
+		}
+
+		public static function get_file($key = null) {
+			return is_null($key) ? self::$files : self::$files[$key] ?? self::$files[self::keypath($key)] ?? null;
+		}
+
+		public static function keypath($file, $replace = '', $without = ['themes', 'plugins']) {
+			$dirname = pathinfo($file)['extension'] ? dirname($file) : $file;
+			$file_id = str_replace(WP_CONTENT_DIR, $replace, $dirname);
+			if(!empty($without)) $file_id = str_replace($without, '', $file_id);
+			return trim($file_id, '/');
 		}
 	}
 }

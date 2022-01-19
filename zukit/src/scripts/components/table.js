@@ -9,8 +9,9 @@ const { BlockIcon } = wp.blockEditor;
 // Internal dependencies
 
 import { mergeClasses, simpleMarkdown, getExternalData, hexToRGBA } from './../utils.js';
+import ConditionalWrap from './conditional-wrap.js';
 
-const getRowStyles = (index, colors) => {
+const getRowStyles = (index, colors, template = null) => {
 
 	const borderOpacity = 0.3;
 	const headBorderOpacity = 0.6;
@@ -18,11 +19,18 @@ const getRowStyles = (index, colors) => {
 	const isEven = index % 2 == 0;
 	const { backdrop, header, title } = colors;
 
+	const grid = !template ? {} : {
+		gridTemplateColumns: template,
+	}
+
+	if(index === 'body' && template) return grid;
+
 	return index === 'table' ? {
 		borderBottomColor: hexToRGBA(title, borderOpacity),
 	} : (index === 'head' ? {
 		backgroundColor: header,
 		borderColor: hexToRGBA(title, headBorderOpacity),
+		...grid,
 	} : {
 		color: title,
 		backgroundColor: isEven ? backdrop : hexToRGBA(header, oddOpacity),
@@ -36,6 +44,7 @@ const makeRef = (row, id) => `${row}:${id}`;
 
 const ZukitTable = ({
 		className,
+		css = 'grid',		// supports 'flex' and 'grid', 'flex' is obsolete implementation
 		fixed,
 		config,
 		head,
@@ -44,6 +53,10 @@ const ZukitTable = ({
 		onDynamic = noop,
 		dynamic: dynamicCells,
 }) => {
+
+	const isCssGrid = css === 'grid';
+	const gridTemplate = isCssGrid ? (config?.template ?? null) : null;
+	const colors = getExternalData('info.colors', {});
 
 	// check if there are dynamic cells and call the parent handler if any
 	useEffect(() => {
@@ -63,8 +76,6 @@ const ZukitTable = ({
 		style: cellStyle = [],
 		className: cellClass = [],
 	} = config || {};
-
-	const colors = getExternalData('info.colors', {});
 
 	const processDynamic = (row, kind, dynamicParams, content = null) => {
 		// process dynamic cells, if value is 'undefined' then request it from the parent
@@ -106,12 +117,15 @@ const ZukitTable = ({
 		}
 	};
 
-	const withStyle = (index, style) => {
+	const withStyle = (index, style, rowIndex = false) => {
 		const commonStyle = get(cellStyle, index);
-		if(isNil(style) && !commonStyle) return null;
+		const rowStyle = rowIndex === false ? null : getRowStyles(rowIndex, colors);
+
+		if(isNil(style) && !rowStyle && !commonStyle) return null;
 		return {
-			...(commonStyle || {}),
-			...(style || {}),
+			...(commonStyle ?? {}),
+			...(rowStyle ?? {}),
+			...(style ?? {}),
 		};
 	}
 
@@ -138,12 +152,14 @@ const ZukitTable = ({
 		<div
 			className={ mergeClasses('zukit-table', className, {
 				'has-fixed-layout': fixed,
+				'css-grid': css === 'grid',
+				'css-flex': css === 'flex',
 				'is-loading': loading,
 			}) }
 			style={ getRowStyles('table', colors) }
 		>
 			{ hasHead &&
-				<div className="head" style={ getRowStyles('head', colors) }>
+				<div className="head" style={ getRowStyles('head', colors, gridTemplate) }>
 					{ map(head, ({ content, align, style }, cellIndex) =>
 						<div
 							className={ mergeClasses('cell', 'head', withClass(null, cellIndex, align)) }
@@ -156,20 +172,26 @@ const ZukitTable = ({
 					) }
 				</div>
 			}
-			<div className="body" style={ loading ? getRowStyles(0, colors) : null }>
+			<div className="body" style={ getRowStyles(loading ? 0 : 'body', colors, loading ? 0 : gridTemplate) }>
 				{ hasRows && map(body, (cells, rowIndex) =>
-					<div className="row" key={ rowIndex } style={ getRowStyles(rowIndex, colors) }>
+					<ConditionalWrap
+						wrap="<div>"
+						condition={ !isCssGrid }
+						className="row"
+						key={ rowIndex }
+						style={ getRowStyles(rowIndex, colors) }
+					>
 						{ map(cells, ({ content, align, style, params }, cellIndex) =>
 							<div
 								className={ mergeClasses('cell', withClass(rowIndex, cellIndex, align, params)) }
 								key={ cellIndex }
 								aria-label=""
-								style={ withStyle(cellIndex, style) }
+								style={ withStyle(cellIndex, style, isCssGrid ? rowIndex : false) }
 							>
 								{ withContent(rowIndex, content, params) }
 							</div>
 						) }
-					</div>
+					</ConditionalWrap>
 				) }
 				{ loading && <Spinner/> }
 			</div>

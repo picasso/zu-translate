@@ -311,10 +311,22 @@ function node2comp(node, index) {
 export const emptyGif = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
 const { colors: zukitRawColors = {}} = externalData('zukit_jsdata');
+const defaultGetColor = '#cc1818';
+const zukitInstanceColors = {};
 
 // Returns one of predefined in SASS files colors
-export function getColor(key, defaultColor = '#cc1818') {
+export function getColor(key, defaultColor = defaultGetColor) {
 	return _.get(zukitRawColors, key, defaultColor);
+}
+
+// Creates custom color getter which returns either framework colors or plugin/theme colors
+export function getColorGetter(dataKey) {
+	const { colors: instanceColors } = externalData(dataKey);
+	if(_.isEmpty(instanceColors)) return getColor;
+	zukitInstanceColors[dataKey] = _.merge({}, zukitRawColors, instanceColors);
+	return (key, defaultColor = defaultGetColor) => {
+		return key === 'all' ? zukitInstanceColors[dataKey] : _.get(zukitInstanceColors, [dataKey, key], defaultColor);
+	};
 }
 
 export function getColorOptions(colors, initialValue = [], mergeWithZukit = false) {
@@ -420,6 +432,7 @@ export const blocksSet = {
 	getKey,
 	getIds,
 	getColor,
+	getColorGetter,
 	getColorOptions,
 	toJSON,
 	uniqueValue,

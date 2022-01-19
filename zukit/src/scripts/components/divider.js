@@ -20,7 +20,10 @@ const ZukitDivider = ({
 
 	const sizeUnit = includes(unit, ['px', 'em', 'rem', '%']) ? unit : defaultUnit;
 	const sizeValue = toRange(size, 0, 100);
-	const style = sizeValue > 0 ? { marginBottom: `${bottomHalf ? sizeValue/2 : sizeValue}${sizeUnit}`, paddingTop: `${sizeValue}${sizeUnit}` } : null;
+	const style = sizeValue === 0 ? null : {
+		marginBottom: `${bottomHalf ? sizeValue/2 : sizeValue}${sizeUnit}`,
+		paddingTop: `${sizeValue}${sizeUnit}`
+	};
 
 	return (
 		<div
