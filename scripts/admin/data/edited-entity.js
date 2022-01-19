@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { isEmpty, keys, pick, cloneDeep } = lodash; // isArray, includes, pull, some,
+const { isEmpty, keys, pick } = lodash;
 const { subscribe, select, dispatch } = wp.data;
 
 // Internal dependencies
@@ -28,19 +28,13 @@ export function getEntityAttributes(onlyAtts = null) {
 
 export function updateEntityAttributes(edits) {
 	if(!isEmpty(edits)) {
-		debug.info('-Update {Entity Attributes}', edits);
+		debug.info('-+{updated} Entity Attributes', edits);
 		// collectEdits(edits);
 		const postType = getCurrentPostType();
 		const postId = getCurrentPostId();
 		editEntityRecord('postType', postType, postId, edits);
 		syncCompleted();
 	}
-}
-
-function getNonTransientEdits(name = null, recordId = null) {
-	const postType = name ?? getCurrentPostType();
-	const postId = recordId ?? getCurrentPostId();
-	return getEntityRecordNonTransientEdits('postType', postType, postId);
 }
 
 // let keepAttributes = []
@@ -67,9 +61,7 @@ subscribe(() => {
     if(isEditedPostDirty()) {
 		if(!entityState.isPostDirty) {
 			entityState.isPostDirty = true;
-			debugPostStatus(
-				!entityState.shouldResetEdits ? { nonTransientEdits: getNonTransientEdits() } : undefined
-			);
+			debugPostStatus();
 		}
     } else {
 		if(entityState.isPostDirty) {
@@ -117,9 +109,15 @@ function completedTracking() {
 	return watched.length === 0;
 }
 
+function getNonTransientEdits(name = null, recordId = null) {
+	const postType = name ?? getCurrentPostType();
+	const postId = recordId ?? getCurrentPostId();
+	return getEntityRecordNonTransientEdits('postType', postType, postId);
+}
+
 function resetEdits() {
 	const nonTransientEdits = getNonTransientEdits();
-	debugPostStatus('{resetEdits}', keys(nonTransientEdits));
+	debug.info('-?{resetEdits}', keys(nonTransientEdits));
 	if(!isEmpty(nonTransientEdits)) {
 		emulateSavingPost(nonTransientEdits);
 		entityState.shouldResetEdits = false;
@@ -180,12 +178,11 @@ subscribe(() => {
     }
 });
 
-function debugPostStatus(message, more) {
+function debugPostStatus() {
 	if(enableDebug) {
 		const status = entityState.isPostDirty ? 'dirty' : 'clean';
-		const desc = message ? `${message} - ` : '';
-		const info = `-${entityState.isPostDirty ? '!' : '*'}${desc}Post is {${status}}`;
-		if(more) debug.info(info, cloneDeep(more));
-		else debug.info(info);
+		const args = [`-${entityState.isPostDirty ? '!' : '*'} - Post is {${status}}`];
+		!entityState.shouldResetEdits && args.push(keys(getNonTransientEdits()));
+		debug.info.apply(debug, args);
 	}
 }

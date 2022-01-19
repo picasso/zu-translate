@@ -86,10 +86,13 @@ function notifySync(when, isEnabled) {
 // Internal debug helpers -----------------------------------------------------]
 
 function debugSync(when, isEnabled) {
-	const status = entityState.isPostDirty ? 'dirty' : 'clean';
+	const { isPostDirty, shouldResetEdits } = entityState;
+	const isBefore = when === 'before';
+	const status = isPostDirty ? 'dirty' : 'clean';
 	const option = isEnabled ? 'enabled' : 'disabled';
-	const action = `${when === 'before' ? '?' : '#'}{${when === 'before' ? 'initiated' : 'completed'}}`;
-	const hooksCount = `Hooks count [${keys(getHooks()).length}]`;
-	const info = `-${action} Sync Blocks [${option}] - Post is {${status}}, ${hooksCount}`;
+	const action = `${isBefore ? '?' : '#'}{${isBefore ? 'initiated' : 'completed'}}`;
+	const reset = shouldResetEdits ? 'should! {reset} edits' : 'continue {without} reset';
+	const after = isBefore ? `Hooks count [${keys(getHooks()).length}]` : reset;
+	const info = `-${action} Sync Blocks [${option}] - Post is {${status}}, ${after}`;
 	debug.info(info);
 }
