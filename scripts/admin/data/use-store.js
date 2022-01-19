@@ -2,8 +2,8 @@
 
 const { keys, forEach, includes, some, has, set } = lodash;
 const { usePrevious } = wp.compose;
-const { useEffect  } = wp.element; // useCallback, useRef
-const { select, dispatch } = wp.data; // subscribe,
+const { useEffect  } = wp.element;
+const { select, dispatch } = wp.data;
 const { apiFetch } = wp;
 
 // Internal dependencies
@@ -45,14 +45,16 @@ export function addHook(id, hook) {
 	setHook(id, hook);
 }
 
-export function addWatched(id) {
+export function addWatched(id, isOriginator = false) {
 	const { addWatched } = dispatch(ZUTRANSLATE_STORE);
 	addWatched(id);
+	debug.infoWithId(id, `-!{Component Watched}${isOriginator ? '- [originator]' : ''}`);
 }
 
 export function removeWatched(id) {
 	const { removeWatched } = dispatch(ZUTRANSLATE_STORE);
 	removeWatched(id);
+	debug.infoWithId(id, '-*{Component unWatched}');
 }
 
 // custom hook which get dispatch method for 'lang' change
@@ -72,7 +74,6 @@ export function useOnLangChange(clientId, callback) {
 	useEffect(() => {
 		if(prev !== undefined && prev !== editorLang) {
 			callback(editorLang);
-			debug.infoWithId(clientId, '-*{Component unWatched}');
 			removeWatched(clientId);
 		}
 	}, [prev, editorLang, clientId, callback]);
@@ -92,16 +93,17 @@ export function useLangHook(clientId, updater) {
 // call all registered hooks besides associated with 'clientId'
 // this will lead to switching language for blocks associated with these hooks
 export function syncBlocks(clientId) {
-	debug.infoWithId(clientId, '-!{Component Watched} - master');
-	addWatched(clientId);
+	addWatched(clientId, true);
 	if(activateSync) {
 		const hooks = getHooks();
 		debug.infoWithId(clientId, '-Sync initiated', { hookCount: Object.keys(hooks).length, hooks });
 		forEach(hooks, (hook, id) => {
 			if(id !== clientId) {
-				hook();
-				debug.infoWithId(id, '-!calling hook + {Component Watched}');
+				// always add watched ID before calling the hook, because inside the hook may be logic
+				// to remove this ID from the 'watched' list
+				// for example, in the language switch logic for 'non-block' attributes
 				addWatched(id);
+				hook();
 			}
 		});
 	}
@@ -111,59 +113,21 @@ export function syncBlocks(clientId) {
 // Hook on the post saving ----------------------------------------------------]
 
 const { isSavingPost } = select('core/editor');
-let skipSavingPost = false;
 
 apiFetch.use((options, next) => {
 	if(isSavingPost() && includes(['PUT', 'POST'], options.method)) {
-		if(skipSavingPost) {
-			// if(enableDebug)
-			debug.info('*apiFetch - emulate saving post');
-			// skipSavingPost = false;
-			// const data = getCurrentPost();
-			// const edited = getEditedPost();
-			//
-			// // const result = next(options);
-			// debug.data({ data, edited, isEqual: isEqual(edited, data) });
-			// return Promise.resolve(
-			// 		// we don't have headers because we "emulate" this request
-			// 		// new window.Response(
-			// 		// 	JSON.stringify(edited),
-			// 		// 	{
-			// 		// 		status: 200,
-			// 		// 		statusText: 'OK',
-			// 		// 		headers: {},
-			// 		// 	}
-			// 		// )
-			// 		edited
-			// 	);
-		} else {
-			const { data } = options;
-			const newOptions = { ...options, data: { ...data, editor_lang: getLang() } };
-			if(some(keys(data), val => includes(supportedKeys, val))) {
-				forEach(supportedKeys, attr => {
-					if(has(data, attr)) {
-						const rawValue = getRaw(attr);
-						set(newOptions, ['data', attr], rawValue);
-					}
-				});
-			}
-			debug.data({ newOptions });
-			return next(newOptions);
+		const { data } = options;
+		const newOptions = { ...options, data: { ...data, editor_lang: getLang() } };
+		if(some(keys(data), val => includes(supportedKeys, val))) {
+			forEach(supportedKeys, attr => {
+				if(has(data, attr)) {
+					const rawValue = getRaw(attr);
+					set(newOptions, ['data', attr], rawValue);
+				}
+			});
 		}
+		debug.data({ newOptions });
+		return next(newOptions);
 	}
 	return next(options);
 });
-
-// helper function that sends a success response
-// function sendSuccessResponse(responseData) {
-// 	return Promise.resolve(
-// 		new window.Response(
-// 			JSON.stringify(responseData.body),
-// 			{
-// 				status: 200,
-// 				statusText: 'OK',
-// 				headers: responseData.headers ?? {},
-// 			}
-// 		)
-// 	);
-// }

@@ -1,13 +1,12 @@
 // WordPress dependencies
 
-const { isEmpty, isArray, keys, pick, includes, pull, some, cloneDeep } = lodash;
-// const { useEffect  } = wp.element; // useCallback, useRef
+const { isEmpty, keys, pick, cloneDeep } = lodash; // isArray, includes, pull, some, 
 const { subscribe, select, dispatch } = wp.data;
 
 // Internal dependencies
 
 import { getExternalData, getDebug } from './../utils.js';
-import { ZUTRANSLATE_STORE, subscribe as subscribeRawStore, supportedKeys } from './raw-store.js';
+import { ZUTRANSLATE_STORE, subscribe as subscribeCustomStore, supportedKeys } from './raw-store.js';
 
 
 const { getEntityRecordNonTransientEdits, getEditedEntityRecord } = select('core');
@@ -18,16 +17,9 @@ const { isSavingPost } = select('core/editor');
 const enableDebug = getExternalData('debug.edited_entity', false);
 const debug = getDebug(enableDebug);
 
-// hasChangedContent,
-// hasNonPostEntityChanges,
-// isEditedPostEmpty
-// isEditedPostDirty
-// isAutosavingPost
-// isCleanNewPost
-// isEditedPostAutosaveable
-// Actions
-
 export const rootClientId = 'rawRoot';
+
+// Attributes of the object Entity --------------------------------------------]
 
 export function getEntityAttributes(onlyAtts = null) {
 	const postType = getCurrentPostType();
@@ -39,10 +31,12 @@ export function getEntityAttributes(onlyAtts = null) {
 export function updateEntityAttributes(edits) {
 	if(!isEmpty(edits)) {
 		debug.info('-Update {Entity Attributes}', edits);
-		collectEdits(edits);
+		// collectEdits(edits);
 		const postType = getCurrentPostType();
 		const postId = getCurrentPostId();
 		editEntityRecord('postType', postType, postId, edits);
+		debug.infoWithId(rootClientId, '-*{Component unWatched}');
+		removeWatched(rootClientId);
 	}
 }
 
@@ -52,23 +46,23 @@ function getNonTransientEdits(name = null, recordId = null) {
 	return getEntityRecordNonTransientEdits('postType', postType, postId);
 }
 
-let keepAttributes = []
-function collectEdits(edits, canCollect = false) {
-	const editKeys = isArray(edits) ? edits : keys(edits);
-	if(!isArray(shouldResetEdits) && canCollect) shouldResetEdits = [];
-
-	if(isArray(shouldResetEdits)) {
-		if(includes(shouldResetEdits, 'atts')) pull(shouldResetEdits, 'atts');
-		if(includes(edits, 'atts') && some(keepAttributes, key => includes(supportedKeys, key)))  pull(edits, 'atts');
-		shouldResetEdits.push(...editKeys, ...keepAttributes);
-		keepAttributes = [];
-		// } else {
-		// 	shouldResetEdits.push(...editKeys);
-		// }
-	} else {
-		keepAttributes = editKeys;
-	}
-}
+// let keepAttributes = []
+// function collectEdits(edits, canCollect = false) {
+// 	const editKeys = isArray(edits) ? edits : keys(edits);
+// 	if(!isArray(shouldResetEdits) && canCollect) shouldResetEdits = [];
+//
+// 	if(isArray(shouldResetEdits)) {
+// 		if(includes(shouldResetEdits, 'atts')) pull(shouldResetEdits, 'atts');
+// 		if(includes(edits, 'atts') && some(keepAttributes, key => includes(supportedKeys, key)))  pull(edits, 'atts');
+// 		shouldResetEdits.push(...editKeys, ...keepAttributes);
+// 		keepAttributes = [];
+// 		// } else {
+// 		// 	shouldResetEdits.push(...editKeys);
+// 		// }
+// 	} else {
+// 		keepAttributes = editKeys;
+// 	}
+// }
 
 
 // helper function that sends a success response
@@ -84,6 +78,16 @@ function collectEdits(edits, canCollect = false) {
 // 		)
 // 	);
 // }
+
+// Helpers for 'store' --------------------------------------------------------]
+
+function getWatched() {
+	return select(ZUTRANSLATE_STORE).getWatched();
+}
+
+function removeWatched(id) {
+	dispatch(ZUTRANSLATE_STORE).removeWatched(id);
+}
 
 // Maintaining 'non-modified' content -----------------------------------------]
 
@@ -104,7 +108,7 @@ subscribe(() => {
 });
 
 let isTracking = false;
-subscribeRawStore(() => {
+subscribeCustomStore(() => {
 	if(isTracking && completedTracking()) {
 		isTracking = false;
 		debug.info('-*RAW store tracking is {completed}', { shouldResetEdits });
@@ -119,32 +123,32 @@ export function beforeLanguageSwitch() {
 	shouldResetEdits = true;
 }
 
-export function afterLanguageSwitch(clientId, activateSync) {
+export function afterLanguageSwitch() { // clientId, activateSync
 	if(!shouldResetEdits) return;
 	isTracking = true;
 
-	const edits = [];
-	if(clientId === rootClientId) {
-		edits.push('atts');
-		if(activateSync) edits.push('content');
-	} else {
-		edits.push('content');
-		if(activateSync) edits.push('atts');
-	}
-	collectEdits(edits, true);
-	debugLanguageSwitch('after', { clientId, activateSync, shouldResetEdits });
+	// const edits = [];
+	// if(clientId === rootClientId) {
+	// 	edits.push('atts');
+	// 	if(activateSync) edits.push('content');
+	// } else {
+	// 	edits.push('content');
+	// 	if(activateSync) edits.push('atts');
+	// }
+	// collectEdits(edits, true);
+	// debugLanguageSwitch('after', { clientId, activateSync, shouldResetEdits });
 }
 
 function completedTracking() {
-	const watched = select(ZUTRANSLATE_STORE).getWatched();
-	Zubug.info(`-!watched=${watched.length}`);
-	if(watched.length > 5) Zubug.data({ watched });
+	const watched = getWatched();
+	// Zubug.info(`-!watched=${watched.length}`);
+	// if(watched.length > 5) Zubug.data({ watched });
 	return watched.length === 0;
 }
 
 function resetEdits() {
 	const nonTransientEdits = getNonTransientEdits();
-	debugPostStatus('{resetEdits}', { nonTransientEdits: keys(nonTransientEdits) });
+	debugPostStatus('{resetEdits}', keys(nonTransientEdits));
 	if(!isEmpty(nonTransientEdits)) {
 		// pull(shouldResetEdits, ...keys(nonTransientEdits));
 		// if(isEmpty(shouldResetEdits)) {
@@ -155,25 +159,25 @@ function resetEdits() {
 }
 
 // let isWaitingForClean = false;
-subscribe(() => {
-	const enable = false;
-    if(enable && isArray(shouldResetEdits) && isPostDirty) {
-		// isWaitingForClean = true;
-		const nonTransientEdits = getNonTransientEdits();
-		debugPostStatus('{shouldResetEdits}', { shouldResetEdits, nonTransientEdits });
-		if(!isEmpty(nonTransientEdits)) {
-			pull(shouldResetEdits, ...keys(nonTransientEdits));
-			if(isEmpty(shouldResetEdits)) {
-				emulateSavingPost();
-			}
-		}
-    }
-	if(isArray(shouldResetEdits) && isEmpty(shouldResetEdits) && !isPostDirty) {
-		debugPostStatus('{shouldResetEdits isEmpty}');
-		shouldResetEdits = false;
-		// isWaitingForClean = false;
-	}
-});
+// subscribe(() => {
+// 	const enable = false;
+//     if(enable && isArray(shouldResetEdits) && isPostDirty) {
+// 		// isWaitingForClean = true;
+// 		const nonTransientEdits = getNonTransientEdits();
+// 		debugPostStatus('{shouldResetEdits}', { shouldResetEdits, nonTransientEdits });
+// 		if(!isEmpty(nonTransientEdits)) {
+// 			pull(shouldResetEdits, ...keys(nonTransientEdits));
+// 			if(isEmpty(shouldResetEdits)) {
+// 				emulateSavingPost();
+// 			}
+// 		}
+//     }
+// 	if(isArray(shouldResetEdits) && isEmpty(shouldResetEdits) && !isPostDirty) {
+// 		debugPostStatus('{shouldResetEdits isEmpty}');
+// 		shouldResetEdits = false;
+// 		// isWaitingForClean = false;
+// 	}
+// });
 
 export function emulateSavingPost(postEdits) {
 	const postType = getCurrentPostType();
@@ -227,17 +231,3 @@ function debugLanguageSwitch(when, more) {
 		else debug.info(info);
 	}
 }
-
-
-// function debugPostEdits(message, edits) {
-// 	if(enableDebug) {
-// 		const postType = getCurrentPostType();
-// 		const postId = getCurrentPostId();
-// 		const nonTransientEdits = edits ?? getNonTransientEdits();
-// 		Zubug.info(`${message}`, {
-// 			isEditedPostDirty: isEditedPostDirty(),
-// 			nonTransientEdits,
-// 			recordEdits: getEntityRecordEdits('postType', postType, postId),
-// 		});
-//     }
-// }
