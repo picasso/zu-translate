@@ -11,6 +11,7 @@ import { getLangContent } from './../raw-utils.js';
 import { supportedAtts, supportedKeys } from './raw-store.js';
 import { getLang, getRaw, setRaw, updateRaw, addHook } from './use-store.js';
 import { getEntityAttributes, updateEntityAttributes } from './edited-entity.js';
+import { replaceRawElements } from './raw-replace.js';
 
 const supportSession = getExternalData('session', false);
 const sessionLang = supportSession ? getSessionLang() : null;
@@ -53,15 +54,18 @@ export function setRawAttributes(addListeners = true, langSetter = null) {
 		}
 	});
 
-	if(sessionLang && initAttributes && langSetter) {
-		const editorLang = getLang();
-		if(sessionLang !== editorLang) {
-			langSetter(sessionLang);
+	// do only once - when initializing the RAW store
+	// sync language with 'sessionLang' and set element observers that require RAW replacement
+	if(initAttributes) {
+		if(sessionLang && langSetter) {
+			const editorLang = getLang();
+			if(sessionLang !== editorLang) {
+				langSetter(sessionLang);
+			}
 		}
+
+		replaceRawElements();
 	}
-	// if(syncContent) {
-	// 	switchRawAttributes();
-	// }
 }
 
 // update RAW attributes before changing language
