@@ -30,3 +30,82 @@ function sendSuccessResponse(responseData) {
 		)
 	);
 }
+
+
+// const sidebarRoot = '.edit-post-sidebar > .components-panel';
+//
+// function attachInsertedHooks(attr, selector) {
+// 	whenNodeInserted(sidebarRoot, selector, () => {
+// 		debug.info(`-Node Inserted for {"${attr}"}`);
+// 		// synchronize switching for newly created element
+// 		switchRawAttributes(null, attr);
+// 		// add the listener again (maybe the previous one was removed with the element or maybe not)
+// 		// NOTE from Docs: if multiple identical EventListeners are registered on the same EventTarget
+// 		// with the same parameters, the duplicate instances are discarded.
+// 		addInputListener(selector, getListener(attr));
+// 	});
+// }
+
+
+
+// let keepAttributes = []
+// function collectEdits(edits, canCollect = false) {
+// 	const editKeys = isArray(edits) ? edits : keys(edits);
+// 	if(!isArray(entityState.shouldResetEdits) && canCollect) entityState.shouldResetEdits = [];
+//
+// 	if(isArray(entityState.shouldResetEdits)) {
+// 		if(includes(entityState.shouldResetEdits, 'atts')) pull(entityState.shouldResetEdits, 'atts');
+// 		if(includes(edits, 'atts') && some(keepAttributes, key => includes(supportedKeys, key)))  pull(edits, 'atts');
+// 		entityState.shouldResetEdits.push(...editKeys, ...keepAttributes);
+// 		keepAttributes = [];
+// 		// } else {
+// 		// 	entityState.shouldResetEdits.push(...editKeys);
+// 		// }
+// 	} else {
+// 		keepAttributes = editKeys;
+// 	}
+// }
+
+// let isWaitingForClean = false;
+// subscribe(() => {
+// 	const enable = false;
+//     if(enable && isArray(entityState.shouldResetEdits) && isPostDirty) {
+// 		// isWaitingForClean = true;
+// 		const nonTransientEdits = getNonTransientEdits();
+// 		debugPostStatus('{entityState.shouldResetEdits}', { entityState.shouldResetEdits, nonTransientEdits });
+// 		if(!isEmpty(nonTransientEdits)) {
+// 			pull(entityState.shouldResetEdits, ...keys(nonTransientEdits));
+// 			if(isEmpty(entityState.shouldResetEdits)) {
+// 				emulateSavingPost();
+// 			}
+// 		}
+//     }
+// 	if(isArray(entityState.shouldResetEdits) && isEmpty(entityState.shouldResetEdits) && !isPostDirty) {
+// 		debugPostStatus('{entityState.shouldResetEdits isEmpty}');
+// 		entityState.shouldResetEdits = false;
+// 		// isWaitingForClean = false;
+// 	}
+// });
+
+
+// export function beforeLanguageSwitch(lang) {
+// 	debugLanguageSwitch('before', lang);
+// 	if(isPostDirty) return;
+// 	// entityState.shouldResetEdits = true;
+// }
+//
+// export function afterLanguageSwitch(lang) { // clientId, activateSync
+// 	if(!entityState.shouldResetEdits) return;
+// 	// entityState.isTracking = true;
+//
+// 	// const edits = [];
+// 	// if(clientId === rootClientId) {
+// 	// 	edits.push('atts');
+// 	// 	if(activateSync) edits.push('content');
+// 	// } else {
+// 	// 	edits.push('content');
+// 	// 	if(activateSync) edits.push('atts');
+// 	// }
+// 	// collectEdits(edits, true);
+// 	debugLanguageSwitch('after', lang);
+// }
