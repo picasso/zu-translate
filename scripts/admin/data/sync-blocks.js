@@ -52,6 +52,7 @@ function getHooks() {
 // store some 'Entity' states to synchronize blocks and reset 'dirty' editing state
 export const entityState = {
 	isPostDirty: false,
+	isPostPublished: false,
 	isTracking: false,
 	shouldResetEdits: false,
 };

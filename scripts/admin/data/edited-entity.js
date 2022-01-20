@@ -11,7 +11,7 @@ import { entityState, getWatched, syncCompleted } from './sync-blocks.js';
 
 const { getEntityRecordNonTransientEdits, getEditedEntityRecord } = select('core');
 const { editEntityRecord, receiveEntityRecords } = dispatch('core');
-const { isEditedPostDirty, getCurrentPostType, getCurrentPostId } = select('core/editor');
+const { isEditedPostDirty, isCurrentPostPublished, getCurrentPostType, getCurrentPostId } = select('core/editor');
 const { isSavingPost } = select('core/editor');
 
 const enableDebug = getExternalData('debug.edited_entity', false);
@@ -40,6 +40,9 @@ export function updateEntityAttributes(edits) {
 // Maintaining 'non-modified' content -----------------------------------------]
 
 subscribe(() => {
+	if(isCurrentPostPublished() && !entityState.isPostPublished) {
+		entityState.isPostPublished = true;
+	}
     if(isEditedPostDirty()) {
 		if(!entityState.isPostDirty) {
 			entityState.isPostDirty = true;
@@ -123,9 +126,11 @@ subscribe(() => {
 
 function debugPostStatus() {
 	if(enableDebug) {
-		const status = entityState.isPostDirty ? 'dirty' : 'clean';
-		const args = [`-${entityState.isPostDirty ? '!' : '*'}Post editing state is {${status}}`];
-		!entityState.shouldResetEdits && args.push(keys(getNonTransientEdits()));
+		const { isPostPublished, isPostDirty, shouldResetEdits } = entityState;
+		const published = isPostPublished ? 'published' : 'not published';
+		const status = isPostDirty ? 'dirty' : 'clean';
+		const args = [`-${isPostDirty ? '!' : '*'}Post [${published}] and editing state is {${status}}`];
+		!shouldResetEdits && args.push(keys(getNonTransientEdits()));
 		debug.info.apply(debug, args);
 	}
 }
