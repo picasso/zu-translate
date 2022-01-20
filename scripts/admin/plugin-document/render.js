@@ -42,12 +42,14 @@ const LangControlSetting = ({
 	useEffect(() => {
 		// register 'rootUpdater' for subsequent language synchronization
 		registerRootUpdater(rootClientId);
-		// set the initial RAW attributes on mounting the component and add listeners
-		setRawAttributes(true, setLanguage);
-		return () => {
-			// with argument equal to false all listeners will be removed
-			setRawAttributes(false);
-		}
+		// set the initial RAW attributes on mounting the component
+		setRawAttributes(setLanguage);
+
+		// return () => {
+		// 	// with argument equal to false all listeners will be removed
+		// 	setRawAttributes(false);
+		// }
+
 	// 'setLanguage' never changes
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
