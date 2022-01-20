@@ -17,19 +17,18 @@ const enableDebug = getExternalData('debug.edited_entity', false);
 const debug = getDebug(enableDebug);
 
 // local storage for current attribute values
-let entityAttributes = null;
+let editedAttributes = null;
 
 // Attributes of the Entity ---------------------------------------------------]
 
 export function initEditedAttribute(attr, listener) {
 	const rawAttr = `${attr}_raw`;
-	if(!entityAttributes) entityAttributes = {};
+	if(!editedAttributes) editedAttributes = {};
 	const atts = getEntityAttributes([attr, rawAttr]);
-	entityAttributes[attr] = {
-		value: get(atts, attr),
-		listener,
-	};
-	entityAttributes.isReady = every(supportedKeys, attr => has(entityAttributes, attr));
+	setEditedAttributes({ [attr]: get(atts, attr) });
+	set(editedAttributes, [attr, 'listener'], listener);
+	editedAttributes.isReady = every(supportedKeys, attr => has(editedAttributes, attr));
+	if(editedAttributes.isReady) debug.info('-+{ready} Edited Attributes', editedAttributes);
 	return get(atts, rawAttr);
 }
 
@@ -55,39 +54,56 @@ export function updateEntityAttributes(edits) {
 // Local 'edited' Attributes --------------------------------------------------]
 
 // check if the attributes have changed and return only the updated ones
-function getEditedChanges(edits = null) {
-	let updated = null;
-	if(entityAttributes) {
-		if(edits) {
-			updated = reduce(edits, (acc, value, attr) => {
-				if(value !== get(entityAttributes, [attr, 'value'])) acc[attr] = value;
-				return acc;
-			}, {});
-		} else {
-			const atts = getEntityAttributes();
-			updated = reduce(atts, (acc, value, attr) => {
-				if(value !== get(entityAttributes, [attr, 'value'])) acc[attr] = value;
-				return acc;
-			}, {});
-		}
-	}
-	return updated;
-}
+// function getEditedChanges(edits = null) {
+// 	let updated = null;
+// 	if(editedAttributes) {
+// 		if(edits) {
+// 			updated = reduce(edits, (acc, value, attr) => {
+// 				if(value !== get(editedAttributes, [attr, 'value'])) acc[attr] = value;
+// 				return acc;
+// 			}, {});
+// 		} else {
+// 			const atts = getEntityAttributes();
+// 			updated = reduce(atts, (acc, value, attr) => {
+// 				if(value !== get(editedAttributes, [attr, 'value'])) acc[attr] = value;
+// 				return acc;
+// 			}, {});
+// 		}
+// 	}
+// 	return updated;
+// }
 
-function setEditedAttributes(edits) {
-	forEach(edits, (value, attr) => set(entityAttributes, [attr, 'value'], value));
+function setEditedAttributes(edits, prevOnly = false) {
+	forEach(edits, (value, attr) => {
+		if(!prevOnly) set(editedAttributes, [attr, 'value'], value);
+		set(editedAttributes, ['prevEdits', attr], value);
+	});
 }
 
 function updateEditedAttributes(edits) {
 	forEach(edits, (value, attr) => {
-		const { listener } = entityAttributes[attr];
-		set(entityAttributes, [attr, 'value'], value);
+		const { listener } = editedAttributes[attr];
+		set(editedAttributes, [attr, 'value'], value);
 		listener(attr, value);
+		debug.info(`-*updated RAW for is ${attr} - [${value}]`);
 	});
 }
 
+function diffEdits(edits) {
+	const { prevEdits } = editedAttributes;
+	const entityAtts = keys(edits).length !== keys(prevEdits).length ? getEntityAttributes() : {};
+	const changes = reduce(prevEdits, (acc, prev, attr) => {
+		const value = edits[attr] ?? entityAtts[attr];
+		if(value !== prev) acc[attr] = value;
+		return acc;
+	}, {});
+	const hasChanges = keys(changes).length > 0;
+	if(hasChanges) setEditedAttributes(changes, true);
+	return hasChanges ? changes : null;
+}
+
 function hasEditedAttributes() {
-	return entityAttributes && entityAttributes.isReady;
+	return editedAttributes && editedAttributes.isReady;
 }
 
 // Maintaining 'non-modified' content -----------------------------------------]
@@ -141,14 +157,18 @@ function getNonTransientEdits(name = null, recordId = null) {
 function testEdits() {
 	if(hasEditedAttributes()) {
 		const edits = pick(getNonTransientEdits(), supportedKeys);
-		const editKeys = keys(edits);
-		const hasKeys = editKeys.length > 0;
-		if(hasKeys || !hasKeys && entityState.wasDirty) {
-	// if(entityState.isClear) debug.info('!extra check!');
-			const updated = getEditedChanges(hasKeys ? edits : null);
-	// if(!hasKeys && entityState.wasDirty) entityState.isClear = false;
-			return keys(updated).length > 0 ? [true, updated] : [false];
-		}
+		const changes = diffEdits(edits);
+// debug.data({ changes })
+		return changes ? [true, changes] : [false];
+
+	// 	const editKeys = keys(edits);
+	// 	const hasKeys = editKeys.length > 0;
+	// 	if(hasKeys || !hasKeys && entityState.wasDirty) {
+	// // if(entityState.isClear) debug.info('!extra check!');
+	// 		const updated = getEditedChanges(hasKeys ? edits : null);
+	// // if(!hasKeys && entityState.wasDirty) entityState.isClear = false;
+	// 		return keys(updated).length > 0 ? [true, updated] : [false];
+	// 	}
 	}
 	return [false];
 }
