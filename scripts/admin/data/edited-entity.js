@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { isEmpty, keys, pick } = lodash;
+const { isEmpty, keys, pick, get, set, forEach, every, has, reduce } = lodash;
 const { subscribe, select, dispatch } = wp.data;
 
 // Internal dependencies
@@ -9,15 +9,29 @@ import { getExternalData, getDebug } from './../utils.js';
 import { subscribe as subscribeCustomStore, supportedKeys } from './raw-store.js';
 import { entityState, getWatched, syncCompleted } from './sync-blocks.js';
 
+const { isSavingPost, isEditedPostDirty, isCurrentPostPublished, getCurrentPostType, getCurrentPostId } = select('core/editor');
 const { getEntityRecordNonTransientEdits, getEditedEntityRecord } = select('core');
 const { editEntityRecord, receiveEntityRecords } = dispatch('core');
-const { isEditedPostDirty, isCurrentPostPublished, getCurrentPostType, getCurrentPostId } = select('core/editor');
-const { isSavingPost } = select('core/editor');
 
 const enableDebug = getExternalData('debug.edited_entity', false);
 const debug = getDebug(enableDebug);
 
+// local storage for current attribute values
+let entityAttributes = null;
+
 // Attributes of the Entity ---------------------------------------------------]
+
+export function initEditedAttribute(attr, listener) {
+	const rawAttr = `${attr}_raw`;
+	if(!entityAttributes) entityAttributes = {};
+	const atts = getEntityAttributes([attr, rawAttr]);
+	entityAttributes[attr] = {
+		value: get(atts, attr),
+		listener,
+	};
+	entityAttributes.isReady = every(supportedKeys, attr => has(entityAttributes, attr));
+	return get(atts, rawAttr);
+}
 
 export function getEntityAttributes(onlyAtts = null) {
 	const postType = getCurrentPostType();
@@ -29,31 +43,79 @@ export function getEntityAttributes(onlyAtts = null) {
 export function updateEntityAttributes(edits) {
 	if(!isEmpty(edits)) {
 		debug.info('-+{updated} Entity Attributes', edits);
-		// collectEdits(edits);
 		const postType = getCurrentPostType();
 		const postId = getCurrentPostId();
+		// definitely need to be called before 'editEntityRecord'
+		setEditedAttributes(edits);
 		editEntityRecord('postType', postType, postId, edits);
 		syncCompleted();
 	}
 }
 
+// Local 'edited' Attributes --------------------------------------------------]
+
+// check if the attributes have changed and return only the updated ones
+function getEditedChanges(edits = null) {
+	let updated = null;
+	if(entityAttributes) {
+		if(edits) {
+			updated = reduce(edits, (acc, value, attr) => {
+				if(value !== get(entityAttributes, [attr, 'value'])) acc[attr] = value;
+				return acc;
+			}, {});
+		} else {
+			const atts = getEntityAttributes();
+			updated = reduce(atts, (acc, value, attr) => {
+				if(value !== get(entityAttributes, [attr, 'value'])) acc[attr] = value;
+				return acc;
+			}, {});
+		}
+	}
+	return updated;
+}
+
+function setEditedAttributes(edits) {
+	forEach(edits, (value, attr) => set(entityAttributes, [attr, 'value'], value));
+}
+
+function updateEditedAttributes(edits) {
+	forEach(edits, (value, attr) => {
+		const { listener } = entityAttributes[attr];
+		set(entityAttributes, [attr, 'value'], value);
+		listener(attr, value);
+	});
+}
+
+function hasEditedAttributes() {
+	return entityAttributes && entityAttributes.isReady;
+}
+
 // Maintaining 'non-modified' content -----------------------------------------]
 
 subscribe(() => {
+	// track post state (Published & Dirty)
 	if(isCurrentPostPublished() && !entityState.isPostPublished) {
 		entityState.isPostPublished = true;
 	}
     if(isEditedPostDirty()) {
 		if(!entityState.isPostDirty) {
 			entityState.isPostDirty = true;
+			entityState.wasDirty = false;
 			debugPostStatus();
 		}
     } else {
 		if(entityState.isPostDirty) {
 			entityState.isPostDirty = false;
+			entityState.wasDirty = true;
 			debugPostStatus();
 		}
     }
+	// track update of supported attributes (should be always after Published & Dirty)
+	const [hasUpdates, edits] = testEdits();
+	if(hasUpdates) {
+		debug.info('?testEdits ', edits);
+		updateEditedAttributes(edits);
+	}
 });
 
 subscribeCustomStore(() => {
@@ -67,7 +129,6 @@ subscribeCustomStore(() => {
 });
 
 function changesAreCommitted() {
-	// const watched = getWatched();
 	return getWatched().length === 0;
 }
 
@@ -75,6 +136,21 @@ function getNonTransientEdits(name = null, recordId = null) {
 	const postType = name ?? getCurrentPostType();
 	const postId = recordId ?? getCurrentPostId();
 	return getEntityRecordNonTransientEdits('postType', postType, postId);
+}
+
+function testEdits() {
+	if(hasEditedAttributes()) {
+		const edits = pick(getNonTransientEdits(), supportedKeys);
+		const editKeys = keys(edits);
+		const hasKeys = editKeys.length > 0;
+		if(hasKeys || !hasKeys && entityState.wasDirty) {
+	// if(entityState.isClear) debug.info('!extra check!');
+			const updated = getEditedChanges(hasKeys ? edits : null);
+	// if(!hasKeys && entityState.wasDirty) entityState.isClear = false;
+			return keys(updated).length > 0 ? [true, updated] : [false];
+		}
+	}
+	return [false];
 }
 
 function resetEdits() {
@@ -134,68 +210,3 @@ function debugPostStatus() {
 		debug.info.apply(debug, args);
 	}
 }
-
-
-
-
-// let keepAttributes = []
-// function collectEdits(edits, canCollect = false) {
-// 	const editKeys = isArray(edits) ? edits : keys(edits);
-// 	if(!isArray(entityState.shouldResetEdits) && canCollect) entityState.shouldResetEdits = [];
-//
-// 	if(isArray(entityState.shouldResetEdits)) {
-// 		if(includes(entityState.shouldResetEdits, 'atts')) pull(entityState.shouldResetEdits, 'atts');
-// 		if(includes(edits, 'atts') && some(keepAttributes, key => includes(supportedKeys, key)))  pull(edits, 'atts');
-// 		entityState.shouldResetEdits.push(...editKeys, ...keepAttributes);
-// 		keepAttributes = [];
-// 		// } else {
-// 		// 	entityState.shouldResetEdits.push(...editKeys);
-// 		// }
-// 	} else {
-// 		keepAttributes = editKeys;
-// 	}
-// }
-
-// let isWaitingForClean = false;
-// subscribe(() => {
-// 	const enable = false;
-//     if(enable && isArray(entityState.shouldResetEdits) && isPostDirty) {
-// 		// isWaitingForClean = true;
-// 		const nonTransientEdits = getNonTransientEdits();
-// 		debugPostStatus('{entityState.shouldResetEdits}', { entityState.shouldResetEdits, nonTransientEdits });
-// 		if(!isEmpty(nonTransientEdits)) {
-// 			pull(entityState.shouldResetEdits, ...keys(nonTransientEdits));
-// 			if(isEmpty(entityState.shouldResetEdits)) {
-// 				emulateSavingPost();
-// 			}
-// 		}
-//     }
-// 	if(isArray(entityState.shouldResetEdits) && isEmpty(entityState.shouldResetEdits) && !isPostDirty) {
-// 		debugPostStatus('{entityState.shouldResetEdits isEmpty}');
-// 		entityState.shouldResetEdits = false;
-// 		// isWaitingForClean = false;
-// 	}
-// });
-
-
-// export function beforeLanguageSwitch(lang) {
-// 	debugLanguageSwitch('before', lang);
-// 	if(isPostDirty) return;
-// 	// entityState.shouldResetEdits = true;
-// }
-//
-// export function afterLanguageSwitch(lang) { // clientId, activateSync
-// 	if(!entityState.shouldResetEdits) return;
-// 	// entityState.isTracking = true;
-//
-// 	// const edits = [];
-// 	// if(clientId === rootClientId) {
-// 	// 	edits.push('atts');
-// 	// 	if(activateSync) edits.push('content');
-// 	// } else {
-// 	// 	edits.push('content');
-// 	// 	if(activateSync) edits.push('atts');
-// 	// }
-// 	// collectEdits(edits, true);
-// 	debugLanguageSwitch('after', lang);
-// }
