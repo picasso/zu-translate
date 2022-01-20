@@ -49,6 +49,7 @@ const BlockEditLang = (props) => {
 		if(lang !== prevLang) {
 			const atts = switchContent(raw, lang, translatedAtts);
 			rawRef.current.lang = lang;
+			debug.info(`-#{switch} RAW [${translatedAtts}] for lang {${lang}}`, atts);
 			setAttributes({ qtxLang: lang, ...atts });
 		}
 		syncCompleted(id);
@@ -108,9 +109,10 @@ const BlockEditLang = (props) => {
 	// after each change in one of the attributes that require the translation, we update 'qtxRaw'
 	useEffect(() => {
 		if(hasRaw(rawRef)) {
-			const { raw, lang } = rawRef.current;
-			const updatedRaw = updateRawContent(raw, lang, translatedValues);
-			if(updatedRaw !== rawRef.current.raw) {
+			const { raw } = rawRef.current;
+			// here we cannot use lang from 'rawRef' because 'translatedValues' are created based on 'qtxLang'
+			const updatedRaw = updateRawContent(raw, qtxLang, translatedValues);
+			if(updatedRaw !== raw) {
 				rawRef.current.raw = updatedRaw;
 				setAttributes({ qtxRaw: updatedRaw });
 				debug.data({ updatedRaw, translatedValues }, `Raw updated: {${rawRef.current.id}}`);
@@ -118,7 +120,7 @@ const BlockEditLang = (props) => {
 		}
 	// we used a spread element in the dependency array -> we can't statically verify the correct dependencies
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [...translatedValues, setAttributes]);
+	}, [...translatedValues, qtxLang, setAttributes]);
 
 	const controlLang = activateSync ? editorLang : qtxLang ?? editorLang;
 
