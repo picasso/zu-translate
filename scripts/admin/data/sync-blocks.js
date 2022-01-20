@@ -83,11 +83,12 @@ export function syncCompleted(id) {
 
 function notifySync(when, isEnabled) {
 	debugSync(when, isEnabled);
-	if(cleanUnsaved) {
-		if(when === 'before' && !entityState.isPostDirty) {
+	const { isPostDirty, isPostPublished, shouldResetEdits } = entityState;
+	if(cleanUnsaved && isPostPublished) {
+		if(when === 'before' && !isPostDirty) {
 			entityState.shouldResetEdits = true;
 		}
-		if(when === 'after' && entityState.shouldResetEdits) {
+		if(when === 'after' && shouldResetEdits) {
 			entityState.isTracking = true;
 		}
 	}
@@ -95,14 +96,16 @@ function notifySync(when, isEnabled) {
 
 // Internal debug helpers -----------------------------------------------------]
 
-function debugSync(when, isEnabled) {
-	const { isPostDirty, shouldResetEdits } = entityState;
+function debugSync(when, isSyncEnabled) {
+	const { isPostDirty, isPostPublished, shouldResetEdits } = entityState;
+	const published = isPostPublished ? 'published' : 'not published';
 	const isBefore = when === 'before';
 	const status = isPostDirty ? 'dirty' : 'clean';
-	const option = isEnabled ? 'enabled' : 'disabled';
+	const option = isSyncEnabled ? 'enabled' : 'disabled';
 	const action = `${isBefore ? '?' : '#'}{${isBefore ? 'initiated' : 'completed'}}`;
-	const reset = cleanUnsaved ? ('reset is ' + (shouldResetEdits ? '{enabled}' : '{disabled}')) : 'clean "unsaved" is {disabled}';
-	const after = isBefore ? `Hooks count [${keys(getHooks()).length}]` : reset;
-	const info = `-${action} Sync Blocks [${option}] - Post is {${status}}, ${after}`;
+	const resetDisabled = `clean "unsaved" is ${isPostPublished ? 'disabled' : 'not possible'}`;
+	const reset = cleanUnsaved && isPostPublished ? ('reset is ' + (shouldResetEdits ? '{enabled}' : '{disabled}')) : resetDisabled;
+	const after = isBefore ? `, Hooks count [${keys(getHooks()).length}]` : (isPostDirty ? `, ${reset}` : '');
+	const info = `-${action} Sync Blocks [sync ${option}] - Post [${published}] and is {${status}}${after}`;
 	debug.info(info);
 }
