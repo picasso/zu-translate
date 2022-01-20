@@ -68,11 +68,11 @@ Currently, the `'title'` and `'excerpt'` attributes are supported as non-regular
 ## Known Problems and Pitfalls
 
 - [x] ~~implement that after switching the language, the status of the editor left "unchanged" if before switching it was "unchanged". That is, to avoid Gutenberg to detect that data changes occurred if we just switched the language~~
-- [x] ~~PHP:modify_rest_response - is the `editor_lang` attribute needed now?~~
+- [x] __[ PHP ] : modify_rest_response()__ ~~is the `editor_lang` attribute needed now?~~
 - [x] ~~when publishing new material, the message "Are you ready to publish?" appears in which the RAW values of the site name are visible~~
-- [ ] JS:createRawContent - the option when more than one attribute contained RAW is not processed, this seems to be impossible because before this plugin the RAW was not split by attributes
-- [ ] JS:qTranslateConfig:setupLanguageSwitch - we have to call `setupLanguageSwitch` since `'qtx'` does not export the `onTabSwitch` function. If this function was available for integration, it was much easier
-- [ ] PHP:restore_post_content - now the case is not processed when one (or more) attribute is in content, and the other is in the special comment to the block (`<!-- wp:<block name>`). I have not met such a situation, but suddenly it is possible?
+- [ ] __[ JS ] : createRawContent()__ - the option when more than one attribute contained RAW is not processed, this seems to be impossible because before this plugin the RAW was not split by attributes
+- [ ] __[ PHP ] : restore_post_content()__ - now the case is not processed when one (or more) attribute is in content, and the other is in the special comment to the block (`<!-- wp:<block name>`). I have not met such a situation, but suddenly it is possible?
 - [ ] `'core/table'` cannot be translated - first I need to implement the processing of the attribute which is an array of values that require translation
++ [ ] __[ JS : qTranslateConfig ] : setupLanguageSwitch()__ - we have to call `setupLanguageSwitch` since `'qtx'` does not export the `onTabSwitch` function. If this function was available for integration, it was much easier
 + [ ] if there are several attributes and their values will be equal, then when replacing the attributes with their RAW values, confusion will occur (on the front-end). It is not clear how real this situation is... and how to deal with it?
 + [ ] It is not clear what will happen after converting a page that was edited in the classic editor and then switched to Gutenberg
