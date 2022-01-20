@@ -52,13 +52,14 @@ const LangControlSetting = ({
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	const testButton = false;
 	return (
 		<>
 		<LangControl
 			lang={ editorLang }
 			onClick={ setLanguage }
 		/>
-		<Button isSecondary onClick={ storeTest }>Test</Button>
+		{ testButton && <Button isSecondary onClick={ storeTest }>Test</Button> }
 		</>
 	);
 }
