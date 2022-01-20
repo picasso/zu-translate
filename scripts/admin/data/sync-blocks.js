@@ -21,7 +21,7 @@ export const rootClientId = 'rawRoot';
 // we need to know when all changes are committed in 'Entity'
 // to do this, we add a block ID to the 'watched' list before the changes
 // and then remove this ID when the changes were made
-// when the 'watched' list becomes empty - all changes were are committed
+// when the 'watched' list becomes empty - all changes were committed
 
 export function getWatched() {
 	return select(ZUTRANSLATE_STORE).getWatched();
@@ -58,7 +58,7 @@ export const entityState = {
 
 // call all registered hooks besides associated with 'clientId'
 // this will lead to switching language for blocks associated with these hooks
-export function syncBlocks(clientId) {
+export function syncBlocks(clientId = rootClientId) {
 	notifySync('before', activateSync);
 	addWatched(clientId, true);
 	if(activateSync) {

@@ -97,16 +97,16 @@ export function switchContent(raw, lang, translatedAtts) {
     }, {});
 }
 
-// internal helpers -----------------------------------------------------------]
-
-const delimiters = ['[]', '{}', '<!-- -->'];
-
-function hasRawBlocks(text) {
+export function hasRawBlocks(text) {
 	if(!_.isString(text)) return false;
 	const blocks = qtranxj_get_split_blocks(text);
 	// no language separator found - there are no translations
 	return blocks?.length > 1;
 }
+
+// internal helpers -----------------------------------------------------------]
+
+const delimiters = ['[]', '{}', '<!-- -->'];
 
 function emptyRawContent(itemCount, joinItems = true) {
 	const del = getDefaultDelimter();
