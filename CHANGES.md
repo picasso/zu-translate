@@ -1,3 +1,10 @@
+#### 1.2.1 / 2022-01-20
+* added `isPostPublished` state tracking
+* disable `clean entity state` when the post is not published
+* replace DOM elements (*which have RAW*) with content in selected language
+* improved debug messages
+* small improvements
+
 #### 1.2.0 / 2022-01-20
 * added `unsaved` option to control unsaved changes after language switching
 * support session lang with `unsaved` option
