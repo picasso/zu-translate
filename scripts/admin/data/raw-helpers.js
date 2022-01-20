@@ -5,7 +5,7 @@ const { forEach, castArray } = lodash; // , noop, includes
 
 // Internal dependencies
 
-import { getExternalData, getSessionLang } from './../utils.js'; // , getInputValue getDebug, 
+import { getExternalData, getDebug, getSessionLang } from './../utils.js'; // , getInputValue getDebug,
 import { getLangContent } from './../raw-utils.js';
 import { supportedKeys } from './raw-store.js'; // , supportedAtts
 import { getLang, getRaw, setRaw, updateRaw, addHook } from './use-store.js';
@@ -14,8 +14,8 @@ import { replaceRawElements } from './raw-replace.js';
 
 const supportSession = getExternalData('session', false);
 const sessionLang = supportSession ? getSessionLang() : null;
-// const enableDebug = getExternalData('debug.raw_helpers', false);
-// const debug = getDebug(enableDebug);
+const enableDebug = getExternalData('debug.raw_helpers', false);
+const debug = getDebug(enableDebug);
 
 // helpers for RAW attributes -------------------------------------------------]
 
@@ -31,6 +31,7 @@ export function setRawAttributes(langSetter = null) {
 		let value = getRaw(attr);
 		if(value === undefined) {
 			value = initEditedAttribute(attr, updateRaw);
+			debug.info(`-?{init} RAW for [${attr}]`, value);
 			if(attr === 'title' && value === 'Auto Draft') value = '';
 			setRaw(attr, value);
 		}
@@ -49,7 +50,7 @@ export function setRawAttributes(langSetter = null) {
 	}
 }
 
-// select content for the language from the RAW value and set it in the INPUT element
+// select content for the language from the RAW value and update 'Entity'
 // (if 'onlyAtts' is not null - select content for these attributes only)
 export function switchRawAttributes(lang, onlyAtts = null) {
 	const editorLang = lang ?? getLang();
@@ -59,14 +60,17 @@ export function switchRawAttributes(lang, onlyAtts = null) {
 		const rawValue = getRaw(attr);
 		if(rawValue !== undefined) {
 			const shouldBeValue = getLangContent(rawValue, editorLang);
-			if(value !== shouldBeValue) edits[attr] = shouldBeValue;
+			if(value !== shouldBeValue) {
+				edits[attr] = shouldBeValue;
+				debug.info(`-#{switch} RAW [${attr}] for lang {${editorLang}}`, shouldBeValue);
+			}
 		}
 	});
 	updateEntityAttributes(edits);
 }
 
 // because the document editing panel will be mounted and unmounted every time when switching to blocks editing
-// we register the root hook only once and do not remove it on unmounting
+// we register the root hook only once and do not remove it on unmounting ('addHook' has check)
 export function registerRootUpdater(rootId) {
 	addHook(rootId, switchRawAttributes);
 }
