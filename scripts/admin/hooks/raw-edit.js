@@ -35,72 +35,83 @@ const BlockEditLang = (props) => {
 		qtxLang,
 	} = attributes;
 
-	// store 'qtxLang' and 'qtxRaw' on the reference since their update occurs in 'useEffect'
+	// store 'qtxRaw' on the reference since its update occurs in 'useEffect'
 	const rawRef = useRef(null);
 	if(rawRef.current === null) {
-		rawRef.current = { lang: qtxLang, raw: qtxRaw, id: clientId };
+		rawRef.current = { raw: qtxRaw, id: clientId }; // lang: qtxLang,
+		debug.infoWithId(clientId, `-#Initiated with language {${qtxLang}}`);
 	}
+
 	// create a list of attributes and an array of their values ('translatedAtts' is string - see 'utils.js')
 	const [translatedAtts, translatedValues] = getTranslated(name, attributes);
+
 	// callback for replacing the values of all 'translated' attributes for the required language
 	const replaceContent = useCallback((lang, prevLang = false) => {
+		// if sync is not activated and 'prevLang' is false - the call was from the hook
+		// and in this mode we ignore the change of language
+		if(!activateSync && !prevLang) return;
+
 		const { raw, id } = rawRef.current;
-		if(!activateSync && !prevLang) prevLang = lang;
 		if(lang !== prevLang) {
 			const atts = switchContent(raw, lang, translatedAtts);
-			rawRef.current.lang = lang;
-			debug.info(`-#{switch} RAW [${translatedAtts}] for lang {${lang}}`, atts);
+// rawRef.current.lang = lang;
+
+			debug.infoWithId(id, `-#{switching} RAW [${translatedAtts}] for lang {${lang}}`, atts);
 			setAttributes({ qtxLang: lang, ...atts });
+		} else {
+			debug.infoWithId(id, `--{skip switching} RAW [${translatedAtts}]`, { lang, prevLang, activateSync });
 		}
 		syncCompleted(id);
 	}, [translatedAtts, setAttributes]);
 
 	const forceUpdate = useForceUpdater();
 	// in the hook is checked if the language has changed, then we call 'replaceContent'
-	const editorLang = useOnLangChange(clientId, replaceContent);
+	const editorLang = useOnLangChange(clientId, replaceContent, qtxLang);
 	// register 'forceUpdate' for subsequent language synchronization
 	useLangHook(clientId, forceUpdate);
 
 	const onChangeLang = useCallback(lang => {
-		const { id, lang: prevLang } = rawRef.current;
+		const { id } = rawRef.current;
 		if(activateSync) {
 			changeLang(lang);
 			forceUpdate();
 			syncBlocks(id);
 		} else {
-			replaceContent(lang, prevLang);
+			replaceContent(lang, qtxLang);
 		}
-		debug.info(`{${id}} Language switched to [${prevLang} -> ${lang}]`);
-	}, [forceUpdate, replaceContent]);
+		debug.infoWithId(id, `-Language switched [${qtxLang} -> ${lang}]`);
+	}, [forceUpdate, replaceContent, qtxLang]);
 
 	// synchronize, create RAW if does not exist and maybe fix it - on mounting only
 	useEffect(() => {
 		// if we already have RAW - synchronize the first time 'qtxLang' attribute and 'editorLang'
 		// only if 'activateSync' is true, otherwise do not synchronize
-		if(qtxLang !== editorLang && hasRaw(rawRef)) replaceContent(editorLang);
+	// if(qtxLang !== editorLang && hasRaw(rawRef)) replaceContent(editorLang);
+
 		// if RAW does not exist - create it
 		if(!hasRaw(rawRef)) {
 			const [ raw, update ] = createRawContent(editorLang, translatedValues, translatedAtts);
 			rawRef.current.raw = raw;
-			rawRef.current.lang = editorLang;
+// rawRef.current.lang = editorLang;
 			setAttributes({ qtxLang: editorLang, qtxRaw: raw, ...update });
-			debug.data({
-				lang: qtxLang,
+			debug.infoWithId(rawRef.current.id, '-?Raw {created} on mounting', {
+				qtxLang,
 				raw,
 				update,
 				translatedValues,
 				translatedAtts
-			}, `Raw created {${rawRef.current.id}}`);
+			});
 		} else {
 			// fix if RAW was created for wrong amount of attributes
 			const { raw, id } = rawRef.current;
 			const fixedRaw = maybeFixRawContent(raw, editorLang, translatedValues);
-			debug.data({
+			const wasFixed = fixedRaw !== false;
+			debug.infoWithId(id, `-${wasFixed ? '!' : '*'} Raw {${wasFixed ? 'fixed' : 'existed'}} on mounting`, {
 				raw,
-				fixedRaw: fixedRaw !== false ? fixedRaw : null,
+				fixedRaw: wasFixed ? fixedRaw : null,
 				translatedValues,
 				translatedAtts
-			}, `Raw ${fixedRaw !== false ? 'fixed' : 'existed'}: {${id}}`);
+			});
 			if(fixedRaw !== false) rawRef.current.raw = fixedRaw;
 		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -115,23 +126,24 @@ const BlockEditLang = (props) => {
 			if(updatedRaw !== raw) {
 				rawRef.current.raw = updatedRaw;
 				setAttributes({ qtxRaw: updatedRaw });
-				debug.data({ updatedRaw, translatedValues }, `Raw updated: {${rawRef.current.id}}`);
+				debug.infoWithId(rawRef.current.id, '-#Raw {updated}', { updatedRaw, translatedValues });
 			}
 		}
 	// we used a spread element in the dependency array -> we can't statically verify the correct dependencies
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [...translatedValues, qtxLang, setAttributes]);
 
-	const controlLang = activateSync ? editorLang : qtxLang ?? editorLang;
+	// const controlLang = qtxLang;
+	//activateSync ? editorLang : qtxLang ?? editorLang;
 
 	return useMemo(() => (
 		<InspectorControls>
 			<LangControl.Panel
-				lang={ controlLang }
+				lang={ qtxLang }
 				onClick={ onChangeLang }
 			/>
 		</InspectorControls>
-	), [controlLang, onChangeLang]);
+	), [qtxLang, onChangeLang]);
 }
 
 // HOC in which we add a language editing panel if the block fits our requirements
