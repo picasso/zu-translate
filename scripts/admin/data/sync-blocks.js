@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { keys, includes, forEach } = lodash;
+const { keys, forEach } = lodash;
 const { select, dispatch } = wp.data;
 
 // Internal dependencies
@@ -11,7 +11,6 @@ import { ZUTRANSLATE_STORE } from './raw-store.js';
 const enableDebug = getExternalData('debug.sync_blocks', false);
 const activateSync = getExternalData('sync', false);
 const cleanUnsaved = getExternalData('unsaved', false);
-
 const debug = getDebug(enableDebug);
 
 export const rootClientId = 'rawRoot';
@@ -35,11 +34,9 @@ function addWatched(id, isOriginator = false) {
 
 function removeWatched(id) {
 	const { removeWatched } = dispatch(ZUTRANSLATE_STORE);
-// удалить после тестов
-	const watched = getWatched();
-	if(!includes(watched, id)) debug.infoWithId(id, '-!{Repeated ID removal!}');
-
-	debug.infoWithId(id, '-*{Component unWatched}');
+	// const watched = getWatched();
+	// if(!includes(watched, id)) debug.infoWithId(id, '-!{Repeated ID removal!}');
+	debug.infoWithId(id, `-*{Component will be unWatched}, remained in the list [${getWatched().length - 1}]`);
 	removeWatched(id);
 }
 
@@ -59,9 +56,11 @@ export const entityState = {
 
 // call all registered hooks besides associated with 'clientId'
 // this will lead to switching language for blocks associated with these hooks
-export function syncBlocks(clientId = rootClientId) {
-	notifySync('before', activateSync);
-	addWatched(clientId, true);
+export function syncBlocks(clientId = rootClientId, withoutOriginator = false) {
+	notifySync('before', activateSync, withoutOriginator);
+	// a special case when we need to synchronize blocks when initialized
+	// in this situation, the 'rootClientId' is not added to the 'watched' list
+	if(!withoutOriginator) addWatched(clientId, true);
 	if(activateSync) {
 		const hooks = getHooks();
 		forEach(hooks, (hook, id) => {
@@ -81,8 +80,8 @@ export function syncCompleted(id) {
 	removeWatched(id ?? rootClientId);
 }
 
-function notifySync(when, isEnabled) {
-	debugSync(when, isEnabled);
+function notifySync(when, isEnabled, withoutOriginator) {
+	debugSync(when, isEnabled, withoutOriginator);
 	const { isPostDirty, isPostPublished, shouldResetEdits } = entityState;
 	if(cleanUnsaved && isPostPublished) {
 		if(when === 'before' && !isPostDirty) {
@@ -96,12 +95,12 @@ function notifySync(when, isEnabled) {
 
 // Internal debug helpers -----------------------------------------------------]
 
-function debugSync(when, isSyncEnabled) {
+function debugSync(when, isSyncEnabled, withoutOriginator) {
 	const { isPostDirty, isPostPublished, shouldResetEdits } = entityState;
 	const published = isPostPublished ? 'published' : 'not published';
 	const isBefore = when === 'before';
 	const status = isPostDirty ? 'dirty' : 'clean';
-	const option = isSyncEnabled ? 'enabled' : 'disabled';
+	const option = (isSyncEnabled ? 'enabled' : 'disabled') + (withoutOriginator ? ', without originator' : '');
 	const action = `${isBefore ? '?' : '#'}{${isBefore ? 'initiated' : 'completed'}}`;
 	const resetDisabled = `clean "unsaved" is ${isPostPublished ? 'disabled' : 'not possible'}`;
 	const reset = cleanUnsaved && isPostPublished ? ('reset is ' + (shouldResetEdits ? '{enabled}' : '{disabled}')) : resetDisabled;

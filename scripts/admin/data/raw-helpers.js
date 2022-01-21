@@ -25,7 +25,7 @@ const debug = getDebug(enableDebug);
 // will be mounted and unmounted every time when switching to blocks editing
 // NB! for the first time (when values are undefined) also synchronize the displayed value with the current language
 // since the current language may differ from the server language if the 'session' support is active
-export function setRawAttributes(langSetter = null) {
+export function setRawAttributes(rootLangSetter = null) {
 	const initAttributes = getRaw('title') === undefined;
 	forEach(supportedKeys, attr => {
 		let value = getRaw(attr);
@@ -38,13 +38,21 @@ export function setRawAttributes(langSetter = null) {
 	});
 	// do only once - when initializing the RAW store
 	if(initAttributes) {
+		let syncWasCalled = false;
+		const editorLang = getLang();
 		// sync language with 'sessionLang'
-		if(sessionLang && langSetter) {
-			const editorLang = getLang();
+		if(sessionLang && rootLangSetter) {
+			debug.info(`-?{lang check} session/editor [${sessionLang}/${editorLang}]`);
 			if(sessionLang !== editorLang) {
-				langSetter(sessionLang);
+				rootLangSetter(sessionLang);
+				syncWasCalled = true;
 			}
 		}
+		// if not yet called 'rootLangSetter' - call with 'withoutOriginator' is true
+		// this will lead to the regular blocks saved with another language
+		// will be synchronized with the current language of the editor
+		if(!syncWasCalled) rootLangSetter(editorLang, true);
+		
 		// set element observers that require RAW replacement
 		replaceRawElements();
 	}

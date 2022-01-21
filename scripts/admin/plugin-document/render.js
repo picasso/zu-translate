@@ -30,11 +30,13 @@ const LangControlSetting = ({
 	// switch the language, call the update of the component and its parent -
 	// since the update does not happen by itself because we do not store the language value in the component state
 	// (changing the content of the element to the value corresponding to the new language will occur in 'useOnLangChange' hook)
-	const setLanguage = useCallback(value => {
+	const setLanguage = useCallback((value, withoutMyself) => {
 		changeLang(value);
 		forceUpdate();
 		forceUpdateParent();
-		syncBlocks(rootClientId);
+		// a special case when we need to synchronize blocks when initialized
+		// in this situation, the 'withoutMyself' will be true
+		syncBlocks(rootClientId, withoutMyself);
 	// 'forceUpdate' and 'forceUpdateParent' never change
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
@@ -44,12 +46,6 @@ const LangControlSetting = ({
 		registerRootUpdater(rootClientId);
 		// set the initial RAW attributes on mounting the component
 		setRawAttributes(setLanguage);
-
-		// return () => {
-		// 	// with argument equal to false all listeners will be removed
-		// 	setRawAttributes(false);
-		// }
-
 	// 'setLanguage' never changes
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
