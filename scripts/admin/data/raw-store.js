@@ -159,6 +159,11 @@ const storeActions = {
             value: id,
 		};
     },
+	refresh() {
+		return {
+			type: 'refresh',
+		};
+	},
 };
 
 const store = registerStore(ZUTRANSLATE_STORE, {
