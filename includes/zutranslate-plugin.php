@@ -48,6 +48,7 @@ class zu_Translate extends zukit_Plugin  {
 					'sync'				=> true,
 					'unsaved'			=> true,
 					'session'			=> true,
+					'nobackups'			=> false,
 				],
 				'switcher'			=> [
 					'shortcode_menu'	=> true,

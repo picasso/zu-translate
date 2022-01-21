@@ -204,6 +204,7 @@ trait zu_TranslateGutenberg {
 			'sync'		=> $this->is_option('blockeditor.sync'),
 			'session'	=> $this->is_option('blockeditor.session'),
 			'unsaved'	=> $this->is_option('blockeditor.unsaved'),
+			'nobackups'	=> $this->is_option('blockeditor.nobackups'),
 			'debug'		=> $this->get_option('_debug'),
 			'flags'		=> $this->is_option('flags'),
 		];

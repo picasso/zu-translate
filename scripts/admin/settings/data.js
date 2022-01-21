@@ -33,7 +33,7 @@ const options = {
 		depends: 'appearance',
 	},
 	list: {
-		label: 	__('Add `Language Switcher` to post/pages list', 'zu-translate'),
+		label: 	__('Add "Language Switcher" to post/pages list', 'zu-translate'),
 		help:	__('Ability to switch language on a list of posts/pages and support for **Quick Edit**.', 'zu-translate'),
 	},
 	// NOTE: not yet restored after refactoring
@@ -88,6 +88,11 @@ const gutenberg = {
 		label: __('Switch without changes', 'zu-translate'),
 		help: __('Do not consider language switching as **unsaved** changes for the current edit session.', 'zu-translate'),
 	},
+	nobackups: {
+		label: 	__('Remove Block Editor "backups"', 'zu-translate'),
+		help:	__('Removes Wordpress *autosaves* and *backups* notices which could be very annoying.\nYou should understand what you are doing.', 'zu-translate'),
+	},
+
 	custom: {
 		nameLabel: __('Block name', 'zu-translate'),
 		nameHelp: __('The block name must contain a **namespace** and a **slash**, for example, `core/quote`', 'zu-translate'),
