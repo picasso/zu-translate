@@ -16,7 +16,7 @@ const { useForceUpdater } = wp.zukit.data;
 import { isSupported, getExternalData, getDebug, getTranslated, getEditorBlocks } from './../utils.js';
 import { hasRaw, switchContent, createRawContent, maybeFixRawContent, updateRawContent } from './../raw-utils.js';
 import { changeLang, useOnLangChange, useLangHook } from './../data/use-store.js';
-import { syncCompleted, syncBlocks } from './../data/sync-blocks.js';
+import { syncCompleted, syncBlocks } from './../data/sync-blocks.js'; // , syncContent syncCompleted,
 import LangControl from './../components/lang-control.js';
 
 const activateSync = getExternalData('sync', false);
@@ -77,6 +77,7 @@ const BlockEditLang = (props) => {
 			forceUpdate();
 			syncBlocks(id);
 		} else {
+			syncBlocks(id, true);
 			replaceContent(lang, qtxLang);
 		}
 		debug.infoWithId(id, `-Language switched [${qtxLang} -> ${lang}]`);

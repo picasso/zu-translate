@@ -10,6 +10,7 @@ const { apiFetch } = wp;
 
 import { getExternalData, getDebug, storeSessionLang } from './../utils.js';
 import { ZUTRANSLATE_STORE, supportedKeys } from './raw-store.js';
+import { syncCompleted } from './sync-blocks.js';
 
 const supportSession = getExternalData('session', false);
 const enableDebug = getExternalData('debug.sync_blocks', false);
@@ -66,6 +67,7 @@ export function useOnLangChange(clientId, callback, prevLang) {
 		if(enable) {
 			callback(editorLang);
 		}
+		syncCompleted(clientId);
 	}, [prev, editorLang, clientId, callback]);
 	return editorLang;
 }
