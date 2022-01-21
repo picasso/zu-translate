@@ -1,3 +1,17 @@
+#### 1.2.3 / 2022-01-21
+* implemented tracking of attribute changes with `WP Data Store` (without Event Listeners)
+* RAW update implemented without `Event Listeners`
+* optimization of attributes change tracking
+* implemented functionality for reset Post Editor backups
+* added `nobackups` option for Block Editor
+* added support for reset changes for mode without blocks synchronization
+* added check `has Session Storage Support`
+* added debug messages for `raw_helpers` option
+* fixed bug when `translatedValues` are used with wrong lang value
+* modified `syncCompleted` to avoid removing non existent id
+* no storing `lang` on the reference (*leads to complex and difficult to detect errors*)
+* small improvements
+
 #### 1.2.1 / 2022-01-20
 * added `isPostPublished` state tracking
 * disable `clean entity state` when the post is not published
