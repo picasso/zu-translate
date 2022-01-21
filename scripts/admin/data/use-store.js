@@ -56,14 +56,15 @@ export function changeLang(value) {
 	}
 }
 
-export function useOnLangChange(clientId, callback) {
+export function useOnLangChange(clientId, callback, prevLang) {
 	const editorLang = getLang();
-	const prev = usePrevious(editorLang);
-	// if the previous language value is defined and not equal to the current value - call the 'callback' function
+	const prev = usePrevious(prevLang ?? editorLang);
 	useEffect(() => {
-		if(prev !== undefined && prev !== editorLang) {
+		// if the previous language value is defined and not equal to the current value - call the 'callback' function
+		const enable = prev !== undefined && prev !== editorLang;
+		debug.infoWithId(clientId, `-#on lang change : {will ${enable ? 'switch' : 'skip'}}`, { prev, editorLang });
+		if(enable) {
 			callback(editorLang);
-			// removeWatched(clientId);
 		}
 	}, [prev, editorLang, clientId, callback]);
 	return editorLang;
@@ -71,35 +72,12 @@ export function useOnLangChange(clientId, callback) {
 
 export function useLangHook(clientId, updater) {
 	useEffect(() => {
-		// const { setHook, removeHook } = dispatch(ZUTRANSLATE_STORE);
 		addHook(clientId, updater);
 		return () => removeHook(clientId);
 	// 'clientId' and 'updater' never change, 'useEffect' will be called only on mounting and unmounting the component
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 }
-
-// call all registered hooks besides associated with 'clientId'
-// this will lead to switching language for blocks associated with these hooks
-// export function syncBlocks(clientId) {
-// 	notifySync('before', activateSync);
-// 	addWatched(clientId, true);
-// 	if(activateSync) {
-// 		const hooks = getHooks();
-// 		debug.infoWithId(clientId, '-Sync initiated', { hookCount: Object.keys(hooks).length, hooks });
-// 		forEach(hooks, (hook, id) => {
-// 			if(id !== clientId) {
-// 				// always add watched ID before calling the hook, because inside the hook may be logic
-// 				// to remove this ID from the 'watched' list
-// 				// for example, in the language switch logic for 'non-block' attributes
-// 				addWatched(id);
-// 				hook();
-// 			}
-// 		});
-// 	}
-// 	notifySync('after', activateSync);
-// 	// afterLanguageSwitch(clientId, activateSync);
-// }
 
 // Hook on the post saving ----------------------------------------------------]
 
