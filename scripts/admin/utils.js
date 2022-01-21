@@ -97,18 +97,35 @@ export function addInputListener(selector, callback, addListener = true) {
 
 // Language Session Storage ---------------------------------------------------]
 
+// Function which returns true if the current environment supports browser
+// sessionStorage, or false otherwise.
+const hasSessionStorageSupport = _.once(() => {
+	try {
+		// Private Browsing in Safari 10 and earlier will throw an error when
+		// attempting to set into sessionStorage. The test here is intentional in
+		// causing a thrown error as condition bailing from local autosave.
+		window.sessionStorage.setItem('__zuTranslateTestSessionStorage', '');
+		window.sessionStorage.removeItem('__zuTranslateTestSessionStorage');
+		return true;
+	} catch(error) {
+		return false;
+	}
+});
+
 // the edit language corresponds to the current LSB selection
 // or the main admin language for single mode
 const keyEditLanguage = 'qtranslate-xt-admin-edit-language';
 
 export function getSessionLang() {
-    return sessionStorage.getItem(keyEditLanguage);
+    return hasSessionStorageSupport() ? sessionStorage.getItem(keyEditLanguage) : null;
 }
 
 export function storeSessionLang(lang) {
-    try {
-        sessionStorage.setItem(keyEditLanguage, lang);
-    } catch(e) {
-        console.warn(`Failed to store "${keyEditLanguage}"=${lang} with sessionStorage`, e);
-    }
+	if(hasSessionStorageSupport()) {
+		try {
+			sessionStorage.setItem(keyEditLanguage, lang);
+		} catch(e) {
+			console.warn(`Failed to store "${keyEditLanguage}"=${lang} with sessionStorage`, e);
+		}
+	}
 }
