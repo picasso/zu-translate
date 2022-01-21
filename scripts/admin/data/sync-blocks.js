@@ -34,9 +34,8 @@ function addWatched(id, isOriginator = false) {
 
 function removeWatched(id) {
 	const { removeWatched } = dispatch(ZUTRANSLATE_STORE);
-	// const watched = getWatched();
-	// if(!includes(watched, id)) debug.infoWithId(id, '-!{Repeated ID removal!}');
-	debug.infoWithId(id, `-*{Component will be unWatched}, remained in the list [${getWatched().length - 1}]`);
+	const count = getWatched().length - 1;
+	debug.infoWithId(id, `-${count < 0 ? '!' : '*'}{Component will be unWatched}, remained in the list [${count}]`);
 	removeWatched(id);
 }
 
