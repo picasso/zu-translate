@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { keys, forEach } = lodash;
+const { keys, forEach, includes } = lodash;
 const { select, dispatch } = wp.data;
 
 // Internal dependencies
@@ -43,6 +43,10 @@ function getHooks() {
 	return select(ZUTRANSLATE_STORE).getHooks();
 }
 
+function refreshStore() {
+	return dispatch(ZUTRANSLATE_STORE).refresh();
+}
+
 // Sync blocks ----------------------------------------------------------------]
 
 // store some 'Entity' states to synchronize blocks and reset 'dirty' editing state
@@ -75,12 +79,13 @@ export function syncBlocks(clientId = rootClientId, withoutOriginator = false) {
 	notifySync('after', activateSync);
 }
 
-export function syncCompleted(id) {
-	removeWatched(id ?? rootClientId);
+export function syncCompleted(id = rootClientId) {
+	const watched = getWatched();
+	if(includes(watched, id)) removeWatched(id);
+	else refreshStore();
 }
 
-function notifySync(when, isEnabled, withoutOriginator) {
-	debugSync(when, isEnabled, withoutOriginator);
+function notifySync(when, isEnabled = false, withoutOriginator = false) {
 	const { isPostDirty, isPostPublished, shouldResetEdits } = entityState;
 	if(cleanUnsaved && isPostPublished) {
 		if(when === 'before' && !isPostDirty) {
@@ -90,20 +95,23 @@ function notifySync(when, isEnabled, withoutOriginator) {
 			entityState.isTracking = true;
 		}
 	}
+	debugSync(when, isEnabled, withoutOriginator);
 }
 
 // Internal debug helpers -----------------------------------------------------]
 
-function debugSync(when, isSyncEnabled, withoutOriginator) {
-	const { isPostDirty, isPostPublished, shouldResetEdits } = entityState;
+function debugSync(when, isSyncEnabled, mode) {
+	const { isPostDirty, isPostPublished, isTracking, shouldResetEdits } = entityState;
 	const published = isPostPublished ? 'published' : 'not published';
 	const isBefore = when === 'before';
 	const status = isPostDirty ? 'dirty' : 'clean';
-	const option = (isSyncEnabled ? 'enabled' : 'disabled') + (withoutOriginator ? ', without originator' : '');
+	const syncMode = mode ? ', without originator' : '';
+	const option = (isSyncEnabled ? 'enabled' : (mode ? 'single mode' : 'disabled')) + syncMode;
 	const action = `${isBefore ? '?' : '#'}{${isBefore ? 'initiated' : 'completed'}}`;
 	const resetDisabled = `clean "unsaved" is ${isPostPublished ? 'disabled' : 'not possible'}`;
-	const reset = cleanUnsaved && isPostPublished ? ('reset is ' + (shouldResetEdits ? '{enabled}' : '{disabled}')) : resetDisabled;
-	const after = isBefore ? `, Hooks count [${keys(getHooks()).length}]` : (isPostDirty ? `, ${reset}` : '');
+	const resetNote = shouldResetEdits && isTracking ? 'enabled' : (isTracking ? 'disabled' : 'not tracked');
+	const reset = cleanUnsaved && isPostPublished ? `reset is {${resetNote}}` : resetDisabled;
+	const after = isBefore ? `, "Watched" count [${keys(getWatched()).length}]` : (isPostDirty ? `, ${reset}` : '');
 	const info = `-${action} Sync Blocks [sync ${option}] - Post [${published}] and is {${status}}${after}`;
 	debug.info(info);
 }
