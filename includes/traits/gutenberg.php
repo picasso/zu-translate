@@ -20,6 +20,9 @@ trait zu_TranslateGutenberg {
 				// pro tempora!
 				$this->qtx_gutenberg_reset();
 			}
+			if($this->is_option('blockeditor.nobackups')) {
+				$this->remove_post_autosave();
+			}
 		}
 	}
 
@@ -66,6 +69,18 @@ trait zu_TranslateGutenberg {
 			$this->restore_post_content($post);
 	    }
 		return $posts;
+	}
+
+	// 'write_your_story' filter will be called before the moment when 'autosave' will be added to '$editor_settings'
+	// this is a convenient time to intervene and remove 'autosave' (if it was found)
+	public function remove_post_autosave() {
+		add_filter('write_your_story', function($story, $post) {
+			$autosave = wp_get_post_autosave($post->ID);
+			if($autosave) {
+				wp_delete_post_revision($autosave->ID);
+			}
+			return $story;
+		}, 10, 2);
 	}
 
 	// internal helpers -------------------------------------------------------]

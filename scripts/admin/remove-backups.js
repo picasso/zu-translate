@@ -2,23 +2,23 @@
 
 const { get, once } = lodash;
 const { subscribe, select } = wp.data;
-const { getCurrentPostId,isEditedPostNew } = select('core/editor');
+const { getCurrentPostId, isEditedPostNew } = select('core/editor');
 
-export function resetPostEditorAutosave() {
+export function resetPostEditorAutosave(origin = 'ZUKIT') {
 	const resetKey = 'resetAutosave';
 	// may have already been initiated in another plugin or theme
 	if(!get(wp, ['zukit', resetKey])) {
 		wp.zukit[resetKey] = true;
 		const unsubscribe = subscribe(() => {
-			if(getCurrentPostId()) {
-				resetAutosave();
+			const postId = getCurrentPostId();
+			if(postId) {
+				resetLocalBackup(postId);
 				unsubscribe();
 			}
 		});
 
-		const resetAutosave = () => {
+		const resetLocalBackup = (postId) => {
 			if(hasSessionStorageSupport()) {
-				const postId = getCurrentPostId();
 				const isPostNew = isEditedPostNew();
 
 				let localAutosave = localAutosaveGet(postId, isPostNew);
@@ -32,7 +32,7 @@ export function resetPostEditorAutosave() {
 				}
 				// if 'localAutosave' was found, it can be safely ejected from storage.
 				localAutosaveClear(postId, isPostNew);
-				window.console.warn(`ZUKIT: The backup of the post [${postId}] in your browser was removed`);
+				window.console.warn(`${origin.toUpperCase()}: The backup of the post [${postId}] in your browser was removed`);
 			}
 		};
 	}
