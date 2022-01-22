@@ -1,6 +1,7 @@
 // WordPress dependencies
 
 const { isEmpty, keys, pick, get, set, forEach, every, has, reduce } = lodash;
+const { sprintf } = wp.i18n;
 const { subscribe, select, dispatch } = wp.data;
 
 // Internal dependencies
@@ -52,26 +53,6 @@ export function updateEntityAttributes(edits) {
 }
 
 // Local 'edited' Attributes --------------------------------------------------]
-
-// check if the attributes have changed and return only the updated ones
-// function getEditedChanges(edits = null) {
-// 	let updated = null;
-// 	if(editedAttributes) {
-// 		if(edits) {
-// 			updated = reduce(edits, (acc, value, attr) => {
-// 				if(value !== get(editedAttributes, [attr, 'value'])) acc[attr] = value;
-// 				return acc;
-// 			}, {});
-// 		} else {
-// 			const atts = getEntityAttributes();
-// 			updated = reduce(atts, (acc, value, attr) => {
-// 				if(value !== get(editedAttributes, [attr, 'value'])) acc[attr] = value;
-// 				return acc;
-// 			}, {});
-// 		}
-// 	}
-// 	return updated;
-// }
 
 function setEditedAttributes(edits, prevOnly = false) {
 	forEach(edits, (value, attr) => {
@@ -158,17 +139,7 @@ function testEdits() {
 	if(hasEditedAttributes()) {
 		const edits = pick(getNonTransientEdits(), supportedKeys);
 		const changes = diffEdits(edits);
-// debug.data({ changes })
 		return changes ? [true, changes] : [false];
-
-	// 	const editKeys = keys(edits);
-	// 	const hasKeys = editKeys.length > 0;
-	// 	if(hasKeys || !hasKeys && entityState.wasDirty) {
-	// // if(entityState.isClear) debug.info('!extra check!');
-	// 		const updated = getEditedChanges(hasKeys ? edits : null);
-	// // if(!hasKeys && entityState.wasDirty) entityState.isClear = false;
-	// 		return keys(updated).length > 0 ? [true, updated] : [false];
-	// 	}
 	}
 	return [false];
 }
@@ -187,7 +158,7 @@ function resetEdits() {
 // we have no data from the server, but we just take the latest changes from Entity
 // when we return the data that are equal to the latest changes,
 // then the 'Data Store' considers that the data has been successfully saved and resets the accumulated changes
-export function emulateSavingPost(postEdits) {
+function emulateSavingPost(postEdits) {
 	const postType = getCurrentPostType();
 	const postId = getCurrentPostId();
 	const updatedRecord = getEditedEntityRecord('postType', postType, postId);
@@ -223,9 +194,11 @@ subscribe(() => {
 function debugPostStatus() {
 	if(enableDebug) {
 		const { isPostPublished, isPostDirty, shouldResetEdits } = entityState;
-		const published = isPostPublished ? 'published' : 'not published';
-		const status = isPostDirty ? 'dirty' : 'clean';
-		const args = [`-${isPostDirty ? '!' : '*'}Post [${published}] and editing state is {${status}}`];
+		const args = [sprintf('-%sPost [%s] and editing state is {%s}',
+			isPostDirty ? '!' : '*',
+			isPostPublished ? 'published' : 'not published',
+			isPostDirty ? 'dirty' : 'clean'
+		)];
 		!shouldResetEdits && args.push(keys(getNonTransientEdits()));
 		debug.info.apply(debug, args);
 	}

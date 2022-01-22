@@ -1,13 +1,12 @@
 // WordPress dependencies
 
-const { forEach, castArray } = lodash; // , noop, includes
-// const { select } = wp.data;
+const { forEach, castArray } = lodash;
 
 // Internal dependencies
 
-import { getExternalData, getDebug, getSessionLang } from './../utils.js'; // , getInputValue getDebug,
+import { getExternalData, getDebug, getSessionLang } from './../utils.js';
 import { getLangContent } from './../raw-utils.js';
-import { supportedKeys } from './raw-store.js'; // , supportedAtts
+import { supportedKeys } from './raw-store.js';
 import { getLang, getRaw, setRaw, updateRaw, addHook } from './use-store.js';
 import { initEditedAttribute, getEntityAttributes, updateEntityAttributes } from './edited-entity.js';
 import { replaceRawElements } from './raw-replace.js';
@@ -52,7 +51,7 @@ export function setRawAttributes(rootLangSetter = null) {
 		// this will lead to the regular blocks saved with another language
 		// will be synchronized with the current language of the editor
 		if(!syncWasCalled) rootLangSetter(editorLang, true);
-		
+
 		// set element observers that require RAW replacement
 		replaceRawElements();
 	}

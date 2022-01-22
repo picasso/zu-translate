@@ -13,7 +13,7 @@ import { ZUTRANSLATE_STORE, supportedKeys } from './raw-store.js';
 import { syncCompleted } from './sync-blocks.js';
 
 const supportSession = getExternalData('session', false);
-const enableDebug = getExternalData('debug.sync_blocks', false);
+const enableDebug = getExternalData('debug.raw_helpers', false);
 const debug = getDebug(enableDebug);
 
 // Custom hooks & helpers for 'store' -----------------------------------------]

@@ -1,6 +1,7 @@
 // WordPress dependencies
 
 const { keys, forEach, includes } = lodash;
+const { sprintf } = wp.i18n;
 const { select, dispatch } = wp.data;
 
 // Internal dependencies
@@ -102,16 +103,19 @@ function notifySync(when, isEnabled = false, withoutOriginator = false) {
 
 function debugSync(when, isSyncEnabled, mode) {
 	const { isPostDirty, isPostPublished, isTracking, shouldResetEdits } = entityState;
-	const published = isPostPublished ? 'published' : 'not published';
 	const isBefore = when === 'before';
-	const status = isPostDirty ? 'dirty' : 'clean';
-	const syncMode = mode ? ', without originator' : '';
-	const option = (isSyncEnabled ? 'enabled' : (mode ? 'single mode' : 'disabled')) + syncMode;
-	const action = `${isBefore ? '?' : '#'}{${isBefore ? 'initiated' : 'completed'}}`;
-	const resetDisabled = `clean "unsaved" is ${isPostPublished ? 'disabled' : 'not possible'}`;
-	const resetNote = shouldResetEdits && isTracking ? 'enabled' : (isTracking ? 'disabled' : 'not tracked');
-	const reset = cleanUnsaved && isPostPublished ? `reset is {${resetNote}}` : resetDisabled;
-	const after = isBefore ? `, "Watched" count [${keys(getWatched()).length}]` : (isPostDirty ? `, ${reset}` : '');
-	const info = `-${action} Sync Blocks [sync ${option}] - Post [${published}] and is {${status}}${after}`;
+	const isDisabled = !(cleanUnsaved && isPostPublished);
+	const resetNote = sprintf('reset is {%s}', isTracking ? (shouldResetEdits ? 'enabled' : 'disabled') : 'not tracked');
+	const disableNote = sprintf('clean "unsaved" is {%s}', isPostPublished ? 'disabled' : 'not possible');
+	const info = sprintf('-%1$s{%2$s} Sync Blocks [sync %3$s%4$s] - Post [%5$s] and is {%6$s}%7$s%8$s',
+		isBefore ? '?' : '#',															// 1
+		isBefore ? 'initiated' : 'completed',											// 2
+		isSyncEnabled ? 'enabled' : (mode ? 'single mode' : 'disabled'),				// 3
+		mode ? ', without originator' : '',												// 4
+		isPostPublished ? 'published' : 'not published',								// 5
+		isPostDirty ? 'dirty' : 'clean',												// 6
+		isBefore ? `, "Watched" count [${keys(getWatched()).length}]` : '',				// 7
+		!isBefore && isPostDirty ? `, ${isDisabled ? disableNote : resetNote }` : '',	// 8
+	);
 	debug.info(info);
 }

@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { keys, isEqual, get, omit, without } = lodash;
+const { isEqual, get, omit, without } = lodash;
 const { registerStore } = wp.data;
 
 // Internal dependencies
@@ -14,13 +14,7 @@ const debug = getDebug(enableDebug);
 
 // Create and register Zu Translate store -------------------------------------]
 
-export const supportedAtts = {
-	title: '.editor-post-title__input',
-	excerpt: '.editor-post-excerpt__textarea .components-textarea-control__input',
-};
-
-export const supportedKeys = keys(supportedAtts);
-
+export const supportedKeys = ['title', 'excerpt'];
 export const ZUTRANSLATE_STORE = 'zutranslate/core';
 
 const TYPES = {

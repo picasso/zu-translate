@@ -1,11 +1,9 @@
 // WordPress dependencies
 
 const { includes } = lodash;
-// const { __ } = wp.i18n;
 const { createHigherOrderComponent } = wp.compose;
 const { InspectorControls } = wp.blockEditor;
 const { useEffect, useCallback, useRef, useMemo } = wp.element;
-// const { select } = wp.data;
 
 // Zukit dependencies
 
@@ -16,7 +14,7 @@ const { useForceUpdater } = wp.zukit.data;
 import { isSupported, getExternalData, getDebug, getTranslated, getEditorBlocks } from './../utils.js';
 import { hasRaw, switchContent, createRawContent, maybeFixRawContent, updateRawContent } from './../raw-utils.js';
 import { changeLang, useOnLangChange, useLangHook } from './../data/use-store.js';
-import { syncCompleted, syncBlocks } from './../data/sync-blocks.js'; // , syncContent syncCompleted,
+import { syncCompleted, syncBlocks } from './../data/sync-blocks.js';
 import LangControl from './../components/lang-control.js';
 
 const activateSync = getExternalData('sync', false);
@@ -38,7 +36,7 @@ const BlockEditLang = (props) => {
 	// store 'qtxRaw' on the reference since its update occurs in 'useEffect'
 	const rawRef = useRef(null);
 	if(rawRef.current === null) {
-		rawRef.current = { raw: qtxRaw, id: clientId }; // lang: qtxLang,
+		rawRef.current = { raw: qtxRaw, id: clientId };
 		debug.infoWithId(clientId, `-#Initiated with language {${qtxLang}}`);
 	}
 
@@ -54,8 +52,6 @@ const BlockEditLang = (props) => {
 		const { raw, id } = rawRef.current;
 		if(lang !== prevLang) {
 			const atts = switchContent(raw, lang, translatedAtts);
-// rawRef.current.lang = lang;
-
 			debug.infoWithId(id, `-#{switching} RAW [${translatedAtts}] for lang {${lang}}`, atts);
 			setAttributes({ qtxLang: lang, ...atts });
 		} else {
@@ -85,15 +81,10 @@ const BlockEditLang = (props) => {
 
 	// synchronize, create RAW if does not exist and maybe fix it - on mounting only
 	useEffect(() => {
-		// if we already have RAW - synchronize the first time 'qtxLang' attribute and 'editorLang'
-		// only if 'activateSync' is true, otherwise do not synchronize
-	// if(qtxLang !== editorLang && hasRaw(rawRef)) replaceContent(editorLang);
-
 		// if RAW does not exist - create it
 		if(!hasRaw(rawRef)) {
 			const [ raw, update ] = createRawContent(editorLang, translatedValues, translatedAtts);
 			rawRef.current.raw = raw;
-// rawRef.current.lang = editorLang;
 			setAttributes({ qtxLang: editorLang, qtxRaw: raw, ...update });
 			debug.infoWithId(rawRef.current.id, '-?Raw {created} on mounting', {
 				qtxLang,
@@ -122,7 +113,6 @@ const BlockEditLang = (props) => {
 	useEffect(() => {
 		if(hasRaw(rawRef)) {
 			const { raw } = rawRef.current;
-			// here we cannot use lang from 'rawRef' because 'translatedValues' are created based on 'qtxLang'
 			const updatedRaw = updateRawContent(raw, qtxLang, translatedValues);
 			if(updatedRaw !== raw) {
 				rawRef.current.raw = updatedRaw;
@@ -133,9 +123,6 @@ const BlockEditLang = (props) => {
 	// we used a spread element in the dependency array -> we can't statically verify the correct dependencies
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [...translatedValues, qtxLang, setAttributes]);
-
-	// const controlLang = qtxLang;
-	//activateSync ? editorLang : qtxLang ?? editorLang;
 
 	return useMemo(() => (
 		<InspectorControls>

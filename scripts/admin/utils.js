@@ -7,21 +7,18 @@ const { select } = wp.data;
 
 export const { externalData, getExternalData, mergeClasses, emptyGif, toJSON, simpleMarkdown } = wp.zukit.utils;
 
-// Import debug object and make it available from global scope
-window.Zubug = { ...(wp.zukit.debug  || {}) };
-
-// Internal dependencies
-
-// import { qtranxj_split, qtranxj_get_split_blocks, qtranxj_split_blocks } from './qblocks.js';
-
-// перед вызовами 'getExternalData' нужно один раз вызвать 'externalData'
+// before calls 'getExternalData', we need to call 'externalData'
 externalData('zutranslate_blocks_data');
-
 const supportedData = getExternalData('supported', {});
-// const delimiters = ['[]', '{}', '<!-- -->'];
 const supportedBlocks = _.keys(supportedData);
 
+// import debug object and make it available from global scope
+window.Zubug = { ...(wp.zukit.debug  || {}) };
 export const getDebug = (enable) => enable ? Zubug : _.transform(_.keys(Zubug), (acc, key) => acc[key] = _.noop, {});
+
+export function isSupported(name) {
+	return _.includes(supportedBlocks, name);
+}
 
 export function getTranslatedAtts(name) {
 	return _.castArray(_.get(supportedData, [name, 'atts']));
@@ -33,12 +30,8 @@ export function getTranslated(name, attributes) {
 		values.push(_.get(attributes, attr, ''));
         return values;
     }, []);
-	// _.pick(attributes, translatedKeys);
-	return [_.join(translatedKeys, ','), translatedAtts];
-}
 
-export function isSupported(name) {
-	return _.includes(supportedBlocks, name);
+	return [_.join(translatedKeys, ','), translatedAtts];
 }
 
 // selector which returns an array containing all block client IDs in the editor.
@@ -55,49 +48,9 @@ export function getEditorBlocks(ids = null) {
 	}, ids);
 }
 
-
-// const { getEditedEntityRecord, getEntityRecordEdits } = select('core');
-// editEntityRecord
-// deleteEntityRecord
-// const { hasChangedContent, hasNonPostEntityChanges } = select('core/editor');
-// isEditedPostEmpty
-// isEditedPostDirty
-// isAutosavingPost
-// isCleanNewPost
-// isEditedPostAutosaveable
-// Actions
-
-// DOM manipulations ----------------------------------------------------------]
-
-export function getInputValue(selector) {
-	return document.querySelector(selector)?.value ?? null;
-}
-
-export function changeInputValue(selector, value, textarea = false) {
-    const el = document.querySelector(selector);
-    if(el) {
-        const prototype = textarea ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
-        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
-        nativeInputValueSetter.call(el, value);
-        const ev = new Event('input', { bubbles: true});
-        el.dispatchEvent(ev);
-    }
-}
-
-export function addInputListener(selector, callback, addListener = true) {
-	const el = document.querySelector(selector);
-	// React chose to make 'onChange' behave like 'onInput' does
-	// it does fire when there's a change, just not until the input also loses focus
-	// that's why we are adding a listener to the 'input' event and not to the 'change' event
-    if(el) {
-		if(addListener) el.addEventListener('input', callback);
-		else el.removeEventListener('input', callback);
-	}
-}
-
 // Language Session Storage ---------------------------------------------------]
 
-// Function which returns true if the current environment supports browser
+// function which returns true if the current environment supports browser
 // sessionStorage, or false otherwise.
 const hasSessionStorageSupport = _.once(() => {
 	try {
@@ -125,7 +78,7 @@ export function storeSessionLang(lang) {
 		try {
 			sessionStorage.setItem(keyEditLanguage, lang);
 		} catch(e) {
-			console.warn(`Failed to store "${keyEditLanguage}"=${lang} with sessionStorage`, e);
+			window.console.warn(`Failed to store "${keyEditLanguage}"=${lang} with sessionStorage`, e);
 		}
 	}
 }
