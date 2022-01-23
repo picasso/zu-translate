@@ -38,6 +38,6 @@ function attachInsertedHooks(element, root, selector) {
 			node.innerHTML = shouldBeValue ?? value;
 			replaced = true;
 		}
-		debug.info(`-?Node Inserted for "{${element}}" - RAW {${replaced ? 'replaced' : 'not found'}}`);
+		debug.info(`-^node {?inserted} for "{${element}}" - RAW {${replaced ? '*replaced' : '!not found'}}`);
 	});
 }

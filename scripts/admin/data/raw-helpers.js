@@ -30,7 +30,7 @@ export function setRawAttributes(rootLangSetter = null) {
 		let value = getRaw(attr);
 		if(value === undefined) {
 			value = initEditedAttribute(attr, updateRaw);
-			debug.info(`-?{init} RAW for [${attr}]`, value);
+			debug.info(`-^{?init} RAW for [${attr}]`, value);
 			if(attr === 'title' && value === 'Auto Draft') value = '';
 			setRaw(attr, value);
 		}
@@ -41,7 +41,7 @@ export function setRawAttributes(rootLangSetter = null) {
 		const editorLang = getLang();
 		// sync language with 'sessionLang'
 		if(sessionLang && rootLangSetter) {
-			debug.info(`-?{lang check} session/editor [${sessionLang}/${editorLang}]`);
+			debug.info(`-^{#lang check} session/editor [${sessionLang}/${editorLang}]`);
 			if(sessionLang !== editorLang) {
 				rootLangSetter(sessionLang);
 				syncWasCalled = true;
@@ -69,7 +69,7 @@ export function switchRawAttributes(lang, onlyAtts = null) {
 			const shouldBeValue = getLangContent(rawValue, editorLang);
 			if(value !== shouldBeValue) {
 				edits[attr] = shouldBeValue;
-				debug.info(`-#{switch} RAW [${attr}] for lang {${editorLang}}`, shouldBeValue);
+				debug.info(`-^{switch} RAW [${attr}] for lang {${editorLang}}`, shouldBeValue);
 			}
 		}
 	});

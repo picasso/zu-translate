@@ -20,7 +20,7 @@ const debug = getDebug(enableDebug);
 // local storage for current attribute values
 let editedAttributes = null;
 
-// Attributes of the Entity ---------------------------------------------------]
+// Attributes of the Entity (blue) --------------------------------------------]
 
 export function initEditedAttribute(attr, listener) {
 	const rawAttr = `${attr}_raw`;
@@ -29,7 +29,7 @@ export function initEditedAttribute(attr, listener) {
 	setEditedAttributes({ [attr]: get(atts, attr) });
 	set(editedAttributes, [attr, 'listener'], listener);
 	editedAttributes.isReady = every(supportedKeys, attr => has(editedAttributes, attr));
-	if(editedAttributes.isReady) debug.info('-+{ready} Edited Attributes', editedAttributes);
+	if(editedAttributes.isReady) debug.info('-^{+ready} Edited Attributes', editedAttributes);
 	return get(atts, rawAttr);
 }
 
@@ -42,7 +42,7 @@ export function getEntityAttributes(onlyAtts = null) {
 
 export function updateEntityAttributes(edits) {
 	if(!isEmpty(edits)) {
-		debug.info('-+{updated} Entity Attributes', edits);
+		debug.info('-^{+updated} Entity Attributes', edits);
 		const postType = getCurrentPostType();
 		const postId = getCurrentPostId();
 		// definitely need to be called before 'editEntityRecord'
@@ -52,7 +52,7 @@ export function updateEntityAttributes(edits) {
 	}
 }
 
-// Local 'edited' Attributes --------------------------------------------------]
+// Local 'edited' Attributes (blue) -------------------------------------------]
 
 function setEditedAttributes(edits, prevOnly = false) {
 	forEach(edits, (value, attr) => {
@@ -66,7 +66,7 @@ function updateEditedAttributes(edits) {
 		const { listener } = editedAttributes[attr];
 		set(editedAttributes, [attr, 'value'], value);
 		listener(attr, value);
-		debug.info(`-*updated RAW for is ${attr} - [${value}]`);
+		debug.info(`-^updated RAW for is ${attr} - [${value}]`);
 	});
 }
 
@@ -87,7 +87,7 @@ function hasEditedAttributes() {
 	return editedAttributes && editedAttributes.isReady;
 }
 
-// Maintaining 'non-modified' content -----------------------------------------]
+// Maintaining 'non-modified' content (brown) ---------------------------------]
 
 subscribe(() => {
 	// track post state (Published & Dirty)
@@ -110,7 +110,7 @@ subscribe(() => {
 	// track update of supported attributes (should be always after Published & Dirty)
 	const [hasUpdates, edits] = testEdits();
 	if(hasUpdates) {
-		debug.info('?testEdits ', edits);
+		debug.info('#{test} edits', edits);
 		updateEditedAttributes(edits);
 	}
 });
@@ -120,7 +120,7 @@ subscribeCustomStore(() => {
 	// otherwise we will start 'reset' ahead of time
 	if(entityState.isTracking && changesAreCommitted()) {
 		entityState.isTracking = false;
-		debug.info('-#RAW store tracking is {completed}', entityState);
+		debug.info('-#RAW store tracking is {*completed}', entityState);
 		resetEdits();
 	}
 });
@@ -146,7 +146,7 @@ function testEdits() {
 
 function resetEdits() {
 	const nonTransientEdits = getNonTransientEdits();
-	debug.info('-?{resetEdits}', keys(nonTransientEdits));
+	debug.info('-#{?reset} edits', keys(nonTransientEdits));
 	if(!isEmpty(nonTransientEdits)) {
 		emulateSavingPost(nonTransientEdits);
 		entityState.shouldResetEdits = false;
@@ -167,7 +167,7 @@ function emulateSavingPost(postEdits) {
 		id: postId,
 		...nonTransientEdits
 	};
-	debug.info(`-*Emulate {Saving Post} [${postId}]`, nonTransientEdits);
+	debug.info(`-?emulate {Saving Post} [${postId}]`, nonTransientEdits);
 	receiveEntityRecords('postType', postType, updatedRecord, undefined, true, edits);
 }
 
@@ -182,7 +182,7 @@ let postSaved = true;
 subscribe(() => {
     if(isSavingPost()) {
 		postSaved = false;
-		debug.info('-?{Saving Post...}');
+		debug.info('-+{Saving Post...}');
     } else {
 		if(!postSaved) {
             debug.info('-*{Post Saved}');
@@ -194,10 +194,9 @@ subscribe(() => {
 function debugPostStatus() {
 	if(enableDebug) {
 		const { isPostPublished, isPostDirty, shouldResetEdits } = entityState;
-		const args = [sprintf('-%sPost [%s] and editing state is {%s}',
-			isPostDirty ? '!' : '*',
+		const args = [sprintf('-#Post [%s] and editing state is {%s}',
 			isPostPublished ? 'published' : 'not published',
-			isPostDirty ? 'dirty' : 'clean'
+			isPostDirty ? '!dirty' : '*clean'
 		)];
 		!shouldResetEdits && args.push(keys(getNonTransientEdits()));
 		debug.info.apply(debug, args);

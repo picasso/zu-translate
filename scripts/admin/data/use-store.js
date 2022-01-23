@@ -63,7 +63,7 @@ export function useOnLangChange(clientId, callback, prevLang) {
 	useEffect(() => {
 		// if the previous language value is defined and not equal to the current value - call the 'callback' function
 		const enable = prev !== undefined && prev !== editorLang;
-		debug.infoWithId(clientId, `-#on lang change : {will ${enable ? 'switch' : 'skip'}}`, { prev, editorLang });
+		debug.infoWithId(clientId, `-^on lang change : {${enable ? '*will switch' : '#will skip'}}`, { prev, editorLang });
 		if(enable) {
 			callback(editorLang);
 		}

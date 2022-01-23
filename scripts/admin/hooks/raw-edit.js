@@ -37,7 +37,7 @@ const BlockEditLang = (props) => {
 	const rawRef = useRef(null);
 	if(rawRef.current === null) {
 		rawRef.current = { raw: qtxRaw, id: clientId };
-		debug.infoWithId(clientId, `-#Initiated with language {${qtxLang}}`);
+		debug.infoWithId(clientId, `-?Initiated with language {${qtxLang}}`);
 	}
 
 	// create a list of attributes and an array of their values ('translatedAtts' is string - see 'utils.js')
@@ -52,10 +52,10 @@ const BlockEditLang = (props) => {
 		const { raw, id } = rawRef.current;
 		if(lang !== prevLang) {
 			const atts = switchContent(raw, lang, translatedAtts);
-			debug.infoWithId(id, `-#{switching} RAW [${translatedAtts}] for lang {${lang}}`, atts);
+			debug.infoWithId(id, `-^{+switching} RAW [${translatedAtts}] for lang {${lang}}`, atts);
 			setAttributes({ qtxLang: lang, ...atts });
 		} else {
-			debug.infoWithId(id, `--{skip switching} RAW [${translatedAtts}]`, { lang, prevLang, activateSync });
+			debug.infoWithId(id, `-^{#skip switching} RAW [${translatedAtts}]`, { lang, prevLang, activateSync });
 		}
 		syncCompleted(id);
 	}, [translatedAtts, setAttributes]);
@@ -76,7 +76,7 @@ const BlockEditLang = (props) => {
 			syncBlocks(id, true);
 			replaceContent(lang, qtxLang);
 		}
-		debug.infoWithId(id, `-Language switched [${qtxLang} -> ${lang}]`);
+		debug.infoWithId(id, `-^Language switched [${qtxLang} -> ${lang}]`);
 	}, [forceUpdate, replaceContent, qtxLang]);
 
 	// synchronize, create RAW if does not exist and maybe fix it - on mounting only
@@ -98,7 +98,7 @@ const BlockEditLang = (props) => {
 			const { raw, id } = rawRef.current;
 			const fixedRaw = maybeFixRawContent(raw, editorLang, translatedValues);
 			const wasFixed = fixedRaw !== false;
-			debug.infoWithId(id, `-${wasFixed ? '!' : '*'} Raw {${wasFixed ? 'fixed' : 'existed'}} on mounting`, {
+			debug.infoWithId(id, `-^Raw {${wasFixed ? '!fixed' : '*existed'}} on mounting`, {
 				raw,
 				fixedRaw: wasFixed ? fixedRaw : null,
 				translatedValues,
@@ -117,7 +117,7 @@ const BlockEditLang = (props) => {
 			if(updatedRaw !== raw) {
 				rawRef.current.raw = updatedRaw;
 				setAttributes({ qtxRaw: updatedRaw });
-				debug.infoWithId(rawRef.current.id, '-#Raw {updated}', { updatedRaw, translatedValues });
+				debug.infoWithId(rawRef.current.id, '-^Raw {updated}', { updatedRaw, translatedValues });
 			}
 		}
 	// we used a spread element in the dependency array -> we can't statically verify the correct dependencies
@@ -149,8 +149,8 @@ const withRawEditControl = createHigherOrderComponent(BlockEdit => {
 		// for example, blocks for visual preview of the editable block
 		const isEditableBlock = includes(editorIds, clientId);
 
-		if(!isEditableBlock) debug.info(`Block [${name}] with id {${clientId}} was skipped`, { editableBlocks: editorIds });
-		else debug.info(`Block [${name}] isEditable and {${isSupported(name) ? 'isSupported' : 'is NOT Supported'}}`);
+		if(!isEditableBlock) debug.infoWithId(clientId, `-^Block [${name}] was skipped`, { editableBlocks: editorIds });
+		else debug.infoWithId(clientId, `-^Block [${name}] is editable and {${isSupported(name) ? '*is' : '!is not'} supported}`);
 
 		return (
 			<>

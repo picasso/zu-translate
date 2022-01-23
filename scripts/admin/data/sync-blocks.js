@@ -29,14 +29,14 @@ export function getWatched() {
 
 function addWatched(id, isOriginator = false) {
 	const { addWatched } = dispatch(ZUTRANSLATE_STORE);
-	debug.infoWithId(id, `-+{Component Watched}${isOriginator ? ' [originator]' : ''}`);
+	debug.infoWithId(id, `-#{+Component Watched}${isOriginator ? ' [originator]' : ''}`);
 	addWatched(id);
 }
 
 function removeWatched(id) {
 	const { removeWatched } = dispatch(ZUTRANSLATE_STORE);
 	const count = getWatched().length - 1;
-	debug.infoWithId(id, `-${count < 0 ? '!' : '*'}{Component will be unWatched}, remained in the list [${count}]`);
+	debug.infoWithId(id, `-${count < 0 ? '!' : '#'}{*Component will be unWatched}, remained in the list [${count}]`);
 	removeWatched(id);
 }
 
@@ -108,12 +108,12 @@ function debugSync(when, isSyncEnabled, mode) {
 	const resetNote = sprintf('reset is {%s}', isTracking ? (shouldResetEdits ? 'enabled' : 'disabled') : 'not tracked');
 	const disableNote = sprintf('clean "unsaved" is {%s}', isPostPublished ? 'disabled' : 'not possible');
 	const info = sprintf('-%1$s{%2$s} Sync Blocks [sync %3$s%4$s] - Post [%5$s] and is {%6$s}%7$s%8$s',
-		isBefore ? '?' : '#',															// 1
-		isBefore ? 'initiated' : 'completed',											// 2
+		'#',															// 1 isBefore ? '?' :
+		isBefore ? '?initiated' : '*completed',											// 2
 		isSyncEnabled ? 'enabled' : (mode ? 'single mode' : 'disabled'),				// 3
 		mode ? ', without originator' : '',												// 4
 		isPostPublished ? 'published' : 'not published',								// 5
-		isPostDirty ? 'dirty' : 'clean',												// 6
+		isPostDirty ? '!dirty' : '*clean',												// 6
 		isBefore ? `, "Watched" count [${keys(getWatched()).length}]` : '',				// 7
 		!isBefore && isPostDirty ? `, ${isDisabled ? disableNote : resetNote }` : '',	// 8
 	);
