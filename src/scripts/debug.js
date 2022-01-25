@@ -16,13 +16,11 @@ const { usePrevious } = wp.compose;
 //      * * * all data will be cloned before output to avoid reacting to subsequent changes * * *
 //
 //      Zubug.useTrace(props, state)    - trace the changes of the props ('state' arg is optional)
-//      Zubug.data({images, action})    - output data {name: value}
-
 //      Zubug.useTraceWithId(props);    - trace the changes of the props when there is 'clientId' among the props
-
+//      Zubug.useMU()                   - output information when a component has been mounted or unmounted
+//
 //      Zubug.data({images, action})    - output data (name: value)
 //      Zubug.info('text', {id, links}) - output data with text label
-//      Zubug.akaMount()                - output information when a component has been mounted or unmounted
 //      Zubug.renderWithId(clientId)    - output information when the component was rendered
 //      Zubug.log(message, ...data)     - output message with data
 //
@@ -31,12 +29,13 @@ const { usePrevious } = wp.compose;
 //      Zubug.response(route, data)     - output Ajax response information
 
 // Модификаторы цвета и шрифта (первый символ сообщения для log() и info()):
-//      '!' - console.info, bold, '#ff2020'
+//      '>' - начать группу (не портировал, завершить!)
+//      '!' - bold, '#ff2020'
 //      '?' - bold, '#cc0096'
-//      '*' - '#1f993f'
-//      '+' - '#0070c9'
-//      '>' - начать группу
-//      '#' - bold, '#ffffff' на фоне '#e50039' в окружении ★★★
+//      '*' - bold, '#1f993f'
+//      '+' - bold, '#0070c9'
+//      '#' - bold, '#a79635'
+//      '^' - bold, цвет зависит от функции и конфига
 
 // some internal vars
 const config = {
@@ -44,18 +43,17 @@ const config = {
     simplify: true,         // когда установлено, то пытается упростить вывод
                             //  - например, заменяет вывод массива с одним элементом на
                             //  на вывод element[0] как объекта и т.д.
+    clone: false,           // clone logged values if true
+
     mods: {
+        default: false,     // do not use colors, do not simplify (почти как console.log)
         ignoreNext: false,  // do not output next error
-        consoleDir: false,  // use console.dir to output values
-        forseNil: false,    // forse output even value is null or undefined
     },
     colors: {
-        same: false,
-        trace: false,
+        ok: false,
         info: false,
         data: false,
-        render: false,
-        mount: false,
+        query: false,
     },
     markers: {
         accented: '±',
@@ -79,210 +77,72 @@ let dcolors = {
     name: '#e56a17',
 
     alert: '#ff2020',
-    render: '#1f993f',
-    mount: '#cc0096',
+    query: '#cc0096',
+    ok: '#1f993f',
     info: '#0070c9',
     data: '#a79635',
-    trace: '#1f993f',
 
     white: '#ffffff',
-    bold: '#cc0096',
-    boldBg: '#fff3d9',
+    black: '#111111',
+    accent: '#cb5e14',
+    accentBg: '#fff7e5',
     colored: '#0f5d9a',
     coloredBg: '#ecffe5',
 
-
-
-
-    attn: '#cc0096',
-    attnBg: '#ffbfee',
-    _data: '#00b3b0',
-
-    grey: '#cccccc',
-    bright: '#ffd580',
-
-    menu: '#00b3b0',
-    player: '#0070c9',
-    keypoint1: '#008000',
-    keypoint2: '#c00000',
-    handler: '#8600b3',
-    framework: '#e50039',
-    maybe: '#ff2020',
-
-    ajaxInit: ['#444', '#8600b3', '#ffdf80'],
-    ajaxResponse: ['#444', '#8600b3', '#DAFFCC'],
-    ajaxError: ['#c00000', '#8600b3', '#ff9999'],
-
-    // ajaxBg1: '#ffdf80',
-    // ajaxBg2: '#DAFFCC',
-    // ajaxBg3: '#ff9999',
-    // ajaxColor1: '#444',
-    // ajaxColor2: '#000'
+    // cyan not used, maybe later?
+    cyan: '#00b3b0',
 };
 
+const mods = { alert: '!', query: '?', ok: '*', info: '+', data: '#' };
 const arrowSymbol = ' ' + _colored('⇢') + ' ';
 const chevronSymbol = ' ' + _bold('»') + ' '; // ' » ';
 const compactKeysCount = 6;
 
 function logLevel(newLevel = '') {
-
     if(newLevel) {
         if(_.includes(['short', 1], newLevel)) config.level = 1;
         else if(_.includes(['default', 'normal', 2], newLevel)) config.level = 2;
         else if(_.includes(['verbose', 'full', 3], newLevel)) config.level = 3;
         else if(_.includes(['none', 0], newLevel)) config.level = 0;
     }
-
     return config.level;
 }
 
+// требует восстановления!
 function canIlog(message, isData = false) {
     let permission = /level defaults|ready\(\)/ig.test(message) && config.level == 1 ? false : true;
     permission = isData ? (config.level < 3 ? false : true) : permission;
     return config.level == 0 ? false : permission;
 }
 
-function maybeForce(message) {
-    return _.endsWith(message, '!') || _.endsWith(message, '?');
-}
-
 /* eslint-disable no-console */
-function logMaybeNode(node) {
-    if(_.isFunction(node)) return;
-    const cloned = cloneValue(node);
-    node instanceof Node ? console.dirxml(node) : (node instanceof Error ? console.log(node) : console.dir(cloned));
-}
-
-function logWithColors(messages, messageColors,  ...data) {
-
-    let [message1, message2 = '', message3 = ''] = messages;
-    let [color1, color2 = '', background = null] = messageColors;
-    let func = config.colors.info ? console.info : console.log;
-    let groupFunc = false;
-
-    // if starts with '>' - then make it as collapsed group
-    if(message1.startsWith('>')) {
-        message1 = message1.replace(/^>/, '');
-        func = console.groupCollapsed;
-        groupFunc = true;
-    }
-
-    if(message1.startsWith('?')) color1 = dcolors.mount;
-    if(message1.startsWith('!')) color1 = /application|framework/ig.test(message1) ? dcolors.framework : dcolors.alert;
-
-    // special colors for selected messages
-    if(message1.startsWith('#')) {
-        background = dcolors.framework;
-        color2 = dcolors.bright;
-        color1 = dcolors.white;
-    }
-
-    // if var color is the same as the message color
-    if(config.colors.same) color2 = color1;
-
-    let colors1 = background ?
-        `font-weight: normal; padding: 3px 0 3px 3px; background: ${background}; color: ${color1}`
-        : `font-weight: normal; color: ${color1}`;
-    let colors2 = background ?
-        `font-weight: bold; padding: 3px 0 3px 3px; background: ${background}; color: ${color2}`
-        : `font-weight: bold; color: ${color2}`;
-    let colors3 = background ?
-        `font-weight: normal; padding: 3px 10px 3px 0; background: ${background}; color: ${color1}`
-        : `font-weight: normal; color: ${color1}`;
-
-    message1 = background ? message1.trim() : message1;
-    message2 = background ? message2.trim() : message2;
-    message3 = background ? message3.trim() : message3;
-
-    // if starts with '!' - then make it BOLD and change console function
-    if(message1.startsWith('!')) {
-        // message1 = message1.replace(/^!/, '');
-        colors1 = colors1.replace('normal', 'bold');
-        colors3 = colors3.replace('normal', 'bold');
-        func = groupFunc ? console.groupCollapsed : console.info;
-    }
-    // if starts with '?' - then make it BOLD
-    if(message1.startsWith('?')) {
-        // message1 = message1.replace(/^\?/, '');
-        colors1 = colors1.replace('normal', 'bold');
-        colors3 = colors3.replace('normal', 'bold');
-    }
-    // if starts with '#' - then make it BOLD
-    if(message1.startsWith('#')) {
-        message1 = message1.replace(/^#/, ' ★★★ ').replace(/[.]+$/, '');
-        colors1 = colors1.replace('normal', 'bold');
-        colors3 = colors3.replace('normal', 'bold');
-        if(!message2) message1 += ' ★★★ ';
-        else if(message3) message3 += ' ★★★ ';
-    }
-    message1 = stripColorModifiers(message1);
-
-    const [firstData, ...rest] = data;
-    if(config.mods.forseNil || firstData !== undefined) {
-        if(config.mods.consoleDir) {
-            if(message2 && color2) func(
-                '%c%s%c%s%c%s%c',
-                colors1,
-                message1,
-                colors2,
-                message2,
-                colors1,
-                message3,
-                background ? colors3 : ''
-            );
-            else func('%c%s ', colors1, message1);
-            console.dir(firstData, ...rest);
-        } else {
-            if(message2 && color2) func(
-                '%c%s%c%s%c%s%c',
-                colors1,
-                message1,
-                colors2, message2,
-                colors1,
-                message3,
-                background ? colors3 : '',
-                firstData,
-                ...rest
-            );
-            else func('%c%s ', colors1, message1, firstData, ...rest);
-        }
-    } else {
-        if(message2 && color2) func(
-            '%c%s%c%s%c%s%c',
-            colors1,
-            message1,
-            colors2,
-            message2,
-            colors1,
-            message3,
-            background ? colors3 : ''
-        );
-        else func('%c%s ', colors1, message1);
-    }
-
-    // reset all modifiers
-    config.colors = _.mapValues(config.colors, () => false);
-    config.mods = _.mapValues(config.mods, () => false);
-}
-
-function logWithColors2(message, ...data) {
-    const func = config.colors.info ? console.info : console.log;
+function logWithColors(message, ...data) {
+    const notLog = !config.mods.default;
+    const func = config.colors.info && notLog ? console.info : console.log;
     const colors = getColors(colorBy(message));
+
+// удалить после восстановления логирования Группового
+    // if starts with '>' - then make it as collapsed group
+    // if(message1.startsWith('>')) {
+    //     message1 = message1.replace(/^>/, '');
+    //     func = console.groupCollapsed;
+    //     groupFunc = true;
+    // }
 
     let { format, items } = parseWithColors(stripColorModifiers(message), colors);
     if(!_.isEmpty(data)) format = format + '  ';
     _.forEach(data, item => {
-        if(_.isString(item)) {
+        if(_.isString(item) && notLog) {
             const { format: newFormat, items: newItems } = parseWithColors(item, colors);
             format = format + newFormat;
             items.push(...newItems);
         } else {
-            format = format + '%o';
-            items.push(item);
+            format = format + (_.isString(item) ? '%s' : '%o');
+            items.push(config.clone ? cloneValue(item) : item);
         }
     });
     func(format, ...items);
-    config.colors = _.mapValues(config.colors, () => false);
+    resetAllModifiers();
 }
 
 function log(message, ...data) {
@@ -290,35 +150,42 @@ function log(message, ...data) {
     if(!canIlog(message)) return;
 
     let loglevel = logLevel();
-
     if(loglevel == 0) return;
 
-    if(message) {
-        message = message.trim();
-
-        let colors = [ colorBy(message, true),  dcolors.name, null ];
-        let param_regex = /\[\s*([^\]]+)]/i;
-        // let color2 = /loading =|ver /ig.test(message) ? dcolors.navigate : dcolors.name;
-
-        if(param_regex.test(message)) {
-            let matches = param_regex.exec(message);
-
-            if(/ajax\s*\w*\s*request/ig.test(message)) colors = dcolors.ajaxInit;
-            else if(/ajax\s*\w*\s*response/ig.test(message)) colors = dcolors.ajaxResponse;
-            else if(/ajax\s*\w*\s*error/ig.test(message)) colors = dcolors.ajaxError;
-
-            const messages = [message.replace(matches[0], '[ '), matches[1], ' ]'];
-            logWithColors(messages, colors, ...data);
-        } else {
-            logWithColors([message], colors, ...data);
-        }
+    if(_.isString(message)) {
+        config.mods.default = true;
+        logWithColors(message, ...data);
+    } else {
+        console.log(message, ...data);
     }
+// удалить после восстановления логирования Аякс
+    // if(message) {
+    //     message = message.trim();
+    //
+    //     let colors = [ colorBy(message, true),  dcolors.name, null ];
+    //     let param_regex = /\[\s*([^\]]+)]/i;
+    //     // let color2 = /loading =|ver /ig.test(message) ? dcolors.navigate : dcolors.name;
+    //
+    //     if(param_regex.test(message)) {
+    //         let matches = param_regex.exec(message);
+    //
+    //         if(/ajax\s*\w*\s*request/ig.test(message)) colors = dcolors.ajaxInit;
+    //         else if(/ajax\s*\w*\s*response/ig.test(message)) colors = dcolors.ajaxResponse;
+    //         else if(/ajax\s*\w*\s*error/ig.test(message)) colors = dcolors.ajaxError;
+    //
+    //         const messages = [message.replace(matches[0], '[ '), matches[1], ' ]'];
+    //         logWithColors(messages, colors, ...data);
+    //     } else {
+    //         logWithColors([message], colors, ...data);
+    //     }
+    // }
 }
 
-function logVerbose(message, data, more) {
-    if(logLevel() === 3) log(message, data, more);
+function logVerbose(...data) {
+    if(logLevel() > 2) log(...data);
 }
 
+// требует восстановления!
 function logGroup(obj, groupName = '', withoutNil = false, verboseOnly = false) {
     if(verboseOnly && logLevel() < 2) {
         console.groupEnd();
@@ -352,8 +219,7 @@ function logGroup(obj, groupName = '', withoutNil = false, verboseOnly = false) 
     console.groupEnd();
     if(closeMore) console.groupEnd();
     // reset all modifiers
-    config.colors = _.mapValues(config.colors, () => false);
-    config.mods = _.mapValues(config.mods, () => false);
+    resetAllModifiers();
 }
 
 function logExpanded(...data) {
@@ -370,31 +236,24 @@ function logSmart(value, len) {
     else logExpanded(value);
 }
 
-function warn(message, data, more) {
-    if(logLevel() == 0) return;
+function warn(message, ...data) {
+    if(logLevel() === 0) return;
     if(!canIlog(message)) return;
-    if(message) {
-        console.warn(message.replace(/^[!|?]/, ''));
-        if(data && maybeForce(message) && logLevel() == 1) logMaybeNode(data);
-    }
-    if(!_.isUndefined(data) && canIlog(message, true)) logMaybeNode(data);
-    if(!_.isUndefined(more) && canIlog(message, true)) logMaybeNode(more);
-    if(canIlog(message, true)) {
-        console.trace();
-    }
+    if(message) console.warn(message, ...data);
+    console.trace();
 }
 
-function error(message, data) {
+function error(message, ...data) {
     // ignore errors when requested
     if(config.mods.ignoreNext) return;
-
-    if(_.isUndefined(data)) console.error(message);
+    if(_.isEmpty(data)) console.error(message);
     else {
         console.error(message);
-        console.info('Error data:', data);
+        console.info('Error data:', ...data);
     }
 }
 
+// требует восстановления!
 // log ajax request and its options
 function logRequestResponse(type, route, options, response, method = 'GET') {
     const messages = {
@@ -426,9 +285,8 @@ function logRequestResponse(type, route, options, response, method = 'GET') {
 
 function logAsOneString(chunks, ...data) {
     const message = _.isArray(chunks) ? _.join(chunks, ' ') : String(chunks);
-    logWithColors2(message.replace(/\s+/g, ' ').replace(/\s*\]/g, ']').replace(/\[\s*/g, '['), ...data);
+    logWithColors(message.replace(/\s+/g, ' ').replace(/\s*\]/g, ']').replace(/\[\s*/g, '['), ...data);
 }
-
 /* eslint-enable no-console */
 
 // Debugging in components ----------------------------------------------------]
@@ -438,9 +296,8 @@ function renderComponent(maybeClientId) {
     const [clientId, clientId2] = _.castArray(maybeClientId);
     const component = componentName(clientId2 ? 'renderComponentWithId,renderComponent' : 'renderComponent');
     const id = (clientId ?? clientId2) ? withId(clientId ?? clientId2) : '';
-    config.colors.render = true;
-    setOpaqueColors('green');
-    logAsOneString(`${_bold(component)}${id} ${_opaque('render')}`);
+    config.colors.ok = true;
+    logAsOneString(`${_bold(component)}${id} {render}`);
 }
 
 // display variables and their values, possibly simplifying the data
@@ -453,7 +310,6 @@ function dataInComponent(data, marker = false) {
     const altName = marker ? `:${_colored(String(marker))}` : '';
     const message = `${_bold(component)}${altName} ${arrowSymbol} value for ${isSingleKey ? _accented(key) : key}`;
     config.colors.data = true;
-    setOpaqueColors('brown');
     if(isSimpleType(value)) {
         logAsOneString(message, value);
     } else {
@@ -473,7 +329,6 @@ function infoInComponent(messageData, ...data) {
     const spacer = withName || id ? ` ${arrowSymbol} ` : '';
     const info = `${colorMod}${withName ? _bold(component) : ''}${id}${spacer}${stripColorModifiers(message)}`;
     config.colors.info = true;
-    setOpaqueColors('blue');
     if(data.length === 0 || (data.length === 1 && isCompactType(data[0]))) {
         logAsOneString(info, ...data);
     } else {
@@ -516,10 +371,10 @@ function useMountUnmount() {
     });
     useEffect(() => {
         const { component } = ref.current ?? {};
-        config.colors.mount = true;
+        config.colors.query = true;
         logAsOneString(`${_bold(component)} ${arrowSymbol} ${_colored('componentDidMount')}`);
         return () => {
-            config.colors.mount = true;
+            config.colors.query = true;
             logAsOneString(`${_bold(component)} ${arrowSymbol} ${_opaque('componentWillUnmount$')}`);
         }
     }, []);
@@ -545,42 +400,38 @@ function renderComponentWithId(clientId) {
 
 // Helpers for colored console & components debuging --------------------------]
 
-const modRegex = /^[!|?|*|+|#|>]/;
+function resetAllModifiers() {
+    config.colors = _.mapValues(config.colors, () => false);
+    config.mods = _.mapValues(config.mods, () => false);
+}
+
+const modRegex = /^[!|?|*|+|#|^|>]/;
 function stripColorModifiers(string, returnMod = false) {
     // minus - a special sign to skip the function name - first remove it
     const str = _.trimStart(string, '-');
     return returnMod ? (modRegex.test(str) ? str[0] : '') : str.replace(modRegex, '');
 }
 
-function colorBy(message, obsoleteMode = false) {
-    let color = dcolors.basic;
-
-    if(!obsoleteMode) {
-        // first check special modifiers from which the string can start
-        if(message.startsWith('!')) return [dcolors.alert, true, { color: dcolors.white, bg: dcolors.alert }];
-        if(message.startsWith('?')) return [dcolors.mount, true, { color: dcolors.white, bg: dcolors.mount }];
-        if(message.startsWith('*')) return [dcolors.render, true, { color: dcolors.white, bg: dcolors.render }];
-        if(message.startsWith('+')) return [dcolors.info, true, { color: dcolors.white, bg: dcolors.info }];
-        if(message.startsWith('#')) return [dcolors.data, true, { color: dcolors.white, bg: dcolors.data }];
+function colorBy(message) {
+    const color = dcolors[_.findKey(config.colors)] ?? (config.mods.default ? dcolors.black : dcolors.basic);
+    // first check special modifiers from which the string can start
+    const mod = stripColorModifiers(message, true);
+    if(mod) {
+        const modColor = dcolors[_.findKey(mods, v => v === mod)] ?? dcolors.basic;
+        return mod === '^' ? [color, true, null] : [modColor, true, { color: dcolors.white, bg: modColor }];
     }
-
-    // then test with var names
-    if(config.colors.info) return dcolors.info;
-    if(config.colors.data) return dcolors.data;
-    if(config.colors.trace) return dcolors.trace;
-    if(config.colors.render) return dcolors.render;
-    if(config.colors.alert) return dcolors.alert;
-    if(config.colors.mount) return dcolors.mount;
-    // remove any var names which may lead to false-positive test
-    message = message.replace(/\[[^\]]+\]/,'').replace(/"[^"]+"/g, '');
-    if(/token|logout|user/ig.test(message)) return /unsuccessful|error/ig.test(message) ? dcolors.keypoint2 : dcolors.keypoint1;
-    if(/unsuccessfully|preloading/ig.test(message)) return dcolors.basic;
-    if(/loading|launching|ajax/ig.test(message)) return dcolors.framework;
     return color;
+
+    // // remove any var names which may lead to false-positive test
+    // message = message.replace(/\[[^\]]+\]/,'').replace(/"[^"]+"/g, '');
+    // if(/token|logout|user/ig.test(message)) return /unsuccessful|error/ig.test(message) ? dcolors.keypoint2 : dcolors.keypoint1;
+    // if(/unsuccessfully|preloading/ig.test(message)) return dcolors.basic;
+    // if(/loading|launching|ajax/ig.test(message)) return dcolors.framework;
+    // return color;
 }
 
 function getColors(main = dcolors.basic) {
-    const [mainColor, mainBold, mainOpaque] = _.isArray(main) ? main : [main, false, null];
+    const [mainColor, mainBold, mainOpaque] = _.isArray(main) ? main : [main, false, { color: dcolors.white, bg: main }];
     const weightBold = 'font-weight: bold;';
     const weightNormal = mainBold ? weightBold : 'font-weight: normal;';
     const padding = 'padding: 0 2px 0 2px;';
@@ -589,7 +440,7 @@ function getColors(main = dcolors.basic) {
     const opaque = mainOpaque ?? config.colors.opaque ?? { color: dcolors.white, bg: dcolors.alert };
     return {
         normal: `${weightNormal} color: ${mainColor}`,
-        accent: `${weightBold} ${paddingBg} ${rounded} color: ${dcolors.bold}; background: ${dcolors.boldBg}`,
+        accent: `${weightBold} ${paddingBg} ${rounded} color: ${dcolors.accent}; background: ${dcolors.accentBg}`,
         bold: `${weightBold} color: ${mainColor}`,
         params: `${weightBold} ${padding} color: ${dcolors.name}`,
         colored: `${weightBold} ${paddingBg} ${rounded} color: ${dcolors.colored}; background: ${dcolors.coloredBg}`,
@@ -597,14 +448,14 @@ function getColors(main = dcolors.basic) {
     };
 }
 
-function setOpaqueColors(color) {
-    if(color === 'green') config.colors.opaque = { color: dcolors.white, bg: dcolors.render };
-    if(color === 'red') config.colors.opaque = { color: dcolors.white, bg: dcolors.alert };
-    if(color === 'violet') config.colors.opaque = { color: dcolors.white, bg: dcolors.mount };
-    if(color === 'orange') config.colors.opaque = { color: dcolors.white, bg: dcolors.name };
-    if(color === 'blue') config.colors.opaque = { color: dcolors.white, bg: dcolors.info };
-    if(color === 'brown') config.colors.opaque = { color: dcolors.white, bg: dcolors.data };
-}
+// function setOpaqueColors(color) {
+//     if(color === 'green') config.colors.opaque = { color: dcolors.white, bg: dcolors.ok };
+//     if(color === 'red') config.colors.opaque = { color: dcolors.white, bg: dcolors.alert };
+//     if(color === 'violet') config.colors.opaque = { color: dcolors.white, bg: dcolors.query };
+//     if(color === 'orange') config.colors.opaque = { color: dcolors.white, bg: dcolors.name };
+//     if(color === 'blue') config.colors.opaque = { color: dcolors.white, bg: dcolors.info };
+//     if(color === 'brown') config.colors.opaque = { color: dcolors.white, bg: dcolors.data };
+// }
 
 // старая реализация через regex, сохранил тут для идей
 // const fixed = { '*':'#1','_':'#2','~':'#3','{':'#4','}':'#5' };
@@ -617,7 +468,7 @@ const tokenFormat = t => `${t}%c`;
 
 function parseWithColors(message, colors) {
     const { normal, bold, params, accent, colored, opaque } = colors ?? getColors();
-    const { a, b, c, p, o } = _markers;
+    const { a, b, c, p, o } = _markers; // accented, bold, colored, param, opaque
     let isComplete = true;
     let format = '%c';
     let items = [normal];
@@ -627,61 +478,73 @@ function parseWithColors(message, colors) {
     // ~text~ as 'colored'
     // [text] as 'param'
     // {text} as 'opaque'
-    _.forEach(message, char => {
-        if(char === a) {
-            if(isComplete) {
-                format += tokenFormat(token);
-                items.push(accent);
-                token = '';
-                isComplete = false;
-            } else {
-                format += tokenFormat(token);
-                items.push(normal);
-                token = '';
-                isComplete = true;
-            }
-        } else if(char === c) {
-            if(isComplete) {
-                format += tokenFormat(token);
-                items.push(colored);
-                token = '';
-                isComplete = false;
-            } else {
-                format += tokenFormat(token);
-                items.push(normal);
-                token = '';
-                isComplete = true;
-            }
-        } else if(char === b) {
-            if(isComplete) {
-                format += tokenFormat(token);
-                items.push(bold);
-                token = '';
-                isComplete = false;
-            } else {
-                format += tokenFormat(token);
-                items.push(normal);
-                token = '';
-                isComplete = true;
-            }
-        } else if(char === p[0]) {
-            format += tokenFormat(token + p[0]); // `${token}${p[0]}%c`
-            items.push(params);
-            token = '';
-        } else if(char === p[1]) {
-            format += tokenFormat(token);
-            items.push(normal);
-            token = p[1];
-        } else if(char === o[0]) {
-            format += tokenFormat(token);
-            items.push(opaque);
-            token = '';
-        } else if(char === o[1]) {
-            format += tokenFormat(token);
-            items.push(normal);
+    _.forEach(message, (char, index) => {
+        // if 'token' is -1, then skip the current symbol
+        if(token === -1) {
             token = '';
         } else {
-            token += char;
+            if(char === a) {
+                if(isComplete) {
+                    format += tokenFormat(token);
+                    items.push(accent);
+                    token = '';
+                    isComplete = false;
+                } else {
+                    format += tokenFormat(token);
+                    items.push(normal);
+                    token = '';
+                    isComplete = true;
+                }
+            } else if(char === c) {
+                if(isComplete) {
+                    format += tokenFormat(token);
+                    items.push(colored);
+                    token = '';
+                    isComplete = false;
+                } else {
+                    format += tokenFormat(token);
+                    items.push(normal);
+                    token = '';
+                    isComplete = true;
+                }
+            } else if(char === b) {
+                if(isComplete) {
+                    format += tokenFormat(token);
+                    items.push(bold);
+                    token = '';
+                    isComplete = false;
+                } else {
+                    format += tokenFormat(token);
+                    items.push(normal);
+                    token = '';
+                    isComplete = true;
+                }
+            } else if(char === p[0]) {
+                format += tokenFormat(token + p[0]);
+                items.push(params);
+                token = '';
+            } else if(char === p[1]) {
+                format += tokenFormat(token);
+                items.push(normal);
+                token = p[1];
+            } else if(char === o[0]) {
+                format += tokenFormat(token);
+                const coloredOpaque = stripColorModifiers(message[index + 1], true);
+                if(coloredOpaque) {
+                    const { opaque: opaqueColor } = getColors(colorBy(message[index + 1]));
+                    items.push(opaqueColor);
+                    token = -1;
+                } else {
+                    items.push(opaque);
+                    token = '';
+                }
+            } else if(char === o[1]) {
+                format += tokenFormat(token);
+                items.push(normal);
+                token = '';
+            } else {
+                token += char;
+            }
         }
     });
     format += token;
@@ -800,7 +663,7 @@ function logWasNow(was, now, keys) {
         );
         logSmart(nowValue);
         if(_.isEqual(wasValue, nowValue)) {
-            logAsOneString(`${_opaque('Attention!')} ${_bold('they are equal!')}`);
+            logAsOneString(`{!Attention} ${_bold('they are equal!')}`);
         }
     }
 }
@@ -813,7 +676,7 @@ function logChanges(keys, prevValues, values) {
     // log in detail for changes
     _.forEach(updated, key => {
         const value = values[key];
-        config.colors.trace = true;
+        config.colors.ok = true;
         const message = `${chevronSymbol}${_accented(key)}`;
         if(isSimpleType(value)) logAsOneString(message, prevValues[key], arrowSymbol, value);
         else {
@@ -879,7 +742,6 @@ function findOnStack(prevFrames) {
 }
 
 function funcFromStack(frames, index = 0) {
-    // logColapsed(frames[0]);
     return (_.get(_.split(frames[index], '@'), 0, '?') || '?').replace(/[<|/]+$/g, '');
 }
 
