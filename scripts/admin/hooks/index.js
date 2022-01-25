@@ -1,7 +1,6 @@
 // WordPress dependencies
 
 const { isNil, assign, has } = lodash;
-// const { __ } = wp.i18n;
 const { addFilter } = wp.hooks;
 // const { useEffect, useCallback } = wp.element; // cloneElement, useState, useEffect, useLayoutEffect
 // const { select, subscribe } = wp.data;

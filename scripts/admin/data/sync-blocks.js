@@ -105,10 +105,10 @@ function debugSync(when, isSyncEnabled, mode) {
 	const { isPostDirty, isPostPublished, isTracking, shouldResetEdits } = entityState;
 	const isBefore = when === 'before';
 	const isDisabled = !(cleanUnsaved && isPostPublished);
-	const resetNote = sprintf('reset is {%s}', isTracking ? (shouldResetEdits ? 'enabled' : 'disabled') : 'not tracked');
-	const disableNote = sprintf('clean "unsaved" is {%s}', isPostPublished ? 'disabled' : 'not possible');
+	const resetNote = sprintf('reset is {%s}', isTracking ? (shouldResetEdits ? '*enabled' : 'disabled') : '!not tracked');
+	const disableNote = sprintf('clean "unsaved" is {%s}', isPostPublished ? 'disabled' : '!not possible');
 	const info = sprintf('-%1$s{%2$s} Sync Blocks [sync %3$s%4$s] - Post [%5$s] and is {%6$s}%7$s%8$s',
-		'#',															// 1 isBefore ? '?' :
+		'#',																			// 1
 		isBefore ? '?initiated' : '*completed',											// 2
 		isSyncEnabled ? 'enabled' : (mode ? 'single mode' : 'disabled'),				// 3
 		mode ? ', without originator' : '',												// 4

@@ -12,7 +12,7 @@ import { resetPostEditorAutosave } from './remove-backups.js';
 
 // reset editor autosaves/backups if requested
 if(getExternalData('nobackups', false)) {
-	resetPostEditorAutosave();
+	resetPostEditorAutosave('Zu Translate');
 }
 
 //  Register Plugins ----------------------------------------------------------]
