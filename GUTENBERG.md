@@ -53,17 +53,24 @@ Currently, the `'title'` and `'excerpt'` attributes are supported as non-regular
 
 * Using the plugin mechanism (*other plugins, these are plugins for extending the document editing panels in the Block Editor*), a language switching panel is added to the document;
 
-* For each tracked attribute, an __input element__ (`textarea` or `input`) is found and an `EventListener` is attached to it. Since when switching to the block editing mode, as well as when closing the panels (*where the attribute is located*), all input elements will be deleted and our `EventListeners` will die along with them - we also add a __Mutation Observer__ and watch when these input elements reappear in the DOM, and then we add the `EventListener` again;
-
 * Do the initial synchronization for the active language;
 
-* When the tracked attribute changes, our `EventListeners` receive notifications and we change the RAW value in the store;
+* During initialization, we subscribe to changes of `Core Data Store` and add Listener for each tracked attribute;
 
-* When switching the language, we save the new language in the store, change the values of the tracked attributes to the values for the active language and call all the registered hooks for the blocks to synchronize the language switching;
+* With any changes in the data, we get a notification from the `Core Data Store` and using the `getEntityRecordNonTransientEdits` method we test if there are __non transient__ edits.
+There is one nuance - if the attribute value returns to what was when the editor was initialized, the function will not return any value for this attribute. But for us the attribute changes and therefore, we store the last attribute value and compare it with the value from the `getEntityRecordNonTransientEdits` method - in this case, even the absence of value allows us to understand that the attribute has changed and we can call `listener`;
+
+* __(Old implementation)__ ~~For each tracked attribute, an __input element__ (`textarea` or `input`) is found and an `EventListener` is attached to it. Since when switching to the block editing mode, as well as when closing the panels (*where the attribute is located*), all input elements will be deleted and our `EventListeners` will die along with them - we also add a __Mutation Observer__ and watch when these input elements reappear in the DOM, and then we add the `EventListener` again;~~
+
+* When the tracked attribute changes, our `listeners` receive notifications and we change the RAW value in the __custom__ store;
+
+* When switching the language, we save the new language in the store, change the values of the tracked attributes to the values for the active language (with `editEntityRecord`) and call all the registered hooks for the blocks to synchronize the language switching;
 
 * When saving the document, we embed in __apiFetch__ and change the values of the saved attributes to RAW values;
 
 * On the server, add the `'rest_request_after_callbacks'` filter and change the RAW values (*which have already been saved in the database*) to the values for the active language (because the Block Editor uses the values from the REST response to update the attributes on the page). Since we have stored the RAW values in the database, no additional post-processing is required for the front-end.
+
+
 
 ## Known Problems and Pitfalls
 
