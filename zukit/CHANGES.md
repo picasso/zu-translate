@@ -1,3 +1,8 @@
+#### 1.5.0 / 2022-01-25
+* color modifiers support for opaque colors in `Debug` module
+* some helpers for input/textarea manipulations (compatible with React) in `JQ` module
+* minify JS output
+
 #### 1.4.9 / 2022-01-20
 
 ##### Core

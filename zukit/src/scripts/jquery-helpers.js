@@ -167,3 +167,34 @@ export function observeMutation(selector, observer) {
 		characterData: false,
 	});
 }
+
+// Input/Textarea manipulations (compatible with React)------------------------]
+
+export const input = {
+	get(selector) {
+		return document.querySelector(selector)?.value ?? null;
+	},
+	set(selector, value, textarea = false) {
+		const el = document.querySelector(selector);
+		if(el) {
+			const prototype = textarea ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
+			const nativeInputValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+			nativeInputValueSetter.call(el, value);
+			const ev = new Event('input', { bubbles: true});
+			el.dispatchEvent(ev);
+		}
+	},
+	addListener(selector, callback, addListener = true) {
+		const el = document.querySelector(selector);
+		// React chose to make 'onChange' behave like 'onInput' does
+		// it does fire when there's a change, just not until the input also loses focus
+		// that's why we are adding a listener to the 'input' event and not to the 'change' event
+		if(el) {
+			if(addListener) el.addEventListener('input', callback);
+			else el.removeEventListener('input', callback);
+		}
+	},
+	removeListener(selector, callback) {
+		this.addListener(selector, callback, false);
+	},
+}
