@@ -1,3 +1,8 @@
+#### 1.2.5 / 2022-01-25
+* in support of the option `nobackups` added deletion of autosave on the server
+* systematized colors for debug messages
+* minify JS output
+
 #### 1.2.3 / 2022-01-21
 * implemented tracking of attribute changes with `WP Data Store` (without Event Listeners)
 * RAW update implemented without `Event Listeners`

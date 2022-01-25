@@ -4,7 +4,7 @@ Plugin Name: Zu Translate
 Plugin URI: https://github.com/picasso/zu-translate
 GitHub Plugin URI: https://github.com/picasso/zu-translate
 Description: Enhances "qTranslate-XT" with some features and Gutenberg support (WordPress Block Editor).
-Version: 1.2.3
+Version: 1.2.5
 Author: Dmitry Rudakov
 Author URI: https://github.com/picasso
 Text Domain: zu-translate
@@ -15,9 +15,6 @@ Requires PHP: 7.2.0
 
 // Prohibit direct script loading
 defined('ABSPATH') || die('No direct script access allowed!');
-
-// DEBUG-ONLY
-// add_action('plugins_loaded', function() {
 
 // Always load Zukit even if we don't use it later ('wp_doing_ajax' or 'wp_doing_cron')
 // as other plugins or themes may want to use it
@@ -36,6 +33,3 @@ if(Zukit::is_compatible(__FILE__)) {
 	require_once('includes/zutranslate-plugin.php');
 	zutranslate(__FILE__);
 }
-
-// DEBUG-ONLY
-// });
