@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { get, once } = lodash;
+const { get, set, once } = lodash;
 const { subscribe, select } = wp.data;
 const { getCurrentPostId, isEditedPostNew } = select('core/editor');
 
@@ -8,7 +8,7 @@ export function resetPostEditorAutosave(origin = 'ZUKIT') {
 	const resetKey = 'resetAutosave';
 	// may have already been initiated in another plugin or theme
 	if(!get(wp, ['zukit', resetKey])) {
-		wp.zukit[resetKey] = true;
+		set(wp, ['zukit', resetKey], true);
 		const unsubscribe = subscribe(() => {
 			const postId = getCurrentPostId();
 			if(postId) {
