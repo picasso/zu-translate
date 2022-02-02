@@ -29,14 +29,14 @@ export function getWatched() {
 
 function addWatched(id, isOriginator = false) {
 	const { addWatched } = dispatch(ZUTRANSLATE_STORE);
-	debug.infoWithId(id, `-#{+Component Watched}${isOriginator ? ' [originator]' : ''}`);
+	debug.infoWithId(id, `-#{+Component added}${isOriginator ? ' [originator]' : ''}`);
 	addWatched(id);
 }
 
 function removeWatched(id) {
 	const { removeWatched } = dispatch(ZUTRANSLATE_STORE);
 	const count = getWatched().length - 1;
-	debug.infoWithId(id, `-${count < 0 ? '!' : '#'}{*Component will be unWatched}, remained in the list [${count}]`);
+	debug.infoWithId(id, `-${count < 0 ? '!' : '#'}{*Component will be removed}, remained in the list [${count}]`);
 	removeWatched(id);
 }
 
@@ -114,7 +114,7 @@ function debugSync(when, isSyncEnabled, mode) {
 		mode ? ', without originator' : '',												// 4
 		isPostPublished ? 'published' : 'not published',								// 5
 		isPostDirty ? '!dirty' : '*clean',												// 6
-		isBefore ? `, "Watched" count [${keys(getWatched()).length}]` : '',				// 7
+		isBefore ? `, "Hooks" count [${keys(getHooks()).length}]` : '',					// 7
 		!isBefore && isPostDirty ? `, ${isDisabled ? disableNote : resetNote }` : '',	// 8
 	);
 	debug.info(info);
