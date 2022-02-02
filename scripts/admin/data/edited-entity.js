@@ -42,14 +42,16 @@ export function getEntityAttributes(onlyAtts = null) {
 
 export function updateEntityAttributes(edits) {
 	if(!isEmpty(edits)) {
-		debug.info('-^{+updated} Entity Attributes', edits);
+		debug.info('-^{updated} - Entity Attributes', edits);
 		const postType = getCurrentPostType();
 		const postId = getCurrentPostId();
 		// definitely need to be called before 'editEntityRecord'
 		setEditedAttributes(edits);
 		editEntityRecord('postType', postType, postId, edits);
-		syncCompleted();
+	} else {
+		debug.info('-^{#not updated} - Entity Attributes', edits);
 	}
+	syncCompleted();
 }
 
 // Local 'edited' Attributes (blue) -------------------------------------------]
