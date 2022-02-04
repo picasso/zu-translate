@@ -49,6 +49,7 @@ class zu_Translate extends zukit_Plugin  {
 					'unsaved'			=> true,
 					'session'			=> true,
 					'nobackups'			=> false,
+					'initial'			=> false,
 				],
 				'switcher'			=> [
 					'shortcode_menu'	=> true,
@@ -137,25 +138,9 @@ class zu_Translate extends zukit_Plugin  {
 		];
 	}
 
-	protected function extend_debug_actions() {
-		// return $this->folders ? [
-		// 	[
-		// 		'label'		=> __('Fix Orphaned Attachments', 'zu-translate'),
-		// 		'value'		=> 'zumedia_fix_orphaned',
-		// 		'icon'		=> 'hammer',
-		// 		'color'		=> 'blue',
-		// 	],
-		// 	[
-		// 		'label'		=> __('Check Existed Terms', 'zu-translate'),
-		// 		'value'		=> 'zumedia_check_terms',
-		// 		'icon'		=> 'warning',
-		// 		'color'		=> 'gold',
-		// 	],
-		// ] : [];
-	}
-
 	protected function construct_more() {
 		add_filter('qtranslate_admin_config', [$this, 'update_qtx_config']);
+		// NOTE: uncomment for debugging
 		// $this->get_all_registered_blocks();
 	}
 
@@ -168,7 +153,7 @@ class zu_Translate extends zukit_Plugin  {
 			$admin_config['edit'] = [
 				'pages'		=> ['edit.php' => ''],
 				// there is no way to indicate that 'qTranslate-XT' plugin do not need to create a language wrap by an anchor
-				// so we use an existing 'id' and a non-existing 'where' modifier
+				// so we use an existing 'id' (#the-list) and a non-existing 'where' modifier ('none')
 			    'anchors'	=> ['the-list' => ['where' => 'none']],
 				'js-exec'	=> ['zutranslate-edit-list'  => [
 					'src'		=> $this->get_full_filepath('zutranslate-exec-edit'),
@@ -182,7 +167,7 @@ class zu_Translate extends zukit_Plugin  {
 
 	public function init() {
 
-		// // Media Folders Addon
+		// ??? Addon
 		// if($this->is_option('folders')) {
 		// 	$this->folders = $this->register_addon(new zu_TranslateFolder());
 		// }
@@ -210,7 +195,6 @@ class zu_Translate extends zukit_Plugin  {
 	// Custom menu position ---------------------------------------------------]
 
 	protected function custom_admin_submenu() {
-
 		return [
 			'reorder'	=>	[
 				[

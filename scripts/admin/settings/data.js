@@ -76,9 +76,15 @@ const gutenberg = {
 	note: __('Only blocks **known to this plugin** will support language switching in the **Block Editor**.\nTo disable the block support - turn off the **checkbox** in front of the block name. You can also add other blocks - for this you need to know the **internal** name of the block (which includes the `namespace`) and the name of the attribute/attributes that contain the **content** of the block (*what requires translation*). You can learn these names by looking at the source code of the plugin/themes where these blocks are defined or by contacting the developer.\nUnfortunately, a *simpler* method has not yet been found.', 'zu-translate'),
 	blockTitle: __('Supported blocks', 'zu-translate'),
 	compress: __('Compress language data to reduce page size', 'zu-translate'),
+
+	toggles: ['sync', 'initial', 'session', 'unsaved', 'nobackups'], 
 	sync: {
 		label: __('Synchronize language switching', 'zu-translate'),
 		help: __('Switching a language in one block will lead to language switching in all editable blocks.', 'zu-translate'),
+	},
+	initial: {
+		label: 	__('Open language panel', 'zu-translate'),
+		help:	__('Whether or not the language switching panel will start open.', 'zu-translate'),
 	},
 	session: {
 		label: __('Support session language', 'zu-translate'),

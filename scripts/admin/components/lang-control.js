@@ -13,6 +13,7 @@ const { SelectItemControl, TitleIndicator } = wp.zukit.components;
 
 import { getExternalData, emptyGif, mergeClasses } from './../utils.js';
 
+const initialOpen = getExternalData('initial', false);
 const config = getExternalData('config', []);
 const flagPath = getExternalData('location', []);
 const langOptions = map(config, (data, key) => ({ value: key, label: data.name, flag: data.flag }));
@@ -89,12 +90,12 @@ const LangControl = ({
 			'icon',
 			'opened',
 			'scrollAfterOpen',
-			'initialOpen',
 			'onToggle'
 		]);
 		return (
 			<PanelBody
 				title={ titleWithIndicator }
+				initialOpen={ initialOpen }
 				{ ...panelProps }
 			>
 				{ langControl }

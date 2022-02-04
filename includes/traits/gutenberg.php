@@ -17,7 +17,7 @@ trait zu_TranslateGutenberg {
 				add_filter('the_posts', [$this, 'pre_render_posts'], 0, 2);
 				add_action('rest_api_init', [$this, 'rest_api_init']);
 
-				// pro tempora!
+				// NOTE: pro tempora! встроить возможность в плагин ''
 				$this->qtx_gutenberg_reset();
 			}
 			if($this->is_option('blockeditor.nobackups')) {
@@ -112,8 +112,6 @@ trait zu_TranslateGutenberg {
 			$update_data = true;
 		}
 		if($update_data) {
-			// NOTE: нужно ли 'editor_lang' сейчас??
-			// $response_data['editor_lang'] = $lang;
 			$response->set_data($response_data);
 		}
 		return $response;
@@ -216,12 +214,13 @@ trait zu_TranslateGutenberg {
 		return [
 			'supported' => $this->get_registered_data($settings_data ? 'all' : 'blocks'),
 			'lang'		=> $this->get_url_param('language'),
+			'flags'		=> $this->is_option('flags'),
 			'sync'		=> $this->is_option('blockeditor.sync'),
 			'session'	=> $this->is_option('blockeditor.session'),
 			'unsaved'	=> $this->is_option('blockeditor.unsaved'),
 			'nobackups'	=> $this->is_option('blockeditor.nobackups'),
+			'initial'	=> $this->is_option('blockeditor.initial'),
 			'debug'		=> $this->get_option('_debug'),
-			'flags'		=> $this->is_option('flags'),
 		];
 	}
 
