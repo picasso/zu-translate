@@ -15,72 +15,107 @@ const { getEntityRecordNonTransientEdits, getEditedEntityRecord } = select('core
 const enableDebug = getExternalData('debug.explorer', false);
 const debug = getDebug(enableDebug);
 
-// Explore changes for debug/research (red) -----------------------------------]
+// Explore changes for debug/research (green/red) -----------------------------]
 
 const reported = {
+	isDirty: null,
 	blocks: null,
-	edits: null
+	edits: null,
+	postSaved: true,
 };
-const unsubscribe = subscribe(() => {
-	const postId = getCurrentPostId();
-	const isDirty = isEditedPostDirty();
-	if(postId && reported.blocks === null) {
-		debugPostStatus(isDirty, { postId, isPublished : isCurrentPostPublished() });
-	}
-	if(postId && isEmpty(reported.blocks)) {
-		reported.blocks = getBlocks();
-		if(!isEmpty(reported.blocks)) {
-			const { edits } = getEdits();
-			reported.edits = edits;
-			unsubscribe();
-		}
-	}
-});
 
-subscribe(() => {
-    if(isEditedPostDirty()) {
-		let dirtyData = {};
-		const newBlocks = getBlocks();
-		if(reported.blocks !== newBlocks) {
-			const changes = {};
-			forEach(newBlocks, (next, index) => {
-				const prev = reported.blocks[index];
-				if(next !== prev) {
-					const changed = changedKeys(next, prev);
-					if(includes(changed.updated, 'attributes')) {
-						const updateAtts = changedKeys(next.attributes, prev.attributes);
-						const pickAtts = [...updateAtts.updated, ...updateAtts.added, ...updateAtts.removed];
-						changes[next.clientId] = {
-							name: next.name,
-							changed,
-							attributes: updateAtts,
-							picked: pickAtts,
-							was: pick(prev.attributes, pickAtts),
-							now: pick(next.attributes, pickAtts),
-						};
-					} else {
-						changes[next.clientId] = {
-							name: next.name,
-							changed,
-						};
+if(enableDebug) {
+	initExplorer();
+	runExplorer();
+	watchSavingPost();
+}
+
+function initExplorer() {
+	Zubug.info('initExplorer');
+	const unsubscribe = subscribe(() => {
+		const postId = getCurrentPostId();
+		const isDirty = isEditedPostDirty();
+		if(postId && reported.blocks === null) {
+			debugPostStatus(isDirty, { postId, isPublished : isCurrentPostPublished() });
+			reported.isDirty = isDirty;
+		}
+		if(postId && isEmpty(reported.blocks)) {
+			reported.blocks = getBlocks();
+			if(!isEmpty(reported.blocks)) {
+				const { edits } = getEdits();
+				reported.edits = edits;
+				unsubscribe();
+			}
+		}
+	});
+}
+
+function runExplorer() {
+	Zubug.info('runExplorer');
+	subscribe(() => {
+		if(isEditedPostDirty()) {
+			let dirtyData = {};
+			const newBlocks = getBlocks();
+			if(reported.blocks !== newBlocks) {
+				const changes = {};
+				forEach(newBlocks, (next, index) => {
+					const prev = reported.blocks[index];
+					if(next !== prev) {
+						const changed = changedKeys(next, prev);
+						if(includes(changed.updated, 'attributes')) {
+							const updateAtts = changedKeys(next.attributes, prev.attributes);
+							const pickAtts = [...updateAtts.updated, ...updateAtts.added, ...updateAtts.removed];
+							changes[next.clientId] = {
+								name: next.name,
+								changed,
+								attributes: updateAtts,
+								picked: pickAtts,
+								was: pick(prev.attributes, pickAtts),
+								now: pick(next.attributes, pickAtts),
+							};
+						} else {
+							changes[next.clientId] = {
+								name: next.name,
+								changed,
+							};
+						}
 					}
-				}
-			});
-			dirtyData.blocks = changes;
-			reported.blocks = newBlocks;
+				});
+				dirtyData.blocks = changes;
+				reported.blocks = newBlocks;
+			}
+			const { edits, entity } = getEdits();
+			const msissingAtts = difference(reported.edits, edits);
+			if(!isEqual(reported.edits, edits)) {
+				forEach(merge({}, edits, msissingAtts), attr => {
+					// 'content' has already been processed in the 'blocks' loop
+					if(attr !== 'content') set(dirtyData, ['edits', attr], entity[attr] ?? '?');
+				});
+				reported.edits = edits;
+			}
+			if(!isEmpty(dirtyData)) debugPostStatus(true, dirtyData);
+			reported.isDirty = true;
+		} else if(reported.isDirty) {
+			reported.isDirty = false;
+			debugPostStatus(false, { postId: getCurrentPostId(), isPublished : isCurrentPostPublished() });
 		}
-		const { edits, entity } = getEdits();
-		const msissingAtts = difference(reported.edits, edits);
-		if(!isEqual(reported.edits, edits)) {
-			forEach(merge({}, edits, msissingAtts), attr => {
-				// 'content' has already been processed in the 'blocks' loop
-				if(attr !== 'content') set(dirtyData, ['edits', attr], entity[attr] ?? '?');
-			});
-			reported.edits = edits;
+	});
+}
+
+function watchSavingPost() {
+	Zubug.info('watchSavingPost');
+	subscribe(() => {
+		if(reported.postSaved && isSavingPost()) {
+			reported.postSaved = false;
+			debug.logGroup('{+Saving Post...}', getEdits());
+		} else if(!reported.postSaved) {
+            debug.info('{*Post Saved}');
+            reported.postSaved = true;
 		}
-		if(!isEmpty(dirtyData)) debugPostStatus(true, dirtyData);
-    }
-});
+	});
+}
+
+// Internal debug helpers -----------------------------------------------------]
 
 function getEdits(name = null, recordId = null) {
 	const postType = name ?? getCurrentPostType();
@@ -90,21 +125,6 @@ function getEdits(name = null, recordId = null) {
 		entity: getEditedEntityRecord('postType', postType, postId),
 	};
 }
-
-let postSaved = true;
-subscribe(() => {
-    if(postSaved && isSavingPost()) {
-		postSaved = false;
-		debug.logGroup('{+Saving Post...}', getEdits());
-    } else {
-		if(!postSaved) {
-            debug.info('{*Post Saved}');
-            postSaved = true;
-        }
-    }
-});
-
-// Internal debug helpers -----------------------------------------------------]
 
 function changedKeys(next, prev) {
     const updated = [];
@@ -129,16 +149,17 @@ function debugPostStatus(isDirty, params) {
 	if(enableDebug) {
 		const { isPublished, postId, blocks, edits } = params;
 		if(postId) {
-			debug.info(sprintf('-!Post #%d [%s] and editing state is {%s}',
+			debug.info(sprintf('-%sPost #%d [%s] and editing state is {%s}',
+				isDirty ? '!' : '*',
 				postId,
 				isPublished ? 'published' : 'not published',
-				isDirty ? '!dirty' : '*clean'
+				isDirty ? 'dirty' : 'clean'
 			));
 		} else {
 			const changedAtts = keys(edits);
 			const changedBlocks = keys(blocks);
 			if(changedAtts.length || changedBlocks.length) {
-				debug.logGroup(`!Post is {${isDirty ? '!dirty' : '*clean'}} - {?see details}`);
+				debug.logGroup(`!Post is {dirty} - {?see details}`);
 			}
 			forEach(edits, (value, key) => {
 				const id = `+${key}`;
