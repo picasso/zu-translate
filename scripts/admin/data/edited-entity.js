@@ -10,7 +10,7 @@ import { getExternalData, getDebug } from './../utils.js';
 import { subscribe as subscribeCustomStore, supportedKeys } from './raw-store.js';
 import { entityState, getWatched, syncCompleted } from './sync-blocks.js';
 
-const { isSavingPost, isEditedPostDirty, isCurrentPostPublished, getCurrentPostType, getCurrentPostId } = select('core/editor');
+const { isEditedPostDirty, isCurrentPostPublished, getCurrentPostType, getCurrentPostId } = select('core/editor');
 const { getEntityRecordNonTransientEdits, getEditedEntityRecord } = select('core');
 const { editEntityRecord, receiveEntityRecords } = dispatch('core');
 
@@ -20,7 +20,7 @@ const debug = getDebug(enableDebug);
 // local storage for current attribute values
 let editedAttributes = null;
 
-// Attributes of the Entity (blue) --------------------------------------------]
+// Attributes of the Entity (debug - blue) ------------------------------------]
 
 export function initEditedAttribute(attr, listener) {
 	const rawAttr = `${attr}_raw`;
@@ -54,7 +54,7 @@ export function updateEntityAttributes(edits) {
 	syncCompleted();
 }
 
-// Local 'edited' Attributes (blue) -------------------------------------------]
+// Local 'edited' Attributes (debug - blue) -----------------------------------]
 
 function setEditedAttributes(edits, prevOnly = false) {
 	forEach(edits, (value, attr) => {
@@ -89,7 +89,7 @@ function hasEditedAttributes() {
 	return editedAttributes && editedAttributes.isReady;
 }
 
-// Maintaining 'non-modified' content (brown) ---------------------------------]
+// Maintaining 'non-modified' content (debug - brown) -------------------------]
 
 subscribe(() => {
 	// track post state (Published & Dirty)
@@ -99,13 +99,13 @@ subscribe(() => {
     if(isEditedPostDirty()) {
 		if(!entityState.isPostDirty) {
 			entityState.isPostDirty = true;
-			entityState.wasDirty = false;
+			// entityState.wasDirty = false;
 			debugPostStatus();
 		}
     } else {
 		if(entityState.isPostDirty) {
 			entityState.isPostDirty = false;
-			entityState.wasDirty = true;
+			// entityState.wasDirty = true;
 			debugPostStatus();
 		}
     }
@@ -179,19 +179,6 @@ export function storeTest() {
 }
 
 // Internal debug helpers -----------------------------------------------------]
-
-let postSaved = true;
-subscribe(() => {
-    if(isSavingPost()) {
-		postSaved = false;
-		debug.info('-+{Saving Post...}');
-    } else {
-		if(!postSaved) {
-            debug.info('-*{Post Saved}');
-            postSaved = true;
-        }
-    }
-});
 
 function debugPostStatus() {
 	if(enableDebug) {

@@ -130,6 +130,10 @@ class zu_Translate extends zukit_Plugin  {
 				'label'		=> __('Enable logging in `Sync Blocks`', 'zu-translate'),
 				'value'		=> false,
 			],
+			'explorer'	=> [
+				'label'		=> __('Enable `Explorer` logging', 'zu-translate'),
+				'value'		=> false,
+			],
 		];
 	}
 

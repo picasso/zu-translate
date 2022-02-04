@@ -8,6 +8,7 @@ const { registerPlugin } = wp.plugins;
 import { getExternalData } from './utils.js';
 import * as plugin from './plugin-document/index.js';
 import './hooks/index.js';
+import './data/explorer.js';
 import { resetPostEditorAutosave } from './remove-backups.js';
 
 // reset editor autosaves/backups if requested
