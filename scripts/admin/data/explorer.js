@@ -31,7 +31,6 @@ if(enableDebug) {
 }
 
 function initExplorer() {
-	Zubug.info('initExplorer');
 	const unsubscribe = subscribe(() => {
 		const postId = getCurrentPostId();
 		const isDirty = isEditedPostDirty();
@@ -51,7 +50,6 @@ function initExplorer() {
 }
 
 function runExplorer() {
-	Zubug.info('runExplorer');
 	subscribe(() => {
 		if(isEditedPostDirty()) {
 			let dirtyData = {};
@@ -103,7 +101,6 @@ function runExplorer() {
 }
 
 function watchSavingPost() {
-	Zubug.info('watchSavingPost');
 	subscribe(() => {
 		if(reported.postSaved && isSavingPost()) {
 			reported.postSaved = false;
