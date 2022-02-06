@@ -17,13 +17,13 @@ const {
 	keys,
 } = lodash;
 const { __ } = wp.i18n;
-const { Button, CheckboxControl } = wp.components;
+const { Button, CheckboxControl, PanelBody } = wp.components;
 const { useCallback, useState } = wp.element;
 
 // Zukit dependencies
 
 const { toggleOption } = wp.zukit.render;
-const { ZukitDivider, ZukitPanel, AdvTextControl, ListInputControl } = wp.zukit.components;
+const { ZukitPanel, AdvTextControl, ListInputControl } = wp.zukit.components;
 const { simpleMarkdown, getExternalData, messageWithError } = wp.zukit.utils;
 const { scrollTop } = wp.zukit.jq;
 
@@ -105,68 +105,65 @@ const ZutranslateBlockEditor = ({
 	return (
 			<ZukitPanel id="gutenberg" options={ options } initialOpen={ true }>
 				{ toggleOption(pick(data, data.toggles), beOptions, updateBEOptions) }
-				<h3 className="__subtitle">{ data.blockTitle }</h3>
-				<div className="__supported">
-					{ map(standardBlocks, ({ title, atts }, key) =>
-						<CheckboxControl
-							key={ key }
-							label={ title }
-							help={ contentAtts(atts) }
-							checked={ !includes(excludedBlocks, key) }
-							onChange={ (value) => excludeBlock(value, key) }
-						/>
-					) }
-				</div>
-				{ hasCustomBlocks &&
-					<>
-						<ZukitDivider bottomHalf size={ 2 }/>
-						<div className="__supported">
-							{ map(customBlocks, ({ title, atts }, key) =>
-								<CheckboxControl
-									key={ key }
-									label={ title }
-									help={ contentAtts(atts) }
-									checked={ !includes(excludedBlocks, key) }
-									onChange={ (value) => excludeBlock(value, key) }
-								/>
-							) }
-						</div>
-					</>
-				}
 				<div className="__note">
 					{ simpleMarkdown(data.note, { br: true }) }
 				</div>
-				<div className="__custom">
-					<AdvTextControl
-						isSideBySide
-						label={ data.custom.nameLabel }
-						help={ simpleMarkdown(data.custom.nameHelp, { br: true }) }
-						value={ customName }
-						onChange={ setCustomName }
-						onKeyEnter={ addBlock }
-					/>
-					<ListInputControl
-						isOpen
-						isNotEmptyLabel
-						isSideBySide
-						strict={ /^(?!\d)[\w$]+$/ }
-						label={ data.custom.attsLabel }
-						inputLabel={ simpleMarkdown(data.custom.attsInput, { br: true }) }
-						inputHelp={ simpleMarkdown(data.custom.attsInputHelp, { br: true }) }
-						value={ customAtts }
-						onChange={ setCustomAtts }
-					/>
-					<Button
-						isSecondary
-						className="__plugin_actions __auto green"
-						label={ data.custom.addBlock }
-						icon="plus-alt"
-						onClick={ addBlock }
-					>
-						{ data.custom.addBlock }
-					</Button>
-				</div>
-
+				<PanelBody className="__subtitle" title={ data.blockTitle } initialOpen={ false }>
+					<div className="__supported">
+						{ map(standardBlocks, ({ title, atts }, key) =>
+							<CheckboxControl
+								key={ key }
+								label={ title }
+								help={ contentAtts(atts) }
+								checked={ !includes(excludedBlocks, key) }
+								onChange={ (value) => excludeBlock(value, key) }
+							/>
+						) }
+					</div>
+				</PanelBody>
+				{ hasCustomBlocks &&
+					<div className="__supported">
+						{ map(customBlocks, ({ title, atts }, key) =>
+							<CheckboxControl
+								key={ key }
+								label={ title }
+								help={ contentAtts(atts) }
+								checked={ !includes(excludedBlocks, key) }
+								onChange={ (value) => excludeBlock(value, key) }
+							/>
+						) }
+					</div>
+				}
+				<PanelBody className="__subtitle" title={ data.moreTitle } initialOpen={ false }>
+					<div className="__custom">
+						<AdvTextControl
+							label={ data.custom.nameLabel }
+							help={ simpleMarkdown(data.custom.nameHelp, { br: true }) }
+							value={ customName }
+							onChange={ setCustomName }
+							onKeyEnter={ addBlock }
+						/>
+						<ListInputControl
+							isOpen
+							isNotEmptyLabel
+							strict={ /^(?!\d)[\w$]+$/ }
+							label={ data.custom.attsLabel }
+							inputLabel={ simpleMarkdown(data.custom.attsInput, { br: true }) }
+							inputHelp={ simpleMarkdown(data.custom.attsInputHelp, { br: true }) }
+							value={ customAtts }
+							onChange={ setCustomAtts }
+						/>
+						<Button
+							isSecondary
+							className="__plugin_actions __auto green"
+							label={ data.custom.addBlock }
+							icon="plus-alt"
+							onClick={ addBlock }
+						>
+							{ data.custom.addBlock }
+						</Button>
+					</div>
+				</PanelBody>
 				<div className="__flex __right">
 					<Button
 						isSecondary

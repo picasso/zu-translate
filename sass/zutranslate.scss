@@ -26,9 +26,9 @@ $settings-help-code-color: #986b10;
 	}
 }
 .__supported {
-	display: flex;
-	flex-wrap: wrap;
-	column-gap: 30px;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(25%, 1fr));
+	column-gap: 20px;
 
 	.components-checkbox-control {
 		.components-base-control__field {
@@ -36,7 +36,14 @@ $settings-help-code-color: #986b10;
 		}
 		.components-base-control__help.components-base-control__help {
 			margin-left: 0;
+			text-align: left;
+			font-weight: 400;
+			opacity: 0.8;
 		}
+	}
+
+	.components-panel__body + & {
+		padding: 16px;
 	}
 }
 
@@ -45,4 +52,14 @@ $settings-help-code-color: #986b10;
 	align-items: flex-start;
 	justify-content: flex-start;
 	flex-direction: column;
+}
+
+.__note {
+	margin-bottom: 0 !important;
+	& + .components-panel__body.__subtitle {
+		border-top-width: 0;
+	}
+}
+.components-panel__body.__subtitle + .__flex.__right {
+	margin-top: 16px;
 }
