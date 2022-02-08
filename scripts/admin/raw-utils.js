@@ -41,7 +41,7 @@ export function createRawContent(lang, values, translatedAtts, maybeFixRaw = fal
 	// return the new RAW and attribute content for the current language
     if(prevRaw) {
         const index = _.indexOf(values, prevRaw);
-        const atts = _.split(translatedAtts ?? '', ',');
+        const atts = splitAtts(translatedAtts);
 		const newItems = updateRawContent(rawItems, lang, values, { del: testDelimters(prevRaw), separator, join: false })
         _.set(newItems, index, prevRaw);
         return [
@@ -64,11 +64,11 @@ export function updateRawContent(raw, lang, values, options = null) {
 
     const rawItems = _.reduce(items, (newRaw, rawItem, index) => {
         const blocks = getTranslatedBlocks(rawItem);
-        if(values[index] !== undefined) {
-            blocks[lang] = values[index];
-            const withMarkers = _.map(blocks, (text, ln) => marker(del, ln, text));
-            newRaw[index] = _.join([...withMarkers, marker(del)], '');
-        }
+        if(values[index] !== undefined) blocks[lang] = values[index];
+			// const withMarkers = _.map(blocks, (text, ln) => marker(del, ln, text));
+            // newRaw[index] = _.join([...withMarkers, marker(del)], '');
+		newRaw[index] = joinTranslatedBlocks(blocks, del);
+        // }
         return newRaw;
     }, []);
     if(activateDebug) Zubug.data({ del, separator, items, rawItems });
@@ -87,7 +87,7 @@ export function maybeFixRawContent(prevRaw, lang, values) {
 }
 
 export function splitAtts(translatedAtts) {
-    return _.split(translatedAtts, ',');
+    return _.split(translatedAtts ?? '', ',');
 }
 
 export function switchContent(raw, lang, translatedAtts) {
@@ -112,12 +112,18 @@ export function hasRawBlocks(text) {
 
 const delimiters = ['[]', '{}', '<!-- -->'];
 
+function joinTranslatedBlocks(blocks, del) {
+	const withMarkers = _.map(blocks, (text, lang) => marker(del, lang, text));
+	return _.join([...withMarkers, marker(del)], '');
+}
+
 function emptyRawContent(itemCount, joinItems = true) {
 	const del = getDefaultDelimter();
 	const separator = getSeparator(del);
 	const blocks = getTranslatedBlocks('');
-	const withMarkers = _.map(blocks, (text, ln) => marker(del, ln, text));
-	const emptyRaw = _.join([...withMarkers, marker(del)], '');
+	// const withMarkers = _.map(blocks, (text, ln) => marker(del, ln, text));
+	// const emptyRaw = _.join([...withMarkers, marker(del)], '');
+	const emptyRaw = joinTranslatedBlocks(blocks, del);
 	const rawItems = _.fill(_.range(0, itemCount), emptyRaw);
     return joinItems ? _.join(rawItems, separator) : rawItems;
 }
