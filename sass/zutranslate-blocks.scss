@@ -94,9 +94,31 @@ $copy-control-button-border-color: rgba($zutranslate-copy-selected-text-color, 0
 		border: 1px solid $copy-control-button-border-color;
 		background-color: $copy-control-button-color;
 		color: $zutranslate-copy-selected-text-color;
-		&:hover {
+		&:hover, &:active:not([aria-disabled="true"]) {
 			background-color: $zutranslate-copy-selected-color;
 			color: white;
+		}
+		&.is-flashing {
+			animation: flashing 1000ms ease-out infinite;
+			@at-root {
+				@keyframes flashing {
+					from {
+						background-color: $zutranslate-copy-selected-color;
+						box-shadow: 0 0 1px $zutranslate-copy-selected-text-color;
+						color: white;
+					}
+					25% {
+						background-color: rgba($red-color, 0.7);
+						box-shadow: 0 0 8px $red-color;
+						color: white;
+					}
+					to {
+						background-color: $zutranslate-copy-selected-color;
+						box-shadow: 0 0 1px $zutranslate-copy-selected-text-color;
+						color: white;
+					}
+				}
+			}
 		}
 	}
 	&__lang {

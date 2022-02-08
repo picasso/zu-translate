@@ -93,6 +93,7 @@ export function copyRawAttributes(lang, overwrite = false) {
 		}
 	});
 	updateEntityAttributes(edits);
+	return !isEmpty(edits);
 }
 
 

@@ -92,7 +92,9 @@ const BlockEditLang = (props) => {
 			rawRef.current.raw = updatedRaw;
 			setAttributes({ qtxRaw: updatedRaw, ...updateAtts });
 			debug.infoWithId(id, `-^Content copied from [${fromLang}]`, { updateAtts, updatedRaw });
+			return true;
 		}
+		return false;
 	}, [qtxLang, translatedAtts, translatedValues, setAttributes]);
 
 	// synchronize, create RAW if does not exist and maybe fix it - on mounting only
