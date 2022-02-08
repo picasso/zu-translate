@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { forEach, castArray } = lodash;
+const { isEmpty, forEach, castArray } = lodash;
 
 // Internal dependencies
 
@@ -75,6 +75,25 @@ export function switchRawAttributes(lang, onlyAtts = null) {
 	});
 	updateEntityAttributes(edits);
 }
+
+// copy content for the language from the RAW value and update 'Entity'
+// (if 'overwrite' is true - then overwrite the current value, otherwise replace only empty values)
+export function copyRawAttributes(lang, overwrite = false) {
+	const attributes = getEntityAttributes(null);
+	const edits = {};
+	forEach(attributes, (value, attr) => {
+		const rawValue = getRaw(attr);
+		if(rawValue !== undefined) {
+			if(isEmpty(value) || overwrite) {
+				const copyValue = getLangContent(rawValue, lang);
+				edits[attr] = copyValue;
+				debug.info(`-^{copy} RAW [${attr}] from lang {${lang}}`, copyValue);
+			}
+		}
+	});
+	updateEntityAttributes(edits);
+}
+
 
 // because the document editing panel will be mounted and unmounted every time when switching to blocks editing
 // we register the root hook only once and do not remove it on unmounting ('addHook' has check)

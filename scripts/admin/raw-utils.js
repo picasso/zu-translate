@@ -86,8 +86,12 @@ export function maybeFixRawContent(prevRaw, lang, values) {
 	return false;
 }
 
+export function splitAtts(translatedAtts) {
+    return _.split(translatedAtts, ',');
+}
+
 export function switchContent(raw, lang, translatedAtts) {
-    const atts = _.split(translatedAtts, ',');
+    const atts = splitAtts(translatedAtts);
     const rawItems = splitRawContent(raw);
     return _.reduce(atts, (attributes, attr, index) => {
         const value = getLangContent(rawItems[index], lang);
