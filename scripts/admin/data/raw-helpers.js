@@ -87,6 +87,7 @@ export function copyRawAttributes(lang, overwrite = false) {
 			if(isEmpty(value) || overwrite) {
 				const copyValue = getLangContent(rawValue, lang);
 				edits[attr] = copyValue;
+				updateRaw(attr, copyValue);
 				debug.info(`-^{copy} RAW [${attr}] from lang {${lang}}`, copyValue);
 			}
 		}
