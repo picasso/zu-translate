@@ -12,6 +12,7 @@ const { SelectItemControl, TitleIndicator } = wp.zukit.components;
 // Internal dependencies
 
 import { getExternalData, emptyGif, mergeClasses } from './../utils.js';
+import CopyControl from './copy-control.js';
 
 const initialOpen = getExternalData('initial', false);
 const config = getExternalData('config', []);
@@ -50,6 +51,7 @@ const LangControl = ({
 	title,
 	lang,
 	onClick,
+	onCopy,
 	withPanel,
 	...additionalProps
 }) => {
@@ -73,13 +75,21 @@ const LangControl = ({
 	}, [lang]);
 
 	const langControl = (
-		<SelectItemControl
-			className={ langPrefix }
-			options={ langOptions }
-			selectedItem={ lang }
-			onClick={ onClick }
-			transformValue={ langValue }
-		/>
+		<>
+			<SelectItemControl
+				className={ langPrefix }
+				options={ langOptions }
+				selectedItem={ lang }
+				onClick={ onClick }
+				transformValue={ langValue }
+			/>
+			<CopyControl
+				className={ langPrefix }
+				lang={ lang }
+				options={ langOptions }
+				onCopy={ onCopy }
+			/>
+		</>
 	);
 
 	if(withPanel) {

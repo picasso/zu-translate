@@ -1,6 +1,6 @@
 // WordPress dependencies
 
-const { includes } = lodash;
+const { isEmpty, includes, map, transform, set } = lodash;
 const { createHigherOrderComponent } = wp.compose;
 const { InspectorControls } = wp.blockEditor;
 const { useEffect, useCallback, useRef, useMemo } = wp.element;
@@ -12,7 +12,7 @@ const { useForceUpdater } = wp.zukit.data;
 // Internal dependencies
 
 import { isSupported, getExternalData, getDebug, getTranslated, getEditorBlocks } from './../utils.js';
-import { hasRaw, switchContent, createRawContent, maybeFixRawContent, updateRawContent } from './../raw-utils.js';
+import { hasRaw, switchContent, splitAtts, createRawContent, maybeFixRawContent, updateRawContent } from './../raw-utils.js';
 import { changeLang, useOnLangChange, useLangHook } from './../data/use-store.js';
 import { syncCompleted, syncBlocks } from './../data/sync-blocks.js';
 import LangControl from './../components/lang-control.js';
@@ -79,6 +79,22 @@ const BlockEditLang = (props) => {
 		debug.infoWithId(id, `-^Language switched [${qtxLang} -> ${lang}]`);
 	}, [forceUpdate, replaceContent, qtxLang]);
 
+	const onCopyLang = useCallback((fromLang, overwrite) => {
+		const { raw, id } = rawRef.current;
+		const atts = splitAtts(translatedAtts);
+		const update = switchContent(raw, fromLang, translatedAtts);
+		// if the value cannot be copied, then replace the value with 'undefined', then it will be skipped when updating 'raw'
+		const values = map(atts, (val, index) => isEmpty(translatedValues[index]) || overwrite ? update[val] : undefined);
+		const updatedRaw = updateRawContent(raw, qtxLang, values);
+		if(updatedRaw !== raw) {
+			// leave only those attributes that were copied (see above)
+			const updateAtts = transform(values, (acc, val, index) => val !== undefined ? set(acc, atts[index], val) : false, {});
+			rawRef.current.raw = updatedRaw;
+			setAttributes({ qtxRaw: updatedRaw, ...updateAtts });
+			debug.infoWithId(id, `-^Content copied from [${fromLang}]`, { updateAtts, updatedRaw });
+		}
+	}, [qtxLang, translatedAtts, translatedValues, setAttributes]);
+
 	// synchronize, create RAW if does not exist and maybe fix it - on mounting only
 	useEffect(() => {
 		// if RAW does not exist - create it
@@ -129,9 +145,10 @@ const BlockEditLang = (props) => {
 			<LangControl.Panel
 				lang={ qtxLang }
 				onClick={ onChangeLang }
+				onCopy={ onCopyLang }
 			/>
 		</InspectorControls>
-	), [qtxLang, onChangeLang]);
+	), [qtxLang, onChangeLang, onCopyLang]);
 }
 
 // HOC in which we add a language editing panel if the block fits our requirements
