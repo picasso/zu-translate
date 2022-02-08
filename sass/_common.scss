@@ -1,7 +1,8 @@
 @import "variables";
 
 $zutranslate-font-family: Ubuntu,Roboto,'Open Sans','Helvetica Neue',sans-serif;
-$zutranslate-unselected-color: rgba($admin-blue-color, 0.1);
+$zutranslate-unselected-color: rgba($admin-blue-color, 0.05);
+$zutranslate-unselected-border-color: rgba($admin-blue-color, 0.3);
 $zutranslate-selected-color: rgba($violet-color, 0.3);
 $zutranslate-selected-text-color: $violet-color;
 $zutranslate-hover-color: rgba($admin-blue-color, 0.7);
