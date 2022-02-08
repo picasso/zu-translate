@@ -160,7 +160,7 @@ function debugPostStatus(isDirty, params) {
 			}
 			forEach(edits, (value, key) => {
 				const id = `+${key}`;
-				debugChanged(id, 'entity', 'updated', value);
+				debugChanged(id, 'entity', 'updated', value, true);
 			});
 			forEach(blocks, (value, key) => {
 				const { name, changed, attributes, picked, was, now } = value;
@@ -180,10 +180,10 @@ function debugPostStatus(isDirty, params) {
 	}
 }
 
-function debugChanged(id, name, key, value) {
+function debugChanged(id, name, key, value, logEmptyValues = false) {
 	const data = get(value, key, value);
-	if(!isEmpty(data)) {
-		debug.logGroup(id, sprintf('%s %s [%s]', key, name, isArray(data) ? data.join(', ') : data));
+	if(!isEmpty(data) || logEmptyValues) {
+		debug.logGroup(id, sprintf('%s %s [%s]', key, name, isArray(data) ? data.join(', ') : data || '""'));
 		return id.startsWith('-') ? id : id.replace(/^[+]/, '-');
 	}
 	return id;
