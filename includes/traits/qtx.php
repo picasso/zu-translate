@@ -165,9 +165,10 @@ trait zu_TranslateQT {
 
 	private function qtx_data($settings_data = false) {
 		$qt_config = $this->get_qt_config();
+		$content_url = trailingslashit(wp_normalize_path(dirname(WP_PLUGIN_URL)));
 		return $settings_data ? ['qtxlink' => $this->qtx_link] : [
 			'config'	=> $this->lang_config,
-			'location'	=> $this->sprintf_uri($qt_config['flag_location'] ?? ''),
+			'location'	=> $content_url . $qt_config['flag_location'] ?? '',
 			'format'	=> $this->is_installed_qtranslate() ? QTX_LANG_CODE_FORMAT : '',
 		];
 	}
