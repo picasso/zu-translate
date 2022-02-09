@@ -84,7 +84,6 @@ const LangControl = ({
 				transformValue={ langValue }
 			/>
 			<CopyControl
-				className={ langPrefix }
 				lang={ lang }
 				options={ langOptions }
 				onCopy={ onCopy }

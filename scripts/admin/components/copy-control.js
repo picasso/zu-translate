@@ -4,17 +4,17 @@ const { isFunction, map, filter } = lodash;
 const { __ } = wp.i18n;
 const { Path, SVG, Button, Icon, ToggleControl, NavigableMenu, MenuItem, Popover } = wp.components;
 const { useCallback, useState, useRef, useMemo } = wp.element;
+const { ESCAPE } = wp.keycodes;
 const { withSafeTimeout } = wp.compose;
 
 // Internal dependencies
 
-import { mergeClasses } from './../utils.js'; // getExternalData,
+import { getExternalData, mergeClasses, emptyGif } from './../utils.js';
 import { copyRawAttributes } from './../data/raw-helpers.js';
-
-// const flagPath = getExternalData('location', []);
-// export const withFlags = getExternalData('flags', false);
+const flagPath = getExternalData('location', []);
 
 const copyPrefix = 'components-zu-copy-control';
+const flagIcon = option => (<img src={ option.flag ? flagPath + option.flag : emptyGif }/>);
 
 const chevronUp = (
 	<SVG viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -29,12 +29,10 @@ const chevronDown = (
 );
 
 const CopyControl = ({
-	// className,
 	lang,
 	options,
 	onCopy,
 	setTimeout,
-	// ...additionalProps
 }) => {
 
 	const [ isOverwriteAllowed, setOverwriteAllowed ] = useState(false);
@@ -42,7 +40,6 @@ const CopyControl = ({
 	const [ isFlashing, setIsFlashing ] = useState(false);
 	const buttonRef = useRef(null);
 
-	// const langCount = options.length - 1;
 	const availableLanguages = filter(options, o => o?.value !== lang);
 	const [ langIndex, setLangIndex ] = useState(0);
 	const toLang = availableLanguages[langIndex]?.value;
@@ -61,9 +58,17 @@ const CopyControl = ({
 		const result = func(fromLang, isOverwriteAllowed);
 		if(!result) {
 			setIsFlashing(true);
-			setTimeout(() => setIsFlashing(false), 2000);
+			setTimeout(() => setIsFlashing(false), 1900);
 		}
 	}, [onCopy, isOverwriteAllowed, setTimeout]);
+
+	const onEscape = useCallback(event => {
+		if(event.keyCode === ESCAPE) {
+			event.preventDefault();
+			event.stopPropagation();
+			setIsOpened(false);
+		}
+	}, []);
 
 	// The menu items are practically unchanged (only if 'availableLanguages' is updated)
 	// and therefore we Memoize them
@@ -80,7 +85,7 @@ const CopyControl = ({
 			map(availableLanguages, (option, index) => (
 				<MenuItem
 					key={ option.value }
-					// icon={ option.icon }
+					icon={ flagIcon(option) }
 					onClick={ () => onChange(index) }
 				>
 					{ option.label }
@@ -90,7 +95,7 @@ const CopyControl = ({
 
 	}, [availableLanguages]);
 
-	const isDisabled = false;
+	const isDisabled = availableLanguages.length === 1;
 
 	return (
 		<>
@@ -103,34 +108,32 @@ const CopyControl = ({
 					{ __('Copy from', 'zu-translate') }
 				</Button>
 				<div>
-				<Button
-					disabled={ isDisabled }
-					className={ `${copyPrefix}__lang` }
-					aria-expanded={ isOpened }
-					onClick={ togglePopup }
-					ref={ buttonRef }
-				>
-					{ toLabel }
-					<span className={ `${copyPrefix}__arrow` } aria-hidden="true">
-						<Icon icon={ isOpened ? chevronUp : chevronDown }/>
-					</span>
-				</Button>
-				{ isOpened && (
-					<Popover
-						className={ `${copyPrefix}__popup` }
-						position={ "bottom right" }
-						onFocusOutside={ closeOutside }
-						// anchorRect={ false }
+					<Button
+						disabled={ isDisabled }
+						className={ `${copyPrefix}__lang` }
+						aria-expanded={ isOpened }
+						onClick={ togglePopup }
+						ref={ buttonRef }
 					>
-						<NavigableMenu
-							className={ `${copyPrefix}__menu` }
-							// ref={ menuContainer }
-							// onKeyDown={ manageFocusOnInput }
+						{ toLabel }
+						<span className={ `${copyPrefix}__arrow` } aria-hidden="true">
+							<Icon icon={ isOpened ? chevronUp : chevronDown }/>
+						</span>
+					</Button>
+					{ isOpened && (
+						<Popover
+							className={ `${copyPrefix}__popup` }
+							position={ "bottom right" }
+							onFocusOutside={ closeOutside }
 						>
-							{ menuItems }
-						</NavigableMenu>
-					</Popover>
-				) }
+							<NavigableMenu
+								// ref={ menuContainer }
+								onKeyDown={ onEscape }
+							>
+								{ menuItems }
+							</NavigableMenu>
+						</Popover>
+					) }
 				</div>
 			</div>
 			<ToggleControl

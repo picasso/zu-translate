@@ -183,8 +183,9 @@ $copy-control-flashing-end-color: $red-color;
 			padding-left: 8px;
 			box-shadow: none !important;
 			.components-menu-items__item-icon.has-icon-right {
-				margin: 0 20px 0 0;
+				margin: 0 10px 0 0;
 				border: 1px solid $admin-disable-text-color;
+				min-width: 10px;
 			}
 			&:focus:not(:disabled) {
 				border-left-color: $zutranslate-copy-selected-text-color;
