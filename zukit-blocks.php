@@ -16,11 +16,11 @@ class zukit_Blocks extends zukit_Addon {
 	private $handle = null;
 	private $namespace = null;
 
+	// handler for Zukit common JS with utilities and components
+	public static $zukit_handle = 'zukit-blocks';
 	// We can only have one 'zukit-blocks' script loaded and therefore
     // store its status in a static property so that we can avoid repeated 'enqueue' calls.
     private static $zukit_loaded = false;
-	// handler for Zukit common JS with utilities and components
-	private static $zukit_handle = 'zukit-blocks';
 	// filename with common colors that could be available in JS
 	private static $colors_filename = 'zukit-colors';
 	private static $zukit_colors = null;

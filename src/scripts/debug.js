@@ -59,6 +59,7 @@ const config = {
         accented: '±',
         bold: '§',
         colored: '~',
+        dim: '‡',
         param: ['[', ']'],
         opaque: ['{', '}'],
     },
@@ -69,6 +70,7 @@ const _markers = _.transform(config.markers, (a, v,k) => a[k[0]] = v);
 const _accented = s => `${_markers.a}${s}${_markers.a}`;
 const _bold = s => `${_markers.b}${s}${_markers.b}`;
 const _colored = s => `${_markers.c}${s}${_markers.c}`;
+const _dim = s => `${_markers.d}${s}${_markers.d}`;
 const _param = (s, alt) => `${_markers.p[0]}${s}${alt ? ' : ' : ''}${alt ?? ''}${_markers.p[1]}`;
 const _opaque = s => `${_markers.o[0]}${s}${_markers.o[1]}`;
 
@@ -88,6 +90,7 @@ let dcolors = {
     accentBg: '#fff7e5',
     colored: '#0f5d9a',
     coloredBg: '#ecffe5',
+    dim: 'rgba(0,0,51,0.2)',
 
     // cyan not used, maybe later?
     cyan: '#00b3b0',
@@ -117,30 +120,32 @@ function canIlog(message, isData = false) {
 
 /* eslint-disable no-console */
 function logWithColors(message, ...data) {
-    const notLog = !config.mods.default;
-    const func = config.colors.info && notLog ? console.info : console.log;
-    const colors = getColors(colorBy(message));
-
-// удалить после восстановления логирования Группового
+    const colored = !config.mods.default;
+    let func = config.colors.info && colored ? console.info : console.log;
     // if starts with '>' - then make it as collapsed group
-    // if(message1.startsWith('>')) {
-    //     message1 = message1.replace(/^>/, '');
-    //     func = console.groupCollapsed;
-    //     groupFunc = true;
-    // }
+    if(message.startsWith('>')) {
+        message = message.replace(/^>/, '');
+        func = console.groupCollapsed;
+    }
 
+    const colors = getColors(colorBy(message));
     let { format, items } = parseWithColors(stripColorModifiers(message), colors);
     if(!_.isEmpty(data)) format = format + '  ';
+
     _.forEach(data, item => {
-        if(_.isString(item) && notLog) {
-            const { format: newFormat, items: newItems } = parseWithColors(item, colors);
+        // delayed value creation - if the 'item' is a function,
+        // then we replace it with the value returned from the function
+        const value = _.isFunction(item) ? item() : item;
+        if(_.isString(value) && colored) {
+            const { format: newFormat, items: newItems } = parseWithColors(value, colors);
             format = format + newFormat;
             items.push(...newItems);
         } else {
-            format = format + (_.isString(item) ? '%s' : '%o');
-            items.push(config.clone ? cloneValue(item) : item);
+            format = format + (_.isString(value) ? '%s' : '%o');
+            items.push(config.clone ? cloneValue(value) : value);
         }
     });
+
     func(format, ...items);
     resetAllModifiers();
 }
@@ -185,39 +190,31 @@ function logVerbose(...data) {
     if(logLevel() > 2) log(...data);
 }
 
-// требует восстановления!
-function logGroup(obj, groupName = '', withoutNil = false, verboseOnly = false) {
-    if(verboseOnly && logLevel() < 2) {
-        console.groupEnd();
-        return;
+function logGroup(groupName, groupData, params) {
+    let shouldCloseGroup = true;
+    // if starts with '<' - then just close group
+    if(!groupName.startsWith('<')) {
+        const { withoutNil = false, withoutIndex = false , arrayName = groupName } = params ?? {};
+        if(groupName.startsWith('-') || groupName.startsWith('+')) {
+            const func = groupName.startsWith('+') ? _accented : _dim;
+            logWithColors(`^${func(groupName.replace(/^[-|+]/, ''))} ${arrowSymbol} `, ..._.castArray(groupData));
+            shouldCloseGroup = false;
+        } else {
+            logWithColors(`>${groupName}`);
+            if(_.isNil(groupData)) shouldCloseGroup = false;
+            _.forEach(groupData, (value, key) => {
+                if(!(withoutNil && _.isNil(value))) {
+                    const indexName = withoutIndex ? '' : `[${key}]`;
+                    const keyName = groupName && _.isArray(groupData) ? `${arrayName}${indexName}` : key;
+                    if(_.isFunction(value)) {
+                        console.dir(value);
+                    } else
+                        logWithColors(`^${_accented(keyName)} ${arrowSymbol} `, value);
+                }
+            });
+        }
     }
-
-    let closeMore = false;
-    if(groupName && _.isPlainObject(obj)) {
-        console.groupCollapsed(
-            '%c%s',
-            `font-weight: bold; color: ${dcolors.name}; padding: 3px;`,
-            groupName.trim()
-        );
-        closeMore = true;
-    }
-
-    for(let key in obj) {
-        if(withoutNil && _.isNil(obj[key])) continue; // › »
-        let keyName = groupName && _.isArray(obj) ? `${groupName}[${key}]` : key;
-        if(_.isFunction(obj[key])) {
-            console.dir(obj);
-            break;
-        } else console.log(
-            '%c%s%c ⇢ %o',
-            `font-weight: bold; color: ${dcolors.name}`,
-            keyName,
-            `font-weight: normal; color: ${dcolors.navigate}`,
-            obj[key]
-        );
-    }
-    console.groupEnd();
-    if(closeMore) console.groupEnd();
+    if(shouldCloseGroup) console.groupEnd();
     // reset all modifiers
     resetAllModifiers();
 }
@@ -253,6 +250,11 @@ function error(message, ...data) {
     }
 }
 
+function logAsOneString(chunks, ...data) {
+    const message = _.isArray(chunks) ? _.join(chunks, ' ') : String(chunks);
+    logWithColors(message.replace(/\s+/g, ' ').replace(/\s*\]/g, ']').replace(/\[\s*/g, '['), ...data);
+}
+
 // требует восстановления!
 // log ajax request and its options
 function logRequestResponse(type, route, options, response, method = 'GET') {
@@ -283,10 +285,6 @@ function logRequestResponse(type, route, options, response, method = 'GET') {
     }
 }
 
-function logAsOneString(chunks, ...data) {
-    const message = _.isArray(chunks) ? _.join(chunks, ' ') : String(chunks);
-    logWithColors(message.replace(/\s+/g, ' ').replace(/\s*\]/g, ']').replace(/\[\s*/g, '['), ...data);
-}
 /* eslint-enable no-console */
 
 // Debugging in components ----------------------------------------------------]
@@ -302,13 +300,18 @@ function renderComponent(maybeClientId) {
 
 // display variables and their values, possibly simplifying the data
 function dataInComponent(data, marker = false) {
+    // delayed value creation - if the 'data' is a function,
+    // then we replace it with the value returned from the function
+    if(_.isFunction(data)) data = data();
+
     const component = componentName('dataInComponent');
     const keys = _.keys(data);
     const isSingleKey = keys.length === 1;
     const key = isSingleKey ? _.first(keys) : _.join(_.map(keys, _accented), `, `);
     const value = isSingleKey ? data[key] : data;
-    const altName = marker ? `:${_colored(String(marker))}` : '';
-    const message = `${_bold(component)}${altName} ${arrowSymbol} value for ${isSingleKey ? _accented(key) : key}`;
+    const withName = !_.startsWith(marker, '-');
+    const altName = !!stripColorModifiers(marker) && marker ? `:${_colored(stripColorModifiers(marker))}` : '';
+    const message = `${withName ? _bold(component) : ''}${altName} ${arrowSymbol} value for ${isSingleKey ? _accented(key) : key}`;
     config.colors.data = true;
     if(isSimpleType(value)) {
         logAsOneString(message, value);
@@ -418,16 +421,10 @@ function colorBy(message) {
     const mod = stripColorModifiers(message, true);
     if(mod) {
         const modColor = dcolors[_.findKey(mods, v => v === mod)] ?? dcolors.basic;
+        if(mod === '^') config.colors.opaque = { color: dcolors.white, bg: dcolors.cyan };
         return mod === '^' ? [color, true, null] : [modColor, true, { color: dcolors.white, bg: modColor }];
     }
     return color;
-
-    // // remove any var names which may lead to false-positive test
-    // message = message.replace(/\[[^\]]+\]/,'').replace(/"[^"]+"/g, '');
-    // if(/token|logout|user/ig.test(message)) return /unsuccessful|error/ig.test(message) ? dcolors.keypoint2 : dcolors.keypoint1;
-    // if(/unsuccessfully|preloading/ig.test(message)) return dcolors.basic;
-    // if(/loading|launching|ajax/ig.test(message)) return dcolors.framework;
-    // return color;
 }
 
 function getColors(main = dcolors.basic) {
@@ -445,17 +442,9 @@ function getColors(main = dcolors.basic) {
         params: `${weightBold} ${padding} color: ${dcolors.name}`,
         colored: `${weightBold} ${paddingBg} ${rounded} color: ${dcolors.colored}; background: ${dcolors.coloredBg}`,
         opaque: `${weightBold} ${paddingBg} ${rounded} color: ${opaque.color}; background: ${opaque.bg}`,
+        dim: `${weightBold} ${paddingBg} ${rounded} color: ${dcolors.dim}`,
     };
 }
-
-// function setOpaqueColors(color) {
-//     if(color === 'green') config.colors.opaque = { color: dcolors.white, bg: dcolors.ok };
-//     if(color === 'red') config.colors.opaque = { color: dcolors.white, bg: dcolors.alert };
-//     if(color === 'violet') config.colors.opaque = { color: dcolors.white, bg: dcolors.query };
-//     if(color === 'orange') config.colors.opaque = { color: dcolors.white, bg: dcolors.name };
-//     if(color === 'blue') config.colors.opaque = { color: dcolors.white, bg: dcolors.info };
-//     if(color === 'brown') config.colors.opaque = { color: dcolors.white, bg: dcolors.data };
-// }
 
 // старая реализация через regex, сохранил тут для идей
 // const fixed = { '*':'#1','_':'#2','~':'#3','{':'#4','}':'#5' };
@@ -467,8 +456,8 @@ function getColors(main = dcolors.basic) {
 const tokenFormat = t => `${t}%c`;
 
 function parseWithColors(message, colors) {
-    const { normal, bold, params, accent, colored, opaque } = colors ?? getColors();
-    const { a, b, c, p, o } = _markers; // accented, bold, colored, param, opaque
+    const { normal, bold, params, accent, colored, opaque, dim } = colors ?? getColors();
+    const { a, b, c, d, p, o } = _markers; // accented, bold, colored, dim, param, opaque
     let isComplete = true;
     let format = '%c';
     let items = [normal];
@@ -511,6 +500,18 @@ function parseWithColors(message, colors) {
                 if(isComplete) {
                     format += tokenFormat(token);
                     items.push(bold);
+                    token = '';
+                    isComplete = false;
+                } else {
+                    format += tokenFormat(token);
+                    items.push(normal);
+                    token = '';
+                    isComplete = true;
+                }
+            } else if(char === d) {
+                if(isComplete) {
+                    format += tokenFormat(token);
+                    items.push(dim);
                     token = '';
                     isComplete = false;
                 } else {
@@ -757,6 +758,7 @@ export default {
     logGroup,
     warn,
     error,
+    shortenId,
 
     render: renderComponent,
     data: dataInComponent,

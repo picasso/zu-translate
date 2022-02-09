@@ -83,7 +83,8 @@ $list-input-close-size: $_button-svg-default-size + $list-input-padding;
 			}
 			.__add, .__reset {
 				margin-top: 0;
-				top: - $list-input-margin;
+				align-self: flex-start;
+				top: 26px;
 			}
 		}
 		&.__with-label-help {
