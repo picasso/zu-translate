@@ -127,12 +127,16 @@ $copy-control-flashing-end-color: $red-color;
 	}
 	&__lang {
 		color: $zutranslate-copy-selected-text-color;
-		&:hover {
+		&:hover:not(:disabled) {
 			background-color: rgba($zutranslate-copy-selected-text-color, 0.05);
 			color: $zutranslate-copy-selected-text-color;
 		}
 		&:focus:not(:disabled) {
 			box-shadow: 0 0 0 1px rgba($zutranslate-copy-selected-text-color, 0.3) !important;
+		}
+		&:disabled, &[aria-disabled="true"] {
+			color: $zutranslate-copy-selected-text-color;
+			opacity: 0.5;
 		}
 	}
 	.components-button[aria-expanded="true"] {

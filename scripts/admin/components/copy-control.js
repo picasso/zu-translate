@@ -101,7 +101,6 @@ const CopyControl = ({
 		<>
 			<div className={ copyPrefix }>
 				<Button
-					disabled={ isDisabled }
 					className={  mergeClasses(`${copyPrefix}__action`, { 'is-flashing': isFlashing }) }
 					onClick={ () => copyValue(toLang) }
 				>
@@ -126,10 +125,7 @@ const CopyControl = ({
 							position={ "bottom right" }
 							onFocusOutside={ closeOutside }
 						>
-							<NavigableMenu
-								// ref={ menuContainer }
-								onKeyDown={ onEscape }
-							>
+							<NavigableMenu onKeyDown={ onEscape }> 
 								{ menuItems }
 							</NavigableMenu>
 						</Popover>
