@@ -151,21 +151,17 @@ $select-item-basic-border-color: rgb(25, 30, 35);
 		transition-timing-function: $transition-function;
 		box-shadow: none !important;
 
-		&:hover {
+		&:hover:not(:disabled) {
 			color: $select-item-hover-color !important;
 			background-color: $select-item-bg-hover-color !important;
 			border-color: $select-item-border-hover-color !important;
 		}
+		&:focus:not(:disabled) {
+			box-shadow: 0 0 0 1px $wp-admin-blue-color !important;
+		}
 		&.is-clickable {
 			pointer-events: all;
 		}
-
-        // @include in('^.is-disabled') {
-        //     border-color: $admin-disable-border-color;
-        //     background-color: $admin-disable-background-color;
-        //     color: $admin-disable-text-color;
-        // }
-
         svg {
             fill: currentColor;
         }

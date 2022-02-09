@@ -95,6 +95,23 @@ $divider-component-class: zukit-divider;
 		}
 	}
 
+	// when WP == 5.9 ---------------------------------------------------------]
+	// они забыли, что-ли? может сами исправят в следующей версии?
+	.wp_5_9 {
+		.components-visually-hidden {
+		  border: 0;
+		  clip: rect(1px, 1px, 1px, 1px);
+		  clip-path: inset(50%);
+		  height: 1px;
+		  margin: -1px;
+		  overflow: hidden;
+		  padding: 0;
+		  position: absolute;
+		  width: 1px;
+		  word-wrap: normal !important;
+		}
+	}
+
 	// fix styles of standard controls that I do not like ---------------------]
 
 	.components-checkbox-control {
@@ -224,6 +241,7 @@ $divider-component-class: zukit-divider;
 			.components-base-control,
 				.components-button:not(.zukit-select-item__button):not(.__plugin_actions):not(.__exclude):not(.components-panel__body-toggle) {
 				font-size: $basic-font-size !important;
+				line-height: $basic-line-height !important;
 				color: $admin-grey-blue-color;
 			}
 
@@ -231,10 +249,19 @@ $divider-component-class: zukit-divider;
 				min-width: $settings-left-width;
 			}
 
+			h2, h3, h4, h5, h6 {
+				&.__subtitle {
+					font-size: $basic-font-size;
+					font-weight: 600;
+					color: $admin-darker-brown;
+				}
+			}
 			.__subtitle {
-				font-size: $basic-font-size;
-				font-weight: 600;
-				color: $admin-darker-brown;
+				.components-panel__body-toggle {
+					font-size: $basic-font-size;
+					font-weight: 600;
+					color: $admin-darker-brown;
+				}
 			}
 
 			.editor-post-title {
