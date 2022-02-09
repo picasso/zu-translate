@@ -1,7 +1,7 @@
 {
     "name": "zutranslate",
-    "version": "1.2.5",
-    "testedWP": "5.8.3",
+    "version": "1.3.0",
+    "testedWP": "5.9.0",
     "requiresPHP": ">=7.2.0",
     "author": "Dmitry Rudakov",
     "description": "Additional functionality and the Gutenberg support for 'qTranslate-XT' plugin",

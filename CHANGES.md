@@ -1,3 +1,17 @@
+#### 1.3.0 / 2022-02-09
+* added `Copy from` button to the language switcher
+* added `initialOpen` option for the language switching panel
+* added `Explorer` module to investigate problems with `Entity` updates
+* added flags to menu items, improved keyboard navigation
+* added `flashing` button when RAW copying is not possible
+* fixed bug with `flags` location
+* fixed bug when selector is disabled
+* fixed bug when `raw` was not updated if value was undefined
+* fixed bug when sync could not complete due to the fact that the values of the languages matched
+* __GUTENBERG__ specification updated
+* improved CSS on the `Settings` page
+* improved debug messages
+
 #### 1.2.5 / 2022-01-25
 * in support of the option `nobackups` added deletion of autosave on the server
 * systematized colors for debug messages
