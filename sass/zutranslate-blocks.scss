@@ -15,11 +15,13 @@ $copy-control-toggle-check-color: $zutranslate-copy-selected-text-color;
 
 $copy-control-button-color: rgba($zutranslate-copy-selected-color, 0.3);
 $copy-control-button-border-color: rgba($zutranslate-copy-selected-text-color, 0.3);
+$copy-control-flashing-end-color: $red-color;
 
 .#{$lang-control-class} {
 	margin-top: 12px;
 	margin-bottom: 8px !important;
-	.#{$select-item-class}__button-wrapper{
+	.#{$select-item-class}__button-wrapper {
+		margin-top: 6px;
 		&.is-selected {
 			box-shadow: none;
 			.components-button {
@@ -39,6 +41,9 @@ $copy-control-button-border-color: rgba($zutranslate-copy-selected-text-color, 0
 				span {
 					font-weight: 300;
 				}
+			}
+			.components-button:focus:not(:disabled) {
+				box-shadow: 0 0 0 1px $zutranslate-selected-text-color !important;
 			}
 		}
 	}
@@ -65,9 +70,11 @@ $copy-control-button-border-color: rgba($zutranslate-copy-selected-text-color, 0
 			font-family: $zutranslate-font-family;
 			&.__with-flags {
 				font-size: 15px;
+				margin-top: 3px;
 			}
 			.__flag {
 				margin-right: 6px;
+				border: 1px solid $admin-disable-text-color;
 			}
 		}
 	}
@@ -82,7 +89,7 @@ $copy-control-button-border-color: rgba($zutranslate-copy-selected-text-color, 0
 		border-radius: 4px;
 		box-shadow: none;
 		height: $copy-control-height;
-		transition-property: background-color, color;
+		transition-property: background-color, color, box-shadow;
 		transition-duration: $transition-time;
 		transition-timing-function: $transition-function;
 	}
@@ -98,25 +105,22 @@ $copy-control-button-border-color: rgba($zutranslate-copy-selected-text-color, 0
 			background-color: $zutranslate-copy-selected-color;
 			color: white;
 		}
+		&:focus:not(:disabled):not(.is-flashing) {
+			box-shadow: 0 0 0 1px $zutranslate-copy-selected-text-color !important;
+		}
 		&.is-flashing {
-			animation: flashing 1000ms ease-out infinite;
+			animation: flashing-shake 1000ms ease-out infinite;
+			box-shadow: 0 0 0 1px $copy-control-flashing-end-color;
+			color: white;
 			@at-root {
-				@keyframes flashing {
-					from {
-						background-color: $zutranslate-copy-selected-color;
-						box-shadow: 0 0 1px $zutranslate-copy-selected-text-color;
-						color: white;
-					}
-					25% {
-						background-color: rgba($red-color, 0.7);
-						box-shadow: 0 0 8px $red-color;
-						color: white;
-					}
-					to {
-						background-color: $zutranslate-copy-selected-color;
-						box-shadow: 0 0 1px $zutranslate-copy-selected-text-color;
-						color: white;
-					}
+				@keyframes flashing-shake {
+					0% { transform: skewX(-15deg); }
+					5% { transform: skewX(15deg); }
+					10% { transform: skewX(-15deg); }
+					15% { transform: skewX(15deg); }
+					20% { transform: skewX(0deg); }
+					30% { background-color: $copy-control-flashing-end-color; }
+					100% { transform: skewX(0deg); }
 				}
 			}
 		}
@@ -126,6 +130,9 @@ $copy-control-button-border-color: rgba($zutranslate-copy-selected-text-color, 0
 		&:hover {
 			background-color: rgba($zutranslate-copy-selected-text-color, 0.05);
 			color: $zutranslate-copy-selected-text-color;
+		}
+		&:focus:not(:disabled) {
+			box-shadow: 0 0 0 1px rgba($zutranslate-copy-selected-text-color, 0.3) !important;
 		}
 	}
 	.components-button[aria-expanded="true"] {
@@ -160,7 +167,7 @@ $copy-control-button-border-color: rgba($zutranslate-copy-selected-text-color, 0
 				}
 			}
 			.components-form-toggle__input:focus + .components-form-toggle__track {
-				box-shadow: 0 0 0 2px #fff, 0 0 0 4px $copy-control-toggle-check-color;
+				box-shadow: 0 0 0 2px #fff, 0 0 0 4px $copy-control-toggle-color;
 			}
 		}
 	}
@@ -171,8 +178,17 @@ $copy-control-button-border-color: rgba($zutranslate-copy-selected-text-color, 0
 			margin-right: -48px !important;
 		}
 		.components-button {
-			box-shadow: none !important;
 			outline: 1px solid rgba($zutranslate-copy-selected-text-color, 0.1) !important;
+			border-left: 4px solid transparent;
+			padding-left: 8px;
+			box-shadow: none !important;
+			.components-menu-items__item-icon.has-icon-right {
+				margin: 0 20px 0 0;
+				border: 1px solid $admin-disable-text-color;
+			}
+			&:focus:not(:disabled) {
+				border-left-color: $zutranslate-copy-selected-text-color;
+			}
 		}
 	}
 }
