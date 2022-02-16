@@ -43,11 +43,11 @@ trait zu_TranslateSupportedBlocks {
 	];
 
 	private $wp_theme_blocks = [
-		// as far as i understand, there is no content here, which requires translation
+		// as far as I understand, there is no content here, which requires translation
 	];
 
 	private $wp_embeds_blocks = [
-		// as far as i understand, there is no content here, which requires translation
+		// as far as I understand, there is no content here, which requires translation
 	];
 
 	public function register_translated_blocks($blocks) {
