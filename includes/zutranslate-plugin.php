@@ -2,6 +2,7 @@
 // Includes all traits --------------------------------------------------------]
 
 include_once('traits/ajax.php');
+include_once('traits/converted.php');
 include_once('traits/qtx.php');
 include_once('traits/gutenberg.php');
 include_once('traits/shortcode.php');
@@ -11,7 +12,7 @@ class zu_Translate extends zukit_Plugin  {
 	// private $clean = null;
 
 	// qT-XT helpers, shortcodes, REST API and 'Gutenberg' support
-	use zu_TranslateQT, zu_TranslateAjax, zu_TranslateGutenberg, zu_TranslateShortcode;
+	use zu_TranslateQT, zu_TranslateAjax, zu_TranslateGutenberg, zu_TranslateShortcode, zu_TranslateConverted;
 
 	protected function config() {
 		return  [
@@ -87,16 +88,15 @@ class zu_Translate extends zukit_Plugin  {
 	}
 
 	protected function extend_actions() {
-		// return [
-		// 	[
-		// 		'label'		=> __('Clean All Cached Data', 'zu-translate'),
-		// 		'value'		=> 'zumedia_reset_cached',
-		// 		'icon'		=> 'dismiss',
-		// 		'color'		=> 'magenta',
-		// 		'help'		=> __('Clear all cached data referenced to attachments, galleries and folders.'
-		// 							.' Needs if you added gallery or folder.', 'zu-translate'),
-		// 		'depends'	=> '!disable_cache',
-		// 	],
+		return [
+			[
+				'label'		=> __('Convert Classic Blocks', 'zu-translate'),
+				'value'		=> 'zutranslate_convert_classic',
+				'icon'		=> 'superhero',
+				'color'		=> 'magenta',
+				'help'		=> __('Convert all **Classic Blocks** to Gutenberg blocks. Regular text will be replaced with `core/paragraph`, headings with `core/heading` and shortcodes with `core/shortcode` blocks.', 'zu-translate'),
+				'depends'	=> 'gutenberg',
+			],
 		// 	[
 		// 		'label'		=> __('Flush Rewrite Rules', 'zu-translate'),
 		// 		'value'		=> 'zumedia_flush_rewrite',
@@ -106,7 +106,7 @@ class zu_Translate extends zukit_Plugin  {
 		// 							.' Needs if you redefined tag or category rewrite rules.', 'zu-translate'),
 		// 		'depends'	=> ['zumedia_folders_options.add_rewrite', 'add_tags', 'add_category'],
 		// 	],
-		// ];
+		];
 	}
 
 	protected function extend_debug_options() {

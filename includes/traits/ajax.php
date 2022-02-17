@@ -7,6 +7,7 @@ trait zu_TranslateAjax {
 
 	public function ajax_more($action, $value) {
 		if($action === 'zutranslate_reset_supported') return $this->reset_supported_blocks();
+		if($action === 'zutranslate_convert_classic') return $this->convert_classic();
 		else return null;
 	}
 
@@ -68,6 +69,25 @@ trait zu_TranslateAjax {
 		return $this->create_notice('infodata', // combine 'info' with 'data'
 			__('Block Editor settings are reset to defaults', 'zu-translate'),
 			$this->supported_data
+		);
+	}
+
+	private function convert_classic() {
+		// 1223
+		$posts = [1223];
+		$converted = [];
+		foreach($posts as $post_id) {
+			$result = $this->convert_blocks($post_id);
+			if($result) $converted[] = $post_id;
+		}
+		$failed = empty($converted);
+		$message = __('The following posts have been converted from **Classic Blocks**', 'zu-translate');
+		if($failed) $message = __('**Classic blocks** were not found for the following posts', 'zu-translate');
+		return $this->create_notice($failed ? 'warning' : 'info',
+			sprintf('%s `[ %s ]`',
+				$message,
+				implode(', ', $failed ? $posts : $converted)
+			)
 		);
 	}
 }
