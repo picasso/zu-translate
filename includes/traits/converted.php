@@ -46,10 +46,6 @@ trait zu_TranslateConverted {
 					$paragraphs[$index][$lang] = $value;
 				}
 			}
-			// $headings = array_map('qtranxf_join_b', $headings);
-			// $paragraphs = array_map('qtranxf_join_b', $paragraphs);
-			// zu_log($headings, $paragraphs);
-
 			$content = $this->format_blocks($lang_blocks[$post_lang], [
 				'headings'			=> $tokens[$post_lang]['headings'][0],
 				'paragraphs'		=> array_column($paragraphs, $post_lang),
@@ -60,15 +56,17 @@ trait zu_TranslateConverted {
 		}
 
 zu_log($content);
-
-		return !empty($found_blocks);
+		if(!empty($found_blocks)) {
+			$this->duplicate_post_as_draft($post, $content);
+			return true;
+		}
+		return false;
 	}
 
 	private function split_headings($raw) {
 		$re = '/<h[1-6]+>([^<]+?)<\/h[1-6]+>/im'; // [\n]*
 		$result = preg_match_all($re, $raw, $matches, PREG_SET_ORDER, 0);
 		return $result ? [array_column($matches, 0), array_column($matches, 1)] : [[], []];
-	    // return preg_split($split_regex, $raw, - 1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 	}
 
 	private function split_shortcodes($raw) {
@@ -157,7 +155,9 @@ zu_log($content);
 	}
 
 	private function core_heading($raw, $rendered) {
-		$heading_id = mb_strtolower(preg_replace('/\s+/', '-', strip_tags($rendered)));
+		$without_tags = strip_tags($rendered);
+		$rendered = str_replace($without_tags, $raw, $rendered);
+		$heading_id = mb_strtolower(preg_replace('/\s+/', '-', $without_tags));
 		return sprintf(
 			"<!-- wp:heading -->\n%s\n<!-- /wp:heading -->",
 			preg_replace('/<(h[1-6])/i', '<$1 id="' . $heading_id . '"', $rendered)

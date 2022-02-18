@@ -3,6 +3,7 @@
 
 include_once('traits/ajax.php');
 include_once('traits/converted.php');
+include_once('traits/duplicate.php');
 include_once('traits/qtx.php');
 include_once('traits/gutenberg.php');
 include_once('traits/shortcode.php');
@@ -12,7 +13,12 @@ class zu_Translate extends zukit_Plugin  {
 	// private $clean = null;
 
 	// qT-XT helpers, shortcodes, REST API and 'Gutenberg' support
-	use zu_TranslateQT, zu_TranslateAjax, zu_TranslateGutenberg, zu_TranslateShortcode, zu_TranslateConverted;
+	use zu_TranslateQT,
+		zu_TranslateAjax,
+		zu_TranslateGutenberg,
+		zu_TranslateShortcode,
+		zu_TranslateConverted,
+		zu_TranslateDuplicate;
 
 	protected function config() {
 		return  [
@@ -97,15 +103,14 @@ class zu_Translate extends zukit_Plugin  {
 				'help'		=> __('Convert all **Classic Blocks** to Gutenberg blocks. Regular text will be replaced with `core/paragraph`, headings with `core/heading` and shortcodes with `core/shortcode` blocks.', 'zu-translate'),
 				'depends'	=> 'gutenberg',
 			],
-		// 	[
-		// 		'label'		=> __('Flush Rewrite Rules', 'zu-translate'),
-		// 		'value'		=> 'zumedia_flush_rewrite',
-		// 		'icon'		=> 'superhero',
-		// 		'color'		=> 'blue',
-		// 		'help'		=> __('Remove rewrite rules and then recreate rewrite rules.'
-		// 							.' Needs if you redefined tag or category rewrite rules.', 'zu-translate'),
-		// 		'depends'	=> ['zumedia_folders_options.add_rewrite', 'add_tags', 'add_category'],
-		// 	],
+			[
+				'label'		=> __('Split Classic Blocks', 'zu-translate'),
+				'value'		=> 'zutranslate_split_classic',
+				'icon'		=> 'editor-kitchensink',
+				'color'		=> 'gold',
+				'help'		=> __('Convert all **Classic Blocks** to Gutenberg blocks. Regular text will be replaced with `core/paragraph`, headings with `core/heading` and shortcodes with `core/shortcode` blocks.', 'zu-translate'),
+				'depends'	=> 'gutenberg',
+			],
 		];
 	}
 

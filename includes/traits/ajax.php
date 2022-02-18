@@ -8,6 +8,7 @@ trait zu_TranslateAjax {
 	public function ajax_more($action, $value) {
 		if($action === 'zutranslate_reset_supported') return $this->reset_supported_blocks();
 		if($action === 'zutranslate_convert_classic') return $this->convert_classic();
+		if($action === 'zutranslate_split_classic') return $this->split_classic();
 		else return null;
 	}
 
@@ -89,5 +90,8 @@ trait zu_TranslateAjax {
 				implode(', ', $failed ? $posts : $converted)
 			)
 		);
+	}
+
+	private function split_classic() {
 	}
 }
