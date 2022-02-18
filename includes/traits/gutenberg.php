@@ -211,17 +211,22 @@ trait zu_TranslateGutenberg {
 	}
 
 	private function gutenberg_data($settings_data = false) {
-		return [
+		$data = [
 			'supported' => $this->get_registered_data($settings_data ? 'all' : 'blocks'),
-			'lang'		=> $this->get_url_param('language'),
-			'flags'		=> $this->is_option('flags'),
-			'sync'		=> $this->is_option('blockeditor.sync'),
-			'session'	=> $this->is_option('blockeditor.session'),
-			'unsaved'	=> $this->is_option('blockeditor.unsaved'),
-			'nobackups'	=> $this->is_option('blockeditor.nobackups'),
-			'initial'	=> $this->is_option('blockeditor.initial'),
-			'debug'		=> $this->get_option('_debug'),
 		];
+		if(!$settings_data) {
+			$data = array_merge($data, [
+				'lang'		=> $this->get_url_param('language'),
+				'flags'		=> $this->is_option('flags'),
+				'sync'		=> $this->is_option('blockeditor.sync'),
+				'session'	=> $this->is_option('blockeditor.session'),
+				'unsaved'	=> $this->is_option('blockeditor.unsaved'),
+				'nobackups'	=> $this->is_option('blockeditor.nobackups'),
+				'initial'	=> $this->is_option('blockeditor.initial'),
+				'debug'		=> $this->get_option('_debug'),
+			]);
+		}
+		return $data;
 	}
 
 	// it's only necessary for debugging, then can be deleted
