@@ -75,7 +75,13 @@ $settings-help-code-color: #986b10;
 	.__body {
 		padding: 20px;
 		.components-base-control {
-			margin-bottom: 12px;
+			margin-bottom: 15px;
+		}
+		.components-input-control__label {
+			color: $wp-gray-700;
+		}
+		.components-base-control__help {
+			color: $wp-gray-600 !important;
 		}
 	}
 	.__title {
@@ -84,7 +90,7 @@ $settings-help-code-color: #986b10;
 		align-items: center;
 		justify-content: space-between;
 		border-bottom: 1px solid $wp-gray-400;
-		background-color: rgba($violet-color, 0.2); //$wp-light-gray-500;
+		background-color: rgba($wp-admin-blue-color, 0.2);
 		span {
 			margin: 0;
 			padding: 0 10px 0 0;
@@ -106,7 +112,6 @@ $settings-help-code-color: #986b10;
 			&:hover {
 				svg {
 					background-color: rgba(white, 0.8);
-					fill:$violet-color;
 				}
 			}
 		}
