@@ -10,7 +10,7 @@ const { useSelect } = wp.data;
 // window.Zubug = { ...(wp.zukit.debug  || {}) };
 
 const { close: closeIcon } = wp.zukit.icons;
-const { getExternalData } = wp.zukit.utils;
+const { getExternalData, simpleMarkdown } = wp.zukit.utils;
 const { ZukitSidebar, ZukitToggle } = wp.zukit.components;
 
 const convertPrefix = 'zutranslate_convert';
@@ -76,7 +76,6 @@ const ZutranslateConvert = ({
 			),
 		]);
 		dataRef.current.posts = null;
-		setSelectedId(0);
 	}, [typeOptions]);
 
 	const { postOptions, hasResolved } = useSelect(select => {
@@ -103,18 +102,19 @@ const ZutranslateConvert = ({
 
 	const closeLinkUI = useCallback(() => {
 		setIsOpen(false);
-		// setSelectedId(0);
 	}, []);
 
 	const convertPost = useCallback(() => {
 		closeLinkUI();
 		ajaxAction({
 			action: 'zutranslate_convert_classic',
-			value: { id: selectedId, postType, primaryLang },
-		},
-			data => data ?? false //setMenuOptions(data)
-		);
-	}, [selectedId, postType, primaryLang, ajaxAction, closeLinkUI]);
+			value: {
+				id: onlySelected ? selectedId : 0,
+				postType,
+				primaryLang
+			},
+		});
+	}, [selectedId, postType, primaryLang, onlySelected, ajaxAction, closeLinkUI]);
 
 	const conversionDisabled = onlySelected ? selectedId === 0 : postType === 0;
 
@@ -170,6 +170,7 @@ const ZutranslateConvert = ({
 							<SelectControl
 								className="__lang"
 								label={ data.primaryLabel }
+								help={ simpleMarkdown(data.primaryHelp) }
 								value={ primaryLang }
 								onChange={ setPrimaryLang }
 								options={ enabledLangs }

@@ -122,6 +122,7 @@ const convert = {
 	onlySelected: __('Convert only selected posts', 'zu-translate'),
 	typeLabel: __('Select a type for conversion', 'zu-translate'),
 	primaryLabel: __('Select a primary language', 'zu-translate'),
+	primaryHelp: __('The contents of the block for this language will be used as a **basis** for conversion.', 'zu-translate'),
 };
 
 const panels = {
