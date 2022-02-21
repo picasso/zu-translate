@@ -114,6 +114,16 @@ const gutenberg = {
 	errDups: __('Duplicates are not allowed. Are you mistaken in the name of the block?', 'zu-translate'),
 };
 
+const convert = {
+	buttonLabel: __('Convert Classic Blocks', 'zu-translate'),
+	buttonHelp: __('Convert all **Classic Blocks** to Gutenberg blocks. Regular text will be replaced with `core/paragraph`, headings with `core/heading` and shortcodes with `core/shortcode` blocks.', 'zu-translate'),
+	action: __('Convert', 'zu-translate'),
+	title: __('Select options for conversion', 'zu-translate'),
+	onlySelected: __('Convert only selected posts', 'zu-translate'),
+	typeLabel: __('Select a type for conversion', 'zu-translate'),
+	primaryLabel: __('Select a primary language', 'zu-translate'),
+};
+
 const panels = {
 	gutenberg: {
 		value: true,
@@ -132,5 +142,6 @@ export const zutranslate = {
 	panels,
 	switcher,
 	gutenberg,
+	convert,
 	inacive: pluginInacive ? simpleMarkdown(inacive, { br: true, links: qtxUrl }) : false,
 }

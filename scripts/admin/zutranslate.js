@@ -1,7 +1,6 @@
 // WordPress dependencies
 
-// const { isFunction } = lodash;
-// const { useCallback } = wp.element;
+// const { get } = lodash;
 
 // Zukit dependencies
 
@@ -12,8 +11,9 @@ const { ZukitPanel } = wp.zukit.components;
 
 import { zutranslate } from './settings/data.js';
 import ZutranslateBlockEditor from './settings/block-editor.js';
+import ZutranslateConvert from './settings/convert.js';
 
-const { options: optionsData, gutenberg, inacive } = zutranslate; // switcher,
+const { options: optionsData, gutenberg, inacive, convert: convertData } = zutranslate; // switcher,
 
 const ZutranslateEdit = ({
 		// id,
@@ -47,6 +47,10 @@ const ZutranslateEdit = ({
 				updateOptions={ updateOptions }
 				resetOptions={ resetOptions }
 				noticeOperations={ noticeOperations }
+				ajaxAction={ ajaxAction }
+			/>
+			<ZutranslateConvert
+				data={ convertData }
 				ajaxAction={ ajaxAction }
 			/>
 		</>

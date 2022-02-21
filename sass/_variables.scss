@@ -17,6 +17,20 @@ $dark-grey: #363636 !default;
 $light-grey: #b5b5bf !default;
 $lighter-grey: #cfcfde !default;
 
+$wp-alert-yellow: #f0b849;
+$wp-alert-red: #cc1818;
+$wp-alert-green: #4ab866;
+$wp-gray-900: #1e1e1e;          // For UI, use $gray-900.
+$wp-gray-700: #757575;		    // Meets 4.6:1 text contrast against white.
+$wp-gray-600: #949494;		    // Meets 3:1 UI or large text contrast against white.
+$wp-gray-400: #ccc;
+$wp-gray-200: #ddd;             // Used for most borders.
+$wp-blue-medium-100: #e5f5fa;
+$wp-blue-medium-500: #00a0d2;
+$wp-light-gray-500: #e2e4e7;
+$wp-link-blue: #0073aa;
+$wp-admin-blue-color: #0075af;
+
 $secondary-opacity: 0.4 !default;
 $secondary-opacity-more: 0.8 !default;
 $shade-opacity: 0.6 !default;

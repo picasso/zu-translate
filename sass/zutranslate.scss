@@ -1,3 +1,5 @@
+@import "variables";
+
 // Settings Appearance --------------------------------------------------------]
 
 $settings-help-color: #783f3a;
@@ -62,4 +64,65 @@ $settings-help-code-color: #986b10;
 }
 .components-panel__body.__subtitle + .__flex.__right {
 	margin-top: 16px;
+}
+
+.zutranslate_convert {
+	min-width: 17em;
+
+	.__title, .__menu, .__input {
+		padding: 10px;
+	}
+	.__body {
+		padding: 20px;
+		.components-base-control {
+			margin-bottom: 12px;
+		}
+	}
+	.__title {
+		padding: 5px 10px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		border-bottom: 1px solid $wp-gray-400;
+		background-color: rgba($violet-color, 0.2); //$wp-light-gray-500;
+		span {
+			margin: 0;
+			padding: 0 10px 0 0;
+			white-space: nowrap;
+			text-align: left;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			width: 100%;
+		}
+		.__close {
+			padding-right: 0;
+			padding-left: 0;
+			margin-right: -5px;
+			svg {
+				background-color: transparent;
+				transition: background-color 0.5s easy-out;
+				border-radius: 3px;
+			}
+			&:hover {
+				svg {
+					background-color: rgba(white, 0.8);
+					fill:$violet-color;
+				}
+			}
+		}
+	}
+	.__lang {
+		padding-top: 12px;
+	}
+	.__submit {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: flex-end;
+		padding-top: 12px;
+		.components-button {
+			padding-right: 16px;
+			font-weight: 500;
+		}
+	}
 }
