@@ -7,7 +7,7 @@ trait zu_TranslateAjax {
 
 	public function ajax_more($action, $value) {
 		if($action === 'zutranslate_reset_supported') return $this->reset_supported_blocks();
-		if($action === 'zutranslate_convert_classic') return $this->convert_classic();
+		if($action === 'zutranslate_convert_classic') return $this->convert_classic($value);
 		if($action === 'zutranslate_split_classic') return $this->split_classic();
 		else return null;
 	}
@@ -73,18 +73,23 @@ trait zu_TranslateAjax {
 		);
 	}
 
-	private function convert_classic() {
-		// 1223
-		$posts = [1223];
+	private function convert_classic($convert_data) {
+		[ $id, $postType, $primaryLang ] = $this->sanitize_data($convert_data);
+		$posts = $id > 0 ? [$id] : get_posts([
+			'posts_per_page'	=> -1,
+			'post_type'			=> $postType,
+		    'fields'			=> 'ids',
+		]);
+// zu_log($posts);
 		$converted = [];
 		foreach($posts as $post_id) {
-			$result = $this->convert_blocks($post_id);
+			$result = $this->convert_blocks($post_id, $primaryLang);
 			if($result) $converted[] = $post_id;
 		}
 		$failed = empty($converted);
 		$message = __('The following posts have been converted from **Classic Blocks**', 'zu-translate');
-		if($failed) $message = __('**Classic blocks** were not found for the following posts', 'zu-translate');
-		return $this->create_notice($failed ? 'warning' : 'info',
+		if($failed) $message = __('**Classic blocks** were not found in the following posts', 'zu-translate');
+		return $this->create_notice($failed ? 'warning' : 'success',
 			sprintf('%s `[ %s ]`',
 				$message,
 				implode(', ', $failed ? $posts : $converted)
@@ -94,4 +99,12 @@ trait zu_TranslateAjax {
 
 	private function split_classic() {
 	}
+
+	private function sanitize_data($convert_data) {
+        return is_array($convert_data) ? [
+            intval($convert_data['id'] ?? 0),
+            sanitize_text_field($convert_data['postType'] ?? 'post'),
+			sanitize_text_field($convert_data['primaryLang'] ?? 'en'),
+        ] : [0, 'post', 'en'];
+    }
 }
