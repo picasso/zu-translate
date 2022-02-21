@@ -16,11 +16,14 @@ trait zu_TranslateConverted {
 			if(is_null($blockName)) {
 				$block_id = "#__classic-$index";
 				$block_content = $block['innerHTML'];
-				$found_blocks[$block_id] = $block_content;
-				$content = str_replace($block_content, $block_id, $content);
+				// skip blocks with 'empty' content
+				if(trim(preg_replace('/\r\n|\r|\n/', '', $block_content))) {
+					$found_blocks[$block_id] = $block_content;
+					$content = str_replace($block_content, $block_id, $content);
+				}
 			}
 		}
-// zu_logc('found_blocks', $content, $found_blocks);
+// zu_logc('Found Blocks', $post_id, $found_blocks);
 // zu_log_if($block['blockName'] == 'core/paragraph', $block_content, $block_raw_content, $block);
 
 		foreach($found_blocks as $id => $raw) {
@@ -55,7 +58,7 @@ trait zu_TranslateConverted {
 			]);
 		}
 
-zu_log($content);
+// zu_log($content);
 		if(!empty($found_blocks)) {
 			$this->duplicate_post_as_draft($post, $content);
 			return true;
