@@ -21,7 +21,7 @@ trait zu_TranslateGutenberg {
 				add_action('rest_api_init', [$this, 'rest_api_init']);
 
 				// NOTE: pro tempora! встроить возможность в плагин ''
-				// $this->qtx_gutenberg_reset();
+				$this->qtx_gutenberg_reset();
 			}
 			if($this->is_option('blockeditor.nobackups')) {
 				$this->remove_post_autosave();
