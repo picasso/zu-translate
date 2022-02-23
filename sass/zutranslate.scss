@@ -83,6 +83,9 @@ $settings-help-code-color: #986b10;
 		.components-base-control__help {
 			color: $wp-gray-600 !important;
 		}
+		.components-form-toggle {
+			white-space: nowrap;
+		}
 	}
 	.__title {
 		padding: 5px 10px;
@@ -106,12 +109,14 @@ $settings-help-code-color: #986b10;
 			margin-right: -5px;
 			svg {
 				background-color: transparent;
-				transition: background-color 0.5s easy-out;
+				transition: background-color 0.3s ease-out, border-color 0.3s ease-out;
 				border-radius: 3px;
+				border: 1px solid transparent;
 			}
 			&:hover {
 				svg {
 					background-color: rgba(white, 0.8);
+					border-color: rgba($wp-admin-blue-color, 0.4);
 				}
 			}
 		}
