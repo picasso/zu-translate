@@ -14,11 +14,14 @@ trait zu_TranslateGutenberg {
 		if($this->is_option('gutenberg')) {
 			$this->assign_supported_blocks();
 			if(!empty($this->get_registered_data('blocks'))) {
+				// disable basic 'qTranslate-XT' support for Gutenberg
+				add_filter('qtranslate_gutenberg', '__return_true');
+
 				add_filter('the_posts', [$this, 'pre_render_posts'], 0, 2);
 				add_action('rest_api_init', [$this, 'rest_api_init']);
 
 				// NOTE: pro tempora! встроить возможность в плагин ''
-				$this->qtx_gutenberg_reset();
+				// $this->qtx_gutenberg_reset();
 			}
 			if($this->is_option('blockeditor.nobackups')) {
 				$this->remove_post_autosave();
@@ -203,10 +206,10 @@ trait zu_TranslateGutenberg {
 		global $q_config;
 		$enabled_post_types = [];
 		$post_types = get_post_types(['show_in_rest' => true]);
-			foreach($post_types as $post_type) {
-				$post_type_excluded = in_array($post_type, $q_config['post_type_excluded'] ?? []);
-				if(!$post_type_excluded) $enabled_post_types[] = $post_type;
-			}
+		foreach($post_types as $post_type) {
+			$post_type_excluded = in_array($post_type, $q_config['post_type_excluded'] ?? []);
+			if(!$post_type_excluded) $enabled_post_types[] = $post_type;
+		}
 		return $enabled_post_types;
 	}
 
@@ -229,7 +232,7 @@ trait zu_TranslateGutenberg {
 		return $data;
 	}
 
-	// it's only necessary for debugging, then can be deleted
+	// NOTE: it's only necessary for debugging, then can be deleted
 	private function debug_request_info($request, $response) {
 		$data = $response ? $response->get_data() : null;
 		if($data) unset($data['content']);
