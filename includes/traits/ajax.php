@@ -8,7 +8,7 @@ trait zu_TranslateAjax {
 	public function ajax_more($action, $value) {
 		if($action === 'zutranslate_reset_supported') return $this->reset_supported_blocks();
 		if($action === 'zutranslate_convert_classic') return $this->convert_classic($value);
-		if($action === 'zutranslate_split_classic') return $this->split_classic();
+		if($action === 'zutranslate_split_classic') return $this->split_classic($value);
 		else return null;
 	}
 
@@ -73,31 +73,28 @@ trait zu_TranslateAjax {
 		);
 	}
 
+	// conversion helpers -----------------------------------------------------]
+
 	private function convert_classic($convert_data) {
 		[ $id, $postType, $primaryLang ] = $this->sanitize_data($convert_data);
-		$posts = $id > 0 ? [$id] : get_posts([
-			'posts_per_page'	=> -1,
-			'post_type'			=> $postType,
-		    'fields'			=> 'ids',
-		]);
-// zu_log($posts);
+		$posts = $this->get_selected_posts($id, $postType);
 		$converted = [];
 		foreach($posts as $post_id) {
-			$result = $this->convert_blocks($post_id, $primaryLang);
+			$result = $this->convert_classic_blocks($post_id, $primaryLang);
 			if($result) $converted[] = $post_id;
 		}
-		$failed = empty($converted);
-		$message = __('The following posts have been converted from **Classic Blocks**', 'zu-translate');
-		if($failed) $message = __('**Classic blocks** were not found in the following posts', 'zu-translate');
-		return $this->create_notice($failed ? 'warning' : 'success',
-			sprintf('%s `[ %s ]`',
-				$message,
-				implode(', ', $failed ? $posts : $converted)
-			)
-		);
+		return $this->create_action_notice($converted, $posts, false);
 	}
 
-	private function split_classic() {
+	private function split_classic($convert_data) {
+		[ $id, $postType ] = $this->sanitize_data($convert_data);
+		$posts = $this->get_selected_posts($id, $postType);
+		$converted = [];
+		foreach($posts as $post_id) {
+			$result = $this->split_classic_blocks($post_id);
+			if($result) $converted[] = $post_id;
+		}
+		return $this->create_action_notice($converted, $posts, true);
 	}
 
 	private function sanitize_data($convert_data) {
@@ -107,4 +104,25 @@ trait zu_TranslateAjax {
 			sanitize_text_field($convert_data['primaryLang'] ?? 'en'),
         ] : [0, 'post', 'en'];
     }
+
+	private function get_selected_posts($id, $postType) {
+		return $id > 0 ? [$id] : get_posts([
+			'posts_per_page'	=> -1,
+			'post_type'			=> $postType,
+		    'fields'			=> 'ids',
+		]);
+	}
+
+	private function create_action_notice($converted, $posts, $is_split) {
+		$failed = empty($converted);
+		$message = __('The following posts have been converted from **Classic Blocks**', 'zu-translate');
+		if($is_split) $message = __('The following posts have been split from **Classic Blocks**', 'zu-translate');
+		if($failed) $message = __('**Classic blocks** were not found in the following posts', 'zu-translate');
+		return $this->create_notice($failed ? 'warning' : 'success',
+			sprintf('%s `[ %s ]`',
+				$message,
+				implode(', ', $failed ? $posts : $converted)
+			)
+		);
+	}
 }
