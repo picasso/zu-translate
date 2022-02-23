@@ -6,7 +6,7 @@ trait zu_TranslateDuplicate {
 
 	private $title_suffix = 'CONVERTED';
 
-	public function duplicate_post_as_draft($post, $content = null, $status = 'draft') {
+	public function duplicate_post_as_draft($post, $content = null, $suffix = null, $status = 'draft') {
 		// if post data exists, create the post duplicate
 		if(isset($post) && $post !== null) {
 			global $wpdb;
@@ -15,7 +15,7 @@ trait zu_TranslateDuplicate {
 			$current_user = wp_get_current_user();
 
 			$args = [
-				'post_title' 		=> $this->get_unique_title($post),
+				'post_title' 		=> $this->get_unique_title($post, $suffix),
 				'post_author' 		=> $current_user->ID,
 				'post_status' 		=> $status,
 
@@ -57,24 +57,25 @@ trait zu_TranslateDuplicate {
 		}
 	}
 
-	private function get_unique_title($post) {
+	private function get_unique_title($post, $suffix = null) {
 		global $wpdb;
 
 		$index = 0;
 		$post_type = $post->post_type;
+		$title_suffix = $suffix ?? $this->title_suffix;
 		$title_blocks = qtranxf_split($post->post_title);
 		// select the language to search for titles, preferably English, if not, then the first
 		$languages = array_keys($title_blocks);
 		$title_lang = in_array('en', $languages) ? 'en' : ($languages[0] ?? '?');
 
-		$like_title = sprintf('%%%s [%s%%', $title_blocks[$title_lang] ?? $post->post_title, $this->title_suffix);
+		$like_title = sprintf('%%%s [%s%%', $title_blocks[$title_lang] ?? $post->post_title, $title_suffix);
 		$title_query = "SELECT post_title FROM $wpdb->posts WHERE post_type = '{$post_type}' AND post_title like '{$like_title}'";
 		$results = $wpdb->get_results($title_query);
 		if($results) {
 			$titles = [];
 			foreach($results as $postdata) {
 				$title = $postdata->post_title;
-				$result = preg_match('/\[' . $this->title_suffix . '[-]*([\d]*)/i', $postdata->post_title, $matches);
+				$result = preg_match('/\[' . $title_suffix . '[-]*([\d]*)/i', $postdata->post_title, $matches);
 				$titles[] = (int) $matches[1] ?? 0;
 			}
 			while($index++ < 100) {
@@ -83,7 +84,7 @@ trait zu_TranslateDuplicate {
 			}
 		}
 		foreach($title_blocks as $lang => $title) {
-			$title_blocks[$lang] = sprintf('%s [%s%s]', $title, $this->title_suffix, $index > 0 ? "-{$index}" : '');
+			$title_blocks[$lang] = sprintf('%s [%s%s]', $title, $title_suffix, $index > 0 ? "-{$index}" : '');
 		}
 		return qtranxf_join_b($title_blocks);
 	}
