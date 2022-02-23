@@ -95,22 +95,6 @@ class zu_Translate extends zukit_Plugin  {
 
 	protected function extend_actions() {
 		return [
-			// [
-			// 	'label'		=> __('Convert Classic Blocks', 'zu-translate'),
-			// 	'value'		=> 'zutranslate_convert_classic',
-			// 	'icon'		=> 'superhero',
-			// 	'color'		=> 'magenta',
-			// 	'help'		=> __('Convert all **Classic Blocks** to Gutenberg blocks. Regular text will be replaced with `core/paragraph`, headings with `core/heading` and shortcodes with `core/shortcode` blocks.', 'zu-translate'),
-			// 	'depends'	=> 'gutenberg',
-			// ],
-			[
-				'label'		=> __('Split Classic Blocks', 'zu-translate'),
-				'value'		=> 'zutranslate_split_classic',
-				'icon'		=> 'editor-kitchensink',
-				'color'		=> 'gold',
-				'help'		=> __('Convert all **Classic Blocks** to Gutenberg blocks. Regular text will be replaced with `core/paragraph`, headings with `core/heading` and shortcodes with `core/shortcode` blocks.', 'zu-translate'),
-				'depends'	=> 'gutenberg',
-			],
 			[
 				// an indication that we will use the slot for 'MoreActions'
 				'hasMoreActions'	=> true,

@@ -1,8 +1,9 @@
 // WordPress dependencies
 
-const { isEmpty, map, reject, find, pick, includes, reduce } = lodash;
+const { isEmpty, map, get, reject, find, pick, includes, reduce } = lodash;
 const { __, sprintf } = wp.i18n;
 const { Popover, Button, SelectControl } = wp.components;
+const { BlockIcon } = wp.blockEditor;
 const { useState, useRef, useCallback } = wp.element;
 const { useSelect } = wp.data;
 
@@ -14,7 +15,8 @@ const { getExternalData, simpleMarkdown } = wp.zukit.utils;
 const { ZukitSidebar, ZukitToggle } = wp.zukit.components;
 
 const convertPrefix = 'zutranslate_convert';
-const buttonIcon = 'superhero';
+const convertIcon = 'superhero';
+const splitIcon = 'star-half';
 const rejectTypes = ['attachment', 'wp_block', 'nav_menu_item', 'wp_template', 'wp_template_part', 'wp_navigation'];
 const loadingOptions = [{ value: 0, label: 'Loading...' }];
 
@@ -34,8 +36,10 @@ const ZutranslateConvert = ({
 		ajaxAction,
 }) => {
 
-// Zubug.data({ data });
 	const [ isOpen, setIsOpen ] = useState(false);
+	const [ action, setAction ] = useState('convert');
+
+	const isConvert = action === 'convert';
 	const dataRef = useRef({ types: null, posts: null });
 
 	const [ postType, setPostType ] = useState(0);
@@ -44,7 +48,8 @@ const ZutranslateConvert = ({
 	const [ selectedId, setSelectedId ] = useState(0);
 	const [ primaryLang, setPrimaryLang ] = useState(find(enabledLangs, ['active', true])?.value);
 
-	const anchorRef = useRef(null);
+	const anchorConvertRef = useRef(null);
+	const anchorSplitRef = useRef(null);
 
 	const typeOptions = useSelect(select => {
 		if(dataRef?.current.types === null) {
@@ -64,19 +69,16 @@ const ZutranslateConvert = ({
 		return dataRef?.current.types ? dataRef.current.types : loadingOptions;
 	});
 
+	const selectPostLabel = isConvert ? data.convertSelect : data.splitSelect;
 	const selectPostType = useCallback(value => {
 		const label = find(typeOptions, { value })?.label.toLowerCase();
 		setPostType(value);
 		setSelectLabel([
-			sprintf(
-				__('Select the %s for conversion', 'zu-translate'), label
-			),
-			sprintf(
-				__('Select %s', 'zu-translate'), label
-			),
+			sprintf(selectPostLabel, label),
+			sprintf(__('Select %s', 'zu-translate'), label),
 		]);
 		dataRef.current.posts = null;
-	}, [typeOptions]);
+	}, [selectPostLabel, typeOptions]);
 
 	const { postOptions, hasResolved } = useSelect(select => {
 		const { getEntityRecords, hasFinishedResolution } = select('core');
@@ -96,8 +98,9 @@ const ZutranslateConvert = ({
 		};
 	}, [postType, onlySelected, selectLabel]);
 
-	const openLinkUI = useCallback(() => {
+	const openLinkUI = useCallback(action => {
 		setIsOpen(!isOpen);
+		setAction(action);
 	}, [isOpen]);
 
 	const closeLinkUI = useCallback(() => {
@@ -105,40 +108,50 @@ const ZutranslateConvert = ({
 	}, []);
 
 	const convertPost = useCallback(() => {
-		closeLinkUI();
+		setIsOpen(false);
 		ajaxAction({
-			action: 'zutranslate_convert_classic',
+			action: `zutranslate_${action}_classic`,
 			value: {
 				id: onlySelected ? selectedId : 0,
 				postType,
 				primaryLang
 			},
 		});
-	}, [selectedId, postType, primaryLang, onlySelected, ajaxAction, closeLinkUI]);
+	}, [action, selectedId, postType, primaryLang, onlySelected, ajaxAction]);
 
 	const conversionDisabled = onlySelected ? selectedId === 0 : postType === 0;
+	const anchorRect = get(isConvert ? anchorConvertRef : anchorSplitRef, 'current')?.getBoundingClientRect();
 
 	return (
 		<ZukitSidebar.MoreActions>
 			<ZukitSidebar.ActionButton
 				color="magenta"
-				icon={ buttonIcon }
-				onClick={ openLinkUI }
-				label={ data.buttonLabel }
-				help={ data.buttonHelp }
-				ref={ anchorRef }
+				icon={ convertIcon }
+				onClick={ () => openLinkUI('convert') }
+				label={ data.convertLabel }
+				help={ data.convertHelp }
+				ref={ anchorConvertRef }
+			/>
+			<ZukitSidebar.ActionButton
+				color="gold"
+				icon={ splitIcon }
+				onClick={ () => openLinkUI('split') }
+				label={ data.splitLabel }
+				help={ data.splitHelp }
+				ref={ anchorSplitRef }
 			/>
 			{ isOpen && (
 				<Popover
 					position="middle left"
 					noArrow={ false }
 					onClose={ closeLinkUI }
-					anchorRect={ anchorRef.current ? anchorRef.current.getBoundingClientRect() : null }
+					anchorRect={ anchorRect }
 					focusOnMount={ false }
 				>
 					<div className={ convertPrefix }>
 						<div className="__title">
-							<span>{ data.title }</span>
+							<BlockIcon icon={ isConvert ? convertIcon : splitIcon }/>
+							<span>{ isConvert ? data.convertTitle : data.splitTitle }</span>
 							<Button
 								className="__close"
 								icon={ closeIcon }
@@ -147,14 +160,14 @@ const ZutranslateConvert = ({
 						</div>
 						<div className="__body">
 							<SelectControl
-								label={ data.typeLabel }
+								label={ isConvert ? data.convertTypeLabel : data.splitTypeLabel }
 								value={ postType }
 								onChange={ selectPostType }
 								options={ typeOptions }
 							/>
 							{ !!postType &&
 								<ZukitToggle
-									label={ data.onlySelected }
+									label={ isConvert ? data.convertOnlySelected : data.splitOnlySelected }
 									checked={ onlySelected }
 									onChange={ () => setOnlySelected(!onlySelected) }
 								/>
@@ -167,14 +180,16 @@ const ZutranslateConvert = ({
 									options={ hasResolved ? postOptions : loadingOptions }
 								/>
 							}
-							<SelectControl
-								className="__lang"
-								label={ data.primaryLabel }
-								help={ simpleMarkdown(data.primaryHelp) }
-								value={ primaryLang }
-								onChange={ setPrimaryLang }
-								options={ enabledLangs }
-							/>
+							{ isConvert &&
+								<SelectControl
+									className="__lang"
+									label={ data.primaryLabel }
+									help={ simpleMarkdown(data.primaryHelp) }
+									value={ primaryLang }
+									onChange={ setPrimaryLang }
+									options={ enabledLangs }
+								/>
+							}
 							<div className="__submit">
 								<Button
 									isPrimary
@@ -182,7 +197,7 @@ const ZutranslateConvert = ({
 									icon={ "editor-table" }
 									onClick={ convertPost }
 								>
-									{ data.action }
+									{ isConvert ? data.convertAction : data.splitAction }
 								</Button>
 							</div>
 						</div>

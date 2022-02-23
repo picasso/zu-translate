@@ -115,12 +115,22 @@ const gutenberg = {
 };
 
 const convert = {
-	buttonLabel: __('Convert Classic Blocks', 'zu-translate'),
-	buttonHelp: __('Convert all **Classic Blocks** to Gutenberg blocks. Regular text will be replaced with `core/paragraph`, headings with `core/heading` and shortcodes with `core/shortcode` blocks.', 'zu-translate'),
-	action: __('Convert', 'zu-translate'),
-	title: __('Select options for conversion', 'zu-translate'),
-	onlySelected: __('Convert only selected posts', 'zu-translate'),
-	typeLabel: __('Select a type for conversion', 'zu-translate'),
+	convertLabel: __('Convert Classic Blocks', 'zu-translate'),
+	convertHelp: __('Convert all **Classic Blocks** to Gutenberg blocks. Regular text will be replaced with `core/paragraph`, headings with `core/heading` and shortcodes with `core/shortcode` blocks.', 'zu-translate'),
+	convertAction: __('Convert', 'zu-translate'),
+	convertTitle: __('Select options for conversion', 'zu-translate'),
+	convertTypeLabel: __('Select a type for conversion', 'zu-translate'),
+	convertOnlySelected: __('Convert only selected posts', 'zu-translate'),
+	convertSelect: __('Select the %s for conversion', 'zu-translate'),
+
+	splitLabel: __('Split Classic Blocks', 'zu-translate'),
+	splitHelp: __('All **Classic Blocks** found will be split by languages and the contents of the block for each language will be converted to the `Gutenberg` blocks and will be saved in a separate document.', 'zu-translate'),
+	splitAction: __('Split', 'zu-translate'),
+	splitTitle: __('Select options for split', 'zu-translate'),
+	splitTypeLabel: __('Select a type for split', 'zu-translate'),
+	splitOnlySelected: __('Split only selected posts', 'zu-translate'),
+	splitSelect: __('Select the %s for split', 'zu-translate'),
+
 	primaryLabel: __('Select a primary language', 'zu-translate'),
 	primaryHelp: __('The contents of the block for this language will be used as a **basis** for conversion.', 'zu-translate'),
 };
