@@ -82,4 +82,4 @@ There is one nuance - if the attribute value returns to what was when the editor
 - [ ] `'core/table'` cannot be translated - first I need to implement the processing of the attribute which is an array of values that require translation
 + [ ] __[ JS : qTranslateConfig ] : setupLanguageSwitch()__ - we have to call `setupLanguageSwitch` since `'qtx'` does not export the `onTabSwitch` function. If this function was available for integration, it was much easier
 + [ ] if there are several attributes and their values will be equal, then when replacing the attributes with their RAW values, confusion will occur (on the front-end). It is not clear how real this situation is... and how to deal with it?
-+ [ ] It is not clear what will happen after converting a page that was edited in the classic editor and then switched to Gutenberg
++ [x] ~~It is not clear what will happen after converting a page that was edited in the classic editor and then switched to Gutenberg~~

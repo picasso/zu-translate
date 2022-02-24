@@ -1,3 +1,13 @@
+#### 1.3.2 / 2022-02-24
+* implemented methods for `duplication` of posts
+* implemented converter for `Classic Blocks`
+* added options panel for `convert` action
+* implemented splitter for `Classic Blocks`
+* added options panel for `split` action
+* data for `Settings Page` and Block Editor were split
+* fixed bug when `classic` block was empty
+* small improvements
+
 #### 1.3.0 / 2022-02-09
 * added `Copy from` button to the language switcher
 * added `initialOpen` option for the language switching panel
