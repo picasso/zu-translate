@@ -55,7 +55,7 @@ $copy-control-flashing-end-color: $red-color;
 		transition-property: background-color, color;
 		transition-duration: $transition-time;
 		transition-timing-function: $transition-function;
-		&:hover {
+		&.components-button:hover {
 			background-color: $zutranslate-hover-color !important;
 			color: $zutranslate-hover-text-color !important;
 		}
