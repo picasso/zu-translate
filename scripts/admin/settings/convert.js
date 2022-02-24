@@ -11,7 +11,7 @@ const { useSelect } = wp.data;
 // window.Zubug = { ...(wp.zukit.debug  || {}) };
 
 const { close: closeIcon } = wp.zukit.icons;
-const { getExternalData, simpleMarkdown } = wp.zukit.utils;
+const { getExternalData, simpleMarkdown, unescapeHtml } = wp.zukit.utils;
 const { ZukitSidebar, ZukitToggle } = wp.zukit.components;
 
 const convertPrefix = 'zutranslate_convert';
@@ -24,12 +24,6 @@ const enabledLangs = reduce(getExternalData('qtxlangs', {}), (options, val) => {
 	options.push({ value: val.code, label: val.name, active: val.active });
 	return options;
 }, []);
-
-function decodeHtml(html) {
-    var txt = document.createElement('textarea');
-    txt.innerHTML = html;
-    return txt.value;
-}
 
 const ZutranslateConvert = ({
 		data,
@@ -87,7 +81,7 @@ const ZutranslateConvert = ({
 			const posts = getEntityRecords(...postsParameters);
 			if(!isEmpty(posts)) {
 				dataRef.current.posts = reduce(posts, (options, val) => {
-					options.push({ value: val.id, label: decodeHtml(val.title.rendered) });
+					options.push({ value: val.id, label: unescapeHtml(val.title.rendered) });
 					return options;
 				}, [{ value: 0, label: selectLabel[1] }]);
 			}
@@ -133,7 +127,7 @@ const ZutranslateConvert = ({
 				ref={ anchorConvertRef }
 			/>
 			<ZukitSidebar.ActionButton
-				color="gold"
+				color="blue"
 				icon={ splitIcon }
 				onClick={ () => openLinkUI('split') }
 				label={ data.splitLabel }
