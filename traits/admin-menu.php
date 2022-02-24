@@ -21,6 +21,7 @@ trait zukit_AdminMenu {
 	protected $total_index_break = 220;		// max items count in submenu?
 
 	public function admin_menu_config() {
+		if(self::$menu_configs === 0) add_filter('custom_menu_order', [$this, 'admin_menu_fix'], 99);
 		add_filter('custom_menu_order', [$this, 'admin_menu_modify']);
 		self::$menu_configs += 1;
 		if(!self::$menu_inline_style) {
@@ -176,16 +177,10 @@ zu_log_if(self::$if_log, $modify['separator'], $this->menu_items($submenu[$defau
 			    	$parent = $menu_item['parent'] ?? $default_id;
 			    	$sep_index = $this->get_new_index($menu_item, $parent, true);
 			    	if($sep_index > 0 && $sep_index < $this->total_index_break) {
-// zu_log_if(self::$if_log, $position, $sep_index, $this->menu_items($submenu[$parent]));
-// 						$skip_separator = $this->skip_separator($submenu[$parent], $sep_index, $position);
-// zu_log_if(self::$if_log, 'skip_separator results', $skip_separator);
-// 						if($skip_separator) continue;
 						$name = sprintf('sep-%s-%s-%s', $sep_index, $position, array_values($menu_item)[0]);
 						$separator = ['','read', $name, '', 'wp-menu-separator'];
-						$update = $this->array_insert($submenu[$parent], $sep_index, $separator);
-// 						$submenu[$parent] = $update;
-						$submenu[$parent] = $this->fix_separators($update);
-zu_log_if(self::$if_log, 'after separator inserted', $this->menu_items($update));
+						$submenu[$parent] = $this->array_insert($submenu[$parent], $sep_index, $separator);
+zu_log_if(self::$if_log, 'after separator inserted', $this->menu_items($submenu[$parent]));
 					}
 			    }
 			}
@@ -199,6 +194,13 @@ zu_log_if(self::$if_log, 'after separator inserted', $this->menu_items($update))
 	    return $menu_order;
 	}
 
+	public function admin_menu_fix($menu_order) {
+	    global $submenu;
+		$parent = self::$default_menu_id;
+		$submenu[$parent] = $this->fix_separators($submenu[$parent]);
+		return $menu_order;
+	}
+	
 	/// REFACTORED /////////////////////////////////////////////////////////////
 
 	protected function submenu_move($from_index, $to_index, $count = 1, $add_separator = true, $parent = null) {
@@ -316,6 +318,14 @@ zu_log_if(self::$if_log, 'after separator inserted', $this->menu_items($update))
 			if($has_separator && $prev_separator) $menu[$index] = null;
 			else $prev_separator = $has_separator;
 		}
+		// remove last separator if found
+		foreach(array_reverse(array_keys($menu)) as $index) {
+			$item = $menu[$index];
+			if(is_null($item)) continue;
+			$has_separator = ($item[4] ?? null) === 'wp-menu-separator';
+			if($has_separator && $prev_separator) $menu[$index] = null;
+			else break;
+		}
 		return array_filter($menu);
 	}
 
@@ -388,7 +398,7 @@ zu_log_if(self::$if_log, 'after separator inserted', $this->menu_items($update))
 	private function menu_items($menu) {
 		return array_map(function($item) {
 			$is_wrong = !(is_array($item) && count($item) > 2);
-			return sprintf('%s',
+			return is_null($item) ? $item : sprintf('%s',
 				$is_wrong ? '?' : (
 					empty($item[0]) ? '-----'.$item[2].'-----' : strip_tags($item[0])
 				)

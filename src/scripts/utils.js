@@ -187,6 +187,14 @@ export function compareVersions(a, b) {
     return segmentsA.length - segmentsB.length;
 }
 
+// Unescape HTML entities
+// This function is guaranteed to not run any JavaScript code as a side-effect.
+// Any HTML tags will be ignored, only text content will be returned.
+export function unescapeHtml(html) {
+	const doc = new DOMParser().parseFromString(html, 'text/html');
+	return doc.documentElement.textContent;
+}
+
 // Converts a string to a set of React components based on simple Markdown constructs
 // replaces **text** with <strong>text</strong>
 // replaces *text* with <em>text</em>
@@ -438,6 +446,7 @@ export const blocksSet = {
 	uniqueValue,
 	svgRef,
 	compareVersions,
+	unescapeHtml,
 	simpleMarkdown,
 	emptyGif,
 	brandAssets,

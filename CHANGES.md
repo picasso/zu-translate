@@ -1,7 +1,18 @@
+#### 1.5.4 / 2022-02-24
+* added `unescapeHtml` helper to `utils`
+* added `hover` to `notice__dismiss` button
+* added `zu_loge` function as last resort for complex debug cases
+* fixed `markdown` CSS in `action` buttons
+
+#### 1.5.3 / 2022-02-13
+* fixed CSS of `Settings` (Safari)
+* improved inserting separators in the `Admin Menu`
+
 #### 1.5.2 / 2022-02-09
 
 ##### Debug
-* added `dim` color modifier; refactoring `logGroup` method
+* added `dim` color modifier
+* refactoring `logGroup` method
 * changed opaque color for `^` modifier
 * delayed value creation - if the `data` is a function, then we replace it with the value returned from the function
 
