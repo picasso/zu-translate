@@ -39,7 +39,7 @@ const ZukitActionButton = ({
 				</Button>
 			</PanelRow>
 			{ help &&
-				<p className={ mergeClasses('__help', { [color]: color }) }>
+				<p className={ mergeClasses('__help', '__zu_markdown', { [color]: color }) }>
 					{ simpleMarkdown(help, { br: true }) }
 				</p>
 			}

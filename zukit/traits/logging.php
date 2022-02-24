@@ -199,32 +199,28 @@ trait zukit_Logging {
 	}
 
 	// this is debug for debugging - always writes to 'error_log' to avoid confusion
-	private function log_internal($info , $val = '$undefined', $use_print_r = false) {
+	private function log_internal($info, $val = '$undefined', $use_print_r = false) {
+		self::__log($info, $val, $use_print_r, static::class);
+	}
+
+	public static function __log($info , $val = '$undefined', $use_print_r = false, $className = null) {
 		if($val === '$undefined') {
 			$val = $info;
 			$info = '';
 		}
-		$marker = sprintf('[* {%s} internal debugging *]', static::class);
+		$marker = sprintf('[ *%s  I N T E R N A L    D E B U G G I N G  * ]', $className ? " /{$className}/" : '');
+		$marker_border = str_repeat('─', 79);
 		$value = $use_print_r ? print_r($val, true) : var_export($val, true);
-		$log = PHP_EOL.$marker.PHP_EOL.'┌'.str_repeat('~', strlen($marker) - 1).PHP_EOL;
+		$log = PHP_EOL.$marker.PHP_EOL.'┌'.$marker_border.PHP_EOL;
 		$log .= sprintf(' %s = %s', $info, preg_replace('/\n$/', '', $value));
-		$log .= PHP_EOL.str_repeat('~', strlen($marker)).'┘'.PHP_EOL;
+		$log .= PHP_EOL.$marker_border.'┘'.PHP_EOL;
 		error_log($log);
 	}
 }
 
-// last resort - this is debug for debugging without any classes (change 'false' to 'true')
-if(false && !function_exists('__log')) {
-	function __log($info , $val = '$undefined', $use_print_r = false) {
-	    if($val === '$undefined') {
-	        $val = $info;
-	        $info = '';
-	    }
-	    $marker = '[* internal debugging *]';
-	    $value = $use_print_r ? print_r($val, true) : var_export($val, true);
-	    $log = PHP_EOL.$marker.PHP_EOL.'┌'.str_repeat('~', strlen($marker) - 1).PHP_EOL;
-	    $log .= sprintf(' %s = %s', $info, preg_replace('/\n$/', '', $value));
-	    $log .= PHP_EOL.str_repeat('~', strlen($marker)).'┘'.PHP_EOL;
-	    error_log($log);
+// last resort - this is debug for debugging without any classes
+if(!function_exists('zu_loge')) {
+	function zu_loge($info , $val = '$undefined', $use_print_r = false) {
+		zukit_SingletonLogging::__log($info, $val, $use_print_r);
 	}
 }
