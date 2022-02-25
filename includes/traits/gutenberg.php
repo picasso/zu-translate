@@ -226,7 +226,7 @@ trait zu_TranslateGutenberg {
 				'unsaved'	=> $this->is_option('blockeditor.unsaved'),
 				'nobackups'	=> $this->is_option('blockeditor.nobackups'),
 				'initial'	=> $this->is_option('blockeditor.initial'),
-				'debug'		=> $this->get_option('_debug'),
+				'debug'		=> $this->get_option(self::$debug_group),
 			]);
 		}
 		return $data;
