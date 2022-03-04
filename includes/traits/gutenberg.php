@@ -7,6 +7,7 @@ include_once('supported.php');
 trait zu_TranslateGutenberg {
 
 	private $multicontent_separator = '[,]';
+	private $allowed_post_types = ['post', 'page'];
 
 	use zu_TranslateSupportedBlocks;
 
@@ -20,7 +21,7 @@ trait zu_TranslateGutenberg {
 				add_filter('the_posts', [$this, 'pre_render_posts'], 0, 2);
 				add_action('rest_api_init', [$this, 'rest_api_init']);
 
-				// NOTE: pro tempora! встроить возможность в плагин ''
+				// NOTE: pro tempora! встроить возможность в плагин 'qTranslate-XT'
 				$this->qtx_gutenberg_reset();
 			}
 
@@ -32,11 +33,14 @@ trait zu_TranslateGutenberg {
 
 	// filter's callback for support of Block Editor
 	public function rest_api_init() {
+		if($this->is_gutenberg_disabled($post_type)) return;
+		// we do not check all the available 'Custom Post Types', we just take regular ones and add to them the current
+		// if the current CPT was disabled, the 'is_gutenberg_disabled' method will detect it
+		$this->reset_qt_config_excluded($this->allowed_post_types, $post_type);
 		$post_types = $this->enabled_post_types();
 		foreach($post_types as $post_type) {
 			add_filter("rest_prepare_{$post_type}", [$this, 'rest_prepare'], 99, 3);
 		}
-		// add_filter('rest_request_before_callbacks', [$this, 'request_before_callbacks'], 99, 3);
 		add_filter('rest_request_after_callbacks', [$this, 'request_after_callbacks'], 99, 3);
 	}
 
@@ -50,15 +54,10 @@ trait zu_TranslateGutenberg {
 		return $response;
 	}
 
-// 	public function request_before_callbacks($response, $handler, $request) {
-// zu_logc('request_before_callbacks', $this->debug_request_info($request, $response));
-// 	}
-
 	// modify the REST response of the post just updated and set the 'raw_*' attributes
 	public function request_after_callbacks($response, $handler, $request) {
 		if($this->is_eligible_request($request, ['PUT', 'POST'])) {
 			$editor_lang = $request->get_param('editor_lang');
-// zu_logc('request_after_callbacks', $this->debug_request_info($request, $response), $editor_lang);
 			if(isset($editor_lang)) {
 				$response = $this->modify_rest_response($response, $editor_lang);
 			}
@@ -158,6 +157,7 @@ trait zu_TranslateGutenberg {
 				}
 			}
 // zu_logc('after replace', $content);
+
 			// if '$content' has not changed after the replacement, it means that there is an empty RAW in the text
 			// and its presence will cause all other blocks without language blocks (if any) will be cut by 'qTranslate-XT'
 			// so we remove this empty RAW ('qtranxf_split_blocks' will return the content split into language blocks)
@@ -210,17 +210,16 @@ trait zu_TranslateGutenberg {
 			$blocks = qtranxf_split($raw);
 			$last_edited_content = $blocks[$lang] ?? '';
 			$content = str_replace($last_edited_content, $raw, $content);
-// zu_logc('restore_block_raw', $raw, $lang, $blocks, $last_edited_content);
 		}
 		return $content;
 	}
 
 	private function enabled_post_types() {
-		global $q_config;
 		$enabled_post_types = [];
+		$qt_config_excluded = $this->get_qt_config_excluded();
 		$post_types = get_post_types(['show_in_rest' => true]);
 		foreach($post_types as $post_type) {
-			$post_type_excluded = in_array($post_type, $q_config['post_type_excluded'] ?? []);
+			$post_type_excluded = in_array($post_type, $qt_config_excluded);
 			if(!$post_type_excluded) $enabled_post_types[] = $post_type;
 		}
 		return $enabled_post_types;
@@ -243,6 +242,44 @@ trait zu_TranslateGutenberg {
 			]);
 		}
 		return $data;
+	}
+
+	private function is_gutenberg_disabled(&$post_type = null) {
+		global $pagenow, $typenow;
+		$action = $_POST['action'] ?? $_GET['action'] ?? '';
+		$post_type = $typenow;
+		$is_rest = defined('REST_REQUEST') && REST_REQUEST;
+		$is_editor = ($pagenow === 'post-new.php') || ($pagenow === 'post.php' &&  $action === 'edit');
+
+		if($is_editor) {
+			$post = get_post();
+			$product_terms = null;
+			if($post instanceof WP_Post) {
+				$product_terms = get_the_terms($post->ID, 'product_type'); //[0]->slug;
+				$post_type = $post->post_type;
+			}
+			// zu_log($post, $product_terms);
+		}
+
+		$cpt = true; //$this->get_option('blockeditor.ignore_cpt');
+		if($post_type && $cpt) {
+			$is_custom = !in_array($post_type, $this->allowed_post_types);
+			$ignore_type = ($cpt === true && $is_custom) || (is_array($cpt) && in_array($post_type, $cpt));
+		} else {
+			$ignore_type = false;
+		}
+
+		$is_disabled = !($is_rest || ($is_editor && !$ignore_type));
+		zu_logc('!gutenberg disabled', $is_disabled, [
+			'is_rest'		=> $is_rest,
+			'is_editor'		=> $is_editor,
+			'ignore_type'	=> $ignore_type,
+			'post_type'		=> $post_type,
+			'pagenow'		=> $pagenow,
+			'typenow'		=> $typenow,
+		]);
+
+		return $is_disabled;
 	}
 
 	// NOTE: it's only necessary for debugging, then can be deleted
@@ -271,6 +308,7 @@ trait zu_TranslateGutenberg {
 	}
 
 	public function remove_all() {
+		if($this->is_gutenberg_disabled()) return;
 		$post_types = $this->enabled_post_types();
 		foreach($post_types as $post_type) {
 			$this->remove_filter("rest_prepare_{$post_type}", 'QTX_Admin_Gutenberg', 'rest_prepare', 99);
