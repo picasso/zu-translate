@@ -51,8 +51,17 @@ $custom-large-size-class: 'zutranslate-custom-large';
 		opacity: 1;
 		transition: opacity $transition-time $transition-function;
 
+		@include in('^#qtranxs-meta-box-lsb') {
+			margin-left: 12px;
+			margin-bottom: 12px;
+		}
+
 		.qtranxs-lang-switch, .qtranxs-lang-copy {
 			margin: $button-margin-top 8px 0 0;
+
+			@include in('^^#post-body-content,^^#normal-sortables') {
+				margin-bottom: 8px;
+			}
 
 			.button {
 				box-shadow: none;
@@ -142,6 +151,9 @@ $custom-large-size-class: 'zutranslate-custom-large';
 
 		@at-root {
 			.#{$custom-appearance-class} #menu-to-edit + #{last-selector()} {
+				display: none;
+			}
+			.#{$custom-appearance-class} #postdivrich + #{last-selector()} {
 				display: none;
 			}
 			.#{$custom-appearance-class} #widgets-right + #{last-selector()} {
