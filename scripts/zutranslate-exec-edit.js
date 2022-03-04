@@ -17,7 +17,7 @@ jQuery(document).on('qtxLoadAdmin:edit', function(event, qtx) {
 	}
 
 	// add hooks to each title in the list
-	jQuery('#the-list td.title.page-title').each(function() {
+	jQuery('#the-list td.column-primary').each(function() {
 		addTitleHook(jQuery(this));
 	});
 
