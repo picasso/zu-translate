@@ -16,7 +16,7 @@ require_once('traits/exchange.php');
 
 class zukit_Plugin extends zukit_SingletonScripts {
 
-	private static $zukit_version = '1.5.4'; // .' (modified)';
+	private static $zukit_version = '1.5.5'; // .' (modified)';
 	private static $zukit_debug = false;
 
 	public $config;
@@ -324,7 +324,7 @@ class zukit_Plugin extends zukit_SingletonScripts {
 			'router'		=> $this->get_router_name(),
 			'options' 		=> $this->options,
 			'info'			=> $this->info(),
-			'debug'			=> $this->debug_data(),
+			'inhouse'		=> $this->internal_data(),
 			'actions' 		=> $this->extend_actions(),
 		];
 		return $default_data;

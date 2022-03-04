@@ -1,3 +1,14 @@
+#### 1.5.5 / 2022-03-05
+
+##### Snippets
+* removed `zusnippets_Lang` trait (these helpers duplicated in the `Zu Translate` plugin)
+
+##### Debug
+* delayed value creation for the second argument of `logGroup` method
+* renaming `debug` JS data set to `inhouse`
+* refactoring init for `_debug` and `_panels` option groups
+* keep `_debug` and `_panels` option groups even on reset
+
 #### 1.5.4 / 2022-02-24
 * added `unescapeHtml` helper to `utils`
 * added `hover` to `notice__dismiss` button

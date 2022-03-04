@@ -32,7 +32,7 @@ const ZukitSidebar = ({
 
 		actions,
 		actionLoading,
-		debug,
+		inhouse,
 		ajaxAction,
 
 		options,
@@ -51,9 +51,9 @@ const ZukitSidebar = ({
 	const hasActions = !isEmpty(pluginActions) || some(actions, ['hasMoreActions', true]);
 	const hasPanels = !isEmpty(panels);
 
-	const debugSet = get(debug, 'prefix', null);
-	const debugOptions = debugSet ? get(debug, 'options') : null;
-	const debugActions =  debugSet ? omitBy(get(debug, 'actions'), isNil) : null;
+	const debugSet = get(inhouse, 'debug_group', null);
+	const debugOptions = debugSet ? get(inhouse, 'options') : null;
+	const debugActions =  debugSet ? omitBy(get(inhouse, 'actions'), isNil) : null;
 	const hasDebug = (!isEmpty(debugActions) || !isEmpty(debugOptions)) && get(panels, `${debugSet}.value`) === true;
 	const debugValue = k => get(options, debugSet ? `${debugSet}.${k}` : k);
 

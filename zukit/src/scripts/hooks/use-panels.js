@@ -36,8 +36,9 @@ function panelsReducer(panels, action) {
 
 // Update 'panels' atributte
 // Create callback to pass down a 'dispatch' function from 'useReducer' via context
-export function usePanels(initialPanels, createNotice) {
+export function usePanels(initialPanels, createNotice, keys) {
 
+	const optionsKey = get(keys, 'panels_group', '_panels');
 	const [panels, dispatch] = useReducer(panelsReducer, initialPanels);
 
 	const setPanel = useCallback(update => {
@@ -49,10 +50,10 @@ export function usePanels(initialPanels, createNotice) {
 		dispatch({ type: 'set', payload: update, callback: panels =>
 			// не используем функцию 'updateOptions' чтобы не вызывать не нужное обновление 'options'
 			// что приведет к излишним renders - нам нужно только сохранить 'panels' в базе
-			ajaxUpdateOptions('panels', mapValues(panels, p => p.value), createNotice)
+			ajaxUpdateOptions(optionsKey, mapValues(panels, p => p.value), createNotice)
 		});
 
-	}, [createNotice]);
+	}, [createNotice, optionsKey]);
 
 	const getPanel = useCallback(action => {
 

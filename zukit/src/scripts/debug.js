@@ -202,6 +202,7 @@ function logGroup(groupName, groupData, params) {
         } else {
             logWithColors(`>${groupName}`);
             if(_.isNil(groupData)) shouldCloseGroup = false;
+            if(_.isFunction(groupData)) groupData = groupData();
             _.forEach(groupData, (value, key) => {
                 if(!(withoutNil && _.isNil(value))) {
                     const indexName = withoutIndex ? '' : `[${key}]`;

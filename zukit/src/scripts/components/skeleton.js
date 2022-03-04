@@ -60,7 +60,7 @@ const ZukitSkeleton = ({
 		panels: initialPanels = {},
 		info = {},
 		actions,
-		debug,
+		inhouse,
 		noticeUI,
 		noticeOperations = {},
 		...moreParams
@@ -71,8 +71,8 @@ const ZukitSkeleton = ({
 	const [loading, setLoading] = useState(
 		// create object {action_value: state} from 'actions'
 		reduce(actions, (acc, val) => (acc[val.value] = false, acc),
-			// from 'debug.actions'
-			reduce(debug.actions, (acc, val) => (acc[val.value] = false, acc), {}))
+			// from 'inhouse.actions'
+			reduce(inhouse.actions, (acc, val) => (acc[val.value] = false, acc), {}))
 	);
 
 	const updateLoading = useCallback(update => {
@@ -86,7 +86,7 @@ const ZukitSkeleton = ({
 	// create 'options' and setter
 	const [options, updateOptions, setUpdateHook] = useOptions(initialOptions, createNotice);
 	// create getter and setter for 'panels'
-	const [getPanel, setPanel, PanelsContext] = usePanels(initialPanels, createNotice);
+	const [getPanel, setPanel, PanelsContext] = usePanels(initialPanels, createNotice, inhouse);
 
 	// function that allows you to selectively reset options to their original values
 	// first get all initial values through 'ajaxAction', and then create an object with updates
@@ -206,7 +206,7 @@ const ZukitSkeleton = ({
 									more={ moreInfo }
 									actions={ actions }
 									actionLoading={ loading }
-									debug={ debug }
+									inhouse={ inhouse }
 									ajaxAction={ ajaxAction }
 
 									options={ options }
