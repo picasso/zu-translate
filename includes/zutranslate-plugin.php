@@ -57,6 +57,8 @@ class zu_Translate extends zukit_Plugin  {
 					'session'			=> true,
 					'nobackups'			=> false,
 					'initial'			=> false,
+					// can be 'true' and then ignore all custom post types or an 'array' of types to be ignored
+					'ignore_cpt'		=> ['product'],
 				],
 				'switcher'			=> [
 					'shortcode_menu'	=> true,
@@ -138,10 +140,6 @@ class zu_Translate extends zukit_Plugin  {
 	}
 
 	public function update_qtx_config($admin_config) {
-// zu_log($admin_config);
-		if($this->is_option('gutenberg')) {
-			unset($admin_config['post']);
-		}
 		if($this->is_option('list')) {
 			$admin_config['edit'] = [
 				'pages'		=> ['edit.php' => ''],
