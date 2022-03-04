@@ -23,12 +23,14 @@ trait zu_TranslateGutenberg {
 				// NOTE: pro tempora! встроить возможность в плагин ''
 				$this->qtx_gutenberg_reset();
 			}
+
 			if($this->is_option('blockeditor.nobackups')) {
 				$this->remove_post_autosave();
 			}
 		}
 	}
 
+	// filter's callback for support of Block Editor
 	public function rest_api_init() {
 		$post_types = $this->enabled_post_types();
 		foreach($post_types as $post_type) {
@@ -64,6 +66,7 @@ trait zu_TranslateGutenberg {
 		return $response;
 	}
 
+	// filter's callback for support of front-end processing
 	// replace the latest editable content on RAW content for all attributes
 	public function pre_render_posts($posts, $query) {
 		if(!is_array($posts)) return $posts;
@@ -153,6 +156,16 @@ trait zu_TranslateGutenberg {
 					}
 // zu_log_if($block['blockName'] == 'core/paragraph', $block_content, $block_raw_content, $block);
 				}
+			}
+// zu_logc('after replace', $content);
+			// if '$content' has not changed after the replacement, it means that there is an empty RAW in the text
+			// and its presence will cause all other blocks without language blocks (if any) will be cut by 'qTranslate-XT'
+			// so we remove this empty RAW ('qtranxf_split_blocks' will return the content split into language blocks)
+			if($post->post_content === $content) {
+				$blocks = qtranxf_get_language_blocks($content);
+				$content_ml = qtranxf_split_blocks($blocks);
+				$content = $content_ml[$this->get_lang()];
+// zu_logc('empty RAW', $content_ml, $this->get_lang());
 			}
 			$post->post_content = $content;
 			return true;
