@@ -2,6 +2,7 @@
 
 const {
 	isEmpty,
+	isString,
 	castArray,
 	get,
 	has,
@@ -23,7 +24,7 @@ const { useCallback, useState } = wp.element;
 // Zukit dependencies
 
 const { toggleOption } = wp.zukit.render;
-const { ZukitPanel, AdvTextControl, ListInputControl } = wp.zukit.components;
+const { ZukitPanel, AdvTextControl, ListInputControl, ZukitToggle } = wp.zukit.components;
 const { simpleMarkdown, getExternalData, messageWithError } = wp.zukit.utils;
 const { scrollTop } = wp.zukit.jq;
 
@@ -166,13 +167,21 @@ const ZutranslateBlockEditor = ({
 				</PanelBody>
 				<PanelBody className="__subtitle" title={ data.ignoreCptTitle } initialOpen={ false }>
 					<div className="__cpt">
-						<ListInputControl
-							strict={ /^(?!\d)[\w$]+$/ }
-							label={ data.ignore_cpt.cptLabel }
-							inputLabel={ simpleMarkdown(data.ignore_cpt.cptInput, { br: true }) }
-							inputHelp={ simpleMarkdown(data.ignore_cpt.cptInputHelp, { br: true }) }
-							value={ ignoreTypes }
-							onChange={ value => updateBEOptions({ ignore_cpt: value }) }
+						{ isString(ignoreTypes) &&
+							<ListInputControl
+								strict={ /^(?!\d)[\w$]+$/ }
+								label={ data.ignore_cpt.label }
+								inputLabel={ simpleMarkdown(data.ignore_cpt.input, { br: true }) }
+								inputHelp={ simpleMarkdown(data.ignore_cpt.inputHelp, { br: true }) }
+								value={ ignoreTypes }
+								onChange={ value => updateBEOptions({ ignore_cpt: value }) }
+							/>
+						}
+						<ZukitToggle
+							label={ data.ignore_cpt.ignoreAll.label }
+							help={ data.ignore_cpt.ignoreAll.help }
+							checked={ isString(ignoreTypes) ? false : true }
+							onChange={ () => updateBEOptions({ ignore_cpt: isString(ignoreTypes) ? true : '' }) }
 						/>
 					</div>
 				</PanelBody>

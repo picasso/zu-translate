@@ -101,9 +101,13 @@ const gutenberg = {
 		help:	__('Removes Wordpress *autosaves* and *backups* notices which could be very annoying.\nYou should understand what you are doing.', 'zu-translate'),
 	},
 	ignore_cpt: {
-		cptLabel: __('Custom post types that will be ignored', 'zu-translate'),
-		cptInput: __('Enter the custom post type', 'zu-translate'),
-		cptInputHelp: __('Usually the custom post type is one word, like `product` for **WooCommerce** plugin', 'zu-translate'),
+		label: __('Custom post types that will be ignored', 'zu-translate'),
+		input: __('Enter the custom post type', 'zu-translate'),
+		inputHelp: __('Usually the custom post type is one word, like `product` for **WooCommerce** plugin', 'zu-translate'),
+		ignoreAll: {
+			label: 	__('Ignore all custom post types', 'zu-translate'),
+			help:	__('Support for the **Block Editor** will be activated only on built-in types - `post` and `page`.', 'zu-translate'),
+		},
 	},
 	custom: {
 		nameLabel: __('Block name', 'zu-translate'),
