@@ -4,9 +4,11 @@
 
 trait zukit_Debug {
 
-	private static $debug_prefix = '_debug';
 	private static $log_shift = 0;
 	private $debug_mode = true;
+
+	protected static $debug_group = '_debug';
+	protected static $panels_group = '_panels';
 
 	private function debug_def_options() {
 		return [
@@ -43,7 +45,7 @@ trait zukit_Debug {
 			}, array_merge($this->debug_def_options(), $this->extend_debug_options() ?? [])
 		);
 
-		$this->config['options'][self::$debug_prefix] = $options;
+		$this->config['options'][self::$debug_group] = $options;
 		add_action('init', function() {
 			$this->refresh_scripts = $this->is_debug_option('refresh');
 		}, 12);
@@ -54,16 +56,17 @@ trait zukit_Debug {
 
 	// Debug helpers ----------------------------------------------------------]
 
-	protected function debug_data() {
+	protected function internal_data() {
 		return [
-			'prefix'	=> self::$debug_prefix,
-			'options'	=> array_merge($this->debug_def_options(), $this->extend_debug_options() ?? []),
-			'actions'	=> array_merge($this->debug_def_actions(), $this->extend_debug_actions() ?? []),
+			'debug_group'	=> self::$debug_group,
+			'panels_group'	=> self::$panels_group,
+			'options'		=> array_merge($this->debug_def_options(), $this->extend_debug_options() ?? []),
+			'actions'		=> array_merge($this->debug_def_actions(), $this->extend_debug_actions() ?? []),
 		];
 	}
 
 	private function debug_path($key) {
-		return self::$debug_prefix.'.'.$key;
+		return self::$debug_group.'.'.$key;
 	}
 
 	public function get_debug_option($key, $default = '') {

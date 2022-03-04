@@ -7,7 +7,6 @@ include_once('traits/date.php');
 include_once('traits/extend.php');
 include_once('traits/featured.php');
 include_once('traits/inline.php');
-include_once('traits/lang.php');
 include_once('traits/loader.php');
 include_once('traits/minify.php');
 include_once('traits/slugs.php');
@@ -24,7 +23,6 @@ class zukit_Snippets extends zukit_SingletonLogging {
 		zusnippets_Extend,
 		zusnippets_Featured,
 		zusnippets_Inline,
-		zusnippets_Lang,
 		zusnippets_Loader,
 		zusnippets_Minify,
 		zusnippets_Slugs,
@@ -33,7 +31,7 @@ class zukit_Snippets extends zukit_SingletonLogging {
 
 	protected function construct_more() {
 		$this->prefix = 'zu_snippets';
-        $this->version = '1.4.0';
+        $this->version = '1.4.1';
 		$this->init_inline_style_scripts();
 	}
 }
