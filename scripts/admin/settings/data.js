@@ -76,7 +76,8 @@ const gutenberg = {
 	note: __('Only blocks **known to this plugin** will support language switching in the **Block Editor**.\nTo disable the block support - turn off the **checkbox** in front of the block name. You can also add other blocks - for this you need to know the **internal** name of the block (which includes the `namespace`) and the name of the attribute/attributes that contain the **content** of the block (**what requires translation**). You can learn these names by looking at the source code of the plugin/themes where these blocks are defined or by contacting the developer.\n*Unfortunately, a simpler method has not yet been found.*', 'zu-translate'),
 	blockTitle: __('Supported blocks', 'zu-translate'),
 	moreTitle: __('Add more blocks', 'zu-translate'),
-	compress: __('Compress language data to reduce page size', 'zu-translate'),
+	ignoreCptTitle: __('Ignore Custom Post Types', 'zu-translate'),
+	// compress: __('Compress language data to reduce page size', 'zu-translate'),
 
 	toggles: ['sync', 'initial', 'session', 'unsaved', 'nobackups'],
 	sync: {
@@ -99,7 +100,11 @@ const gutenberg = {
 		label: 	__('Remove Block Editor "backups"', 'zu-translate'),
 		help:	__('Removes Wordpress *autosaves* and *backups* notices which could be very annoying.\nYou should understand what you are doing.', 'zu-translate'),
 	},
-
+	ignore_cpt: {
+		cptLabel: __('Custom post types that will be ignored', 'zu-translate'),
+		cptInput: __('Enter the custom post type', 'zu-translate'),
+		cptInputHelp: __('Usually the custom post type is one word, like `product` for **WooCommerce** plugin', 'zu-translate'),
+	},
 	custom: {
 		nameLabel: __('Block name', 'zu-translate'),
 		nameHelp: __('The block name must contain a **namespace** and a **slash**, for example, `core/quote`', 'zu-translate'),

@@ -55,7 +55,7 @@ const ZutranslateBlockEditor = ({
 
 	const { createNotice } = noticeOperations;
 	const beOptions = get(options, blockEditorKey, {});
-	const { excluded: excludedBlocks, custom: customBlocks } = beOptions;
+	const { excluded: excludedBlocks, custom: customBlocks, ignore_cpt: ignoreTypes } = beOptions;
 
 	const [ customName, setCustomName ] = useState('');
 	const [ customAtts, setCustomAtts ] = useState('');
@@ -71,8 +71,8 @@ const ZutranslateBlockEditor = ({
 	}, [resetOptions, ajaxAction]);
 
 	const updateBEOptions = useCallback(update => {
-		const folderUpdate = mapKeys(update, (_, key) => `${blockEditorKey}.${key}`);
-		updateOptions(folderUpdate);
+		const blockEditorUpdate = mapKeys(update, (_, key) => `${blockEditorKey}.${key}`);
+		updateOptions(blockEditorUpdate);
 	}, [updateOptions]);
 
 	const excludeBlock = useCallback((checked, block) => {
@@ -162,6 +162,18 @@ const ZutranslateBlockEditor = ({
 						>
 							{ data.custom.addBlock }
 						</Button>
+					</div>
+				</PanelBody>
+				<PanelBody className="__subtitle" title={ data.ignoreCptTitle } initialOpen={ false }>
+					<div className="__cpt">
+						<ListInputControl
+							strict={ /^(?!\d)[\w$]+$/ }
+							label={ data.ignore_cpt.cptLabel }
+							inputLabel={ simpleMarkdown(data.ignore_cpt.cptInput, { br: true }) }
+							inputHelp={ simpleMarkdown(data.ignore_cpt.cptInputHelp, { br: true }) }
+							value={ ignoreTypes }
+							onChange={ value => updateBEOptions({ ignore_cpt: value }) }
+						/>
 					</div>
 				</PanelBody>
 				<div className="__flex __right">
