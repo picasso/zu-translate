@@ -28,6 +28,7 @@ After the WordPress changed the `TinyMCE` to the Block Editor (*Gutenberg*), edi
 * Support for __Quick Edit__ in the list of posts/pages
 * Supports adding a language switcher to any post or page using a `shortcode`
 * Ability to use `shortcode` in the WordPress __menu__
+* Integrated and tested with __WooCommerce__ plugin
 <!-- * Ability to switch language in the modal window of __Media Library__ -->
 
 ### Shortcode attributes
@@ -89,7 +90,7 @@ If you are using the [Zukit framework](https://github.com/picasso/zukit), you ca
 
 ```php
 // for regular theme or plugin
-protected function register_my_blocks() {
+function register_my_blocks() {
     add_action('init', function() {
         if(function_exists('zutrans_register_translated_blocks')) {
             zutrans_register_translated_blocks([
