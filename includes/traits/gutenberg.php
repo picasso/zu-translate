@@ -253,15 +253,15 @@ trait zu_TranslateGutenberg {
 
 		if($is_editor) {
 			$post = get_post();
-			$product_terms = null;
+			// $product_terms = null;
 			if($post instanceof WP_Post) {
-				$product_terms = get_the_terms($post->ID, 'product_type'); //[0]->slug;
+				// $product_terms = get_the_terms($post->ID, 'product_type'); //[0]->slug;
 				$post_type = $post->post_type;
 			}
-			// zu_log($post, $product_terms);
 		}
 
-		$cpt = true; //$this->get_option('blockeditor.ignore_cpt');
+		$cpt = $this->get_option('blockeditor.ignore_cpt');
+		if(is_string($cpt)) $cpt = wp_parse_list($cpt);
 		if($post_type && $cpt) {
 			$is_custom = !in_array($post_type, $this->allowed_post_types);
 			$ignore_type = ($cpt === true && $is_custom) || (is_array($cpt) && in_array($post_type, $cpt));
@@ -270,14 +270,15 @@ trait zu_TranslateGutenberg {
 		}
 
 		$is_disabled = !($is_rest || ($is_editor && !$ignore_type));
-		zu_logc('!gutenberg disabled', $is_disabled, [
-			'is_rest'		=> $is_rest,
-			'is_editor'		=> $is_editor,
-			'ignore_type'	=> $ignore_type,
-			'post_type'		=> $post_type,
-			'pagenow'		=> $pagenow,
-			'typenow'		=> $typenow,
-		]);
+		// zu_logc($is_disabled ? '!Gutenberg disabled' : '*Gutenberg enabled', [
+		// 	'is_rest'		=> $is_rest,
+		// 	'is_editor'		=> $is_editor,
+		// 	'ignore_type'	=> $ignore_type,
+		// 	'post_type'		=> $post_type,
+		// 	'pagenow'		=> $pagenow,
+		// 	'typenow'		=> $typenow,
+		// 	'cpt'			=> $cpt,
+		// ]);
 
 		return $is_disabled;
 	}
