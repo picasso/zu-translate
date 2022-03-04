@@ -8,6 +8,7 @@ trait zu_TranslateQT {
 	private $lang_config = null;
 	private $qtx_version = false;
 	private $qtx_link = 'https://github.com/qtranslate/qtranslate-xt/';
+	private $qtx_type_excluded = null;
 
 	private function init_qtx_support() {
 		$qt_config = $this->get_qt_config();
@@ -77,8 +78,8 @@ trait zu_TranslateQT {
 	}
 
 	protected function get_url_param($param = null) {
-		$qt_config = $this->get_qt_config();
-		return $param ? ($qt_config['url_info'][$param] ?? null) : ($qt_config['url_info'] ?? null);
+		$qt_url_info = $this->get_qt_config('url_info');
+		return $param ? ($qt_url_info[$param] ?? null) : $qt_url_info;
 	}
 
 
@@ -158,20 +159,37 @@ trait zu_TranslateQT {
 		return defined('QTRANSLATE_FILE');
 	}
 
-	private function get_qt_config() {
+	private function get_qt_config($key = null) {
 		global $q_config;
-		return $q_config ?? null;
+		return is_null($key) ? ($q_config ?? null) : ($q_config[$key] ?? null);
+	}
+
+	private function set_qt_config($key = null, $value = null) {
+		global $q_config;
+		if($q_config ?? null) {
+			if(is_null($key)) $q_config = $value;
+			else $q_config[$key] = $value;
+		}
+	}
+
+	private function get_qt_config_excluded() {
+		return $this->qtx_type_excluded ?? $this->get_qt_config('post_type_excluded') ?? [];
+	}
+
+	private function reset_qt_config_excluded($excluded, $current_post_type) {
+		$this->qtx_type_excluded = $this->get_qt_config('post_type_excluded');
+		if(!in_array($current_post_type, $excluded)) $excluded[] = $current_post_type;
+		$this->set_qt_config('post_type_excluded', $excluded);
 	}
 
 	private function qtx_data($settings_data = false) {
-		$qt_config = $this->get_qt_config();
 		$content_url = trailingslashit(wp_normalize_path(dirname(WP_PLUGIN_URL)));
 		return $settings_data ? [
 			'qtxlink' => $this->qtx_link,
 			'qtxlangs' => $this->get_all_languages(),
 		] : [
 			'config'	=> $this->lang_config,
-			'location'	=> $content_url . $qt_config['flag_location'] ?? '',
+			'location'	=> $content_url . $this->get_qt_config('flag_location') ?? '',
 			'format'	=> $this->is_installed_qtranslate() ? QTX_LANG_CODE_FORMAT : '',
 		];
 	}
