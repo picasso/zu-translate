@@ -107,23 +107,23 @@ class zu_Translate extends zukit_Plugin  {
 	protected function extend_debug_options() {
 		return [
 			'edit_lang'	=> [
-				'label'		=> __('Enable logging in `EditLang`', 'zu-translate'),
+				'label'		=> __('Enable `EditLang` logging', 'zu-translate'),
 				'value'		=> false,
 			],
 			'raw_store'	=> [
-				'label'		=> __('Enable logging in `Raw Store`', 'zu-translate'),
+				'label'		=> __('Enable `Raw Store` logging', 'zu-translate'),
 				'value'		=> false,
 			],
 			'raw_helpers'	=> [
-				'label'		=> __('Enable logging in `Raw Helpers`', 'zu-translate'),
+				'label'		=> __('Enable `Raw Helpers` logging', 'zu-translate'),
 				'value'		=> false,
 			],
 			'edited_entity' => [
-				'label'		=> __('Enable logging in `Entity`', 'zu-translate'),
+				'label'		=> __('Enable `Entity` logging', 'zu-translate'),
 				'value'		=> false,
 			],
 			'sync_blocks'	=> [
-				'label'		=> __('Enable logging in `Sync Blocks`', 'zu-translate'),
+				'label'		=> __('Enable `Sync Blocks` logging', 'zu-translate'),
 				'value'		=> false,
 			],
 			'explorer'	=> [
@@ -140,7 +140,12 @@ class zu_Translate extends zukit_Plugin  {
 	}
 
 	public function update_qtx_config($admin_config) {
-		if($this->is_option('list')) {
+		// avoid some 'post_type' for 'list' option
+		$list_avoid_types = ['shop_order'];
+		parse_str($_SERVER['QUERY_STRING'] ?? '', $query_vars);
+		$current_post_type = $query_vars['post_type'] ?? '';
+
+		if($this->is_option('list') && !in_array($current_post_type, $list_avoid_types)) {
 			$admin_config['edit'] = [
 				'pages'		=> ['edit.php' => ''],
 				// there is no way to indicate that 'qTranslate-XT' plugin do not need to create a language wrap by an anchor
