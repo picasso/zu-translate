@@ -57,8 +57,8 @@ class zu_Translate extends zukit_Plugin  {
 					'session'			=> true,
 					'nobackups'			=> false,
 					'initial'			=> false,
-					// can be 'true' and then ignore all custom post types or an 'array' of types to be ignored
-					'ignore_cpt'		=> ['product'],
+					// can be 'true' and then ignore all custom post types or an 'list' of types to be ignored
+					'ignore_cpt'		=> 'product',
 				],
 				'switcher'			=> [
 					'shortcode_menu'	=> true,

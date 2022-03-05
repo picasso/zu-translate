@@ -169,7 +169,7 @@ const ZutranslateBlockEditor = ({
 					<div className="__cpt">
 						{ isString(ignoreTypes) &&
 							<ListInputControl
-								strict={ /^(?!\d)[\w$]+$/ }
+								strict={ /^[a-z0-9_-]+$/ }
 								label={ data.ignore_cpt.label }
 								inputLabel={ simpleMarkdown(data.ignore_cpt.input, { br: true }) }
 								inputHelp={ simpleMarkdown(data.ignore_cpt.inputHelp, { br: true }) }
