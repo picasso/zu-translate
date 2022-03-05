@@ -1,6 +1,6 @@
 {
     "name": "zutranslate",
-    "version": "1.3.2",
+    "version": "1.3.3",
     "testedWP": "5.9.1",
     "requiresPHP": ">=7.2.0",
     "author": "Dmitry Rudakov",

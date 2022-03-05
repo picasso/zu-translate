@@ -1,3 +1,17 @@
+#### 1.3.3 / 2022-03-05
+* improved shortcode conversion for `Classic Blocks`
+* first support for `WooCommerce` is implemented
+* avoid some `post_type` for `list` option
+* moving `reset_qt_config_excluded` method to `current_screen` action
+* disable `qtranslate-admin-main` script with `post_type_excluded` field
+* implemented `is_gutenberg_disabled` method
+* added `ignore_cpt` option
+* implemented settings panel for `ignore_cpt` option
+* improved JS for `Language Switcher` on post/pages list
+* improved button CSS on `Classic` pages
+* __Zukit__ updated to version 1.5.5
+* fixed bug when empty language blocks lead to that all blocks are cut out by `qTranslate-XT`
+
 #### 1.3.2 / 2022-02-24
 * implemented methods for `duplication` of posts
 * implemented converter for `Classic Blocks`
