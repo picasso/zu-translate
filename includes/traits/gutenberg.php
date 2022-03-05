@@ -15,9 +15,8 @@ trait zu_TranslateGutenberg {
 		if($this->is_option('gutenberg')) {
 			$this->assign_supported_blocks();
 			if(!empty($this->get_registered_data('blocks'))) {
-				// disable basic 'qTranslate-XT' support for Gutenberg
-				add_filter('qtranslate_gutenberg', '__return_true');
-
+				// use 'current_screen' instead of 'admin_init' because we need '$typenow' already set
+				add_action('current_screen', [$this, 'config_excluded'], 99);
 				add_filter('the_posts', [$this, 'pre_render_posts'], 0, 2);
 				add_action('rest_api_init', [$this, 'rest_api_init']);
 
@@ -31,12 +30,17 @@ trait zu_TranslateGutenberg {
 		}
 	}
 
-	// filter's callback for support of Block Editor
-	public function rest_api_init() {
+	// test and disable 'qtranslate-admin-main' script
+	public function config_excluded() {
 		if($this->is_gutenberg_disabled($post_type)) return;
 		// we do not check all the available 'Custom Post Types', we just take regular ones and add to them the current
 		// if the current CPT was disabled, the 'is_gutenberg_disabled' method will detect it
 		$this->reset_qt_config_excluded($this->allowed_post_types, $post_type);
+	}
+
+	// filter's callback for support of Block Editor
+	public function rest_api_init() {
+		if($this->is_gutenberg_disabled($post_type)) return;
 		$post_types = $this->enabled_post_types();
 		foreach($post_types as $post_type) {
 			add_filter("rest_prepare_{$post_type}", [$this, 'rest_prepare'], 99, 3);
@@ -251,14 +255,14 @@ trait zu_TranslateGutenberg {
 		$is_rest = defined('REST_REQUEST') && REST_REQUEST;
 		$is_editor = ($pagenow === 'post-new.php') || ($pagenow === 'post.php' &&  $action === 'edit');
 
-		if($is_editor) {
-			$post = get_post();
-			// $product_terms = null;
-			if($post instanceof WP_Post) {
-				// $product_terms = get_the_terms($post->ID, 'product_type'); //[0]->slug;
-				$post_type = $post->post_type;
-			}
-		}
+		// if($is_editor) {
+		// 	$post = get_post();
+		// 	// $product_terms = null;
+		// 	if($post instanceof WP_Post) {
+		// 		// $product_terms = get_the_terms($post->ID, 'product_type'); //[0]->slug;
+		// 		$post_type = $post->post_type;
+		// 	}
+		// }
 
 		$cpt = $this->get_option('blockeditor.ignore_cpt');
 		if(is_string($cpt)) $cpt = wp_parse_list($cpt);
@@ -305,6 +309,9 @@ trait zu_TranslateGutenberg {
 
 	// temporary measure - since I cannot prevent the current processing in the 'qTranslate-XT' plugin
 	private function qtx_gutenberg_reset() {
+		// NOTE:  когда 'qTranslate-XT' будет поддерживать этот фильтр
+		// disable basic 'qTranslate-XT' support for Gutenberg
+		// add_filter('qtranslate_gutenberg', '__return_true');
 		add_action('rest_api_init', [$this, 'remove_all'], 99);
 	}
 
