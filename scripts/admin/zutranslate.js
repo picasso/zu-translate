@@ -11,9 +11,10 @@ const { ZukitPanel } = wp.zukit.components;
 
 import { zutranslate } from './settings/data.js';
 import ZutranslateBlockEditor from './settings/block-editor.js';
+import ZutranslateAdvanced from './settings/advanced.js';
 import ZutranslateConvert from './settings/convert.js';
 
-const { options: optionsData, gutenberg, inacive, convert: convertData } = zutranslate; // switcher,
+const { options: optionsData, gutenberg, advanced, inacive, convert: convertData } = zutranslate; // switcher,
 
 const ZutranslateEdit = ({
 		// id,
@@ -48,6 +49,13 @@ const ZutranslateEdit = ({
 				resetOptions={ resetOptions }
 				noticeOperations={ noticeOperations }
 				ajaxAction={ ajaxAction }
+			/>
+			<ZutranslateAdvanced
+				data={ advanced }
+				options={ options }
+				updateOptions={ updateOptions }
+				resetOptions={ resetOptions }
+				noticeOperations={ noticeOperations }
 			/>
 			<ZutranslateConvert
 				data={ convertData }

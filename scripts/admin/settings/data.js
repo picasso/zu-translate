@@ -106,7 +106,7 @@ const gutenberg = {
 		inputHelp: __('Usually the custom post type is one word, like `product` for **WooCommerce** plugin', 'zu-translate'),
 		ignoreAll: {
 			label: 	__('Ignore all custom post types', 'zu-translate'),
-			help:	__('Support for the **Block Editor** will be activated only on built-in types - `post` and `page`.', 'zu-translate'),
+			help:	__('Support for the **Block Editor** will be activated only on built-in types: `post, page`', 'zu-translate'),
 		},
 	},
 	custom: {
@@ -144,6 +144,19 @@ const convert = {
 	primaryHelp: __('The contents of the block for this language will be used as a **basis** for conversion.', 'zu-translate'),
 };
 
+const advanced = {
+	list_exclude: {
+		label: __('Custom post types that will be ignored for **"posts/pages"** switcher', 'zu-translate'),
+		input: __('Enter the custom post type', 'zu-translate'),
+		inputHelp: __('Usually the custom post type is one word, like `shop_coupon` for **WooCommerce** plugin', 'zu-translate'),
+		ignoreAll: {
+			label: 	__('Ignore all custom post types', 'zu-translate'),
+			help:	__('Support for the **"posts/pages"** switcher will be activated only on built-in types: `post, page`', 'zu-translate'),
+		},
+	},
+	resetAll: __('Reset Advanced Settings', 'zu-translate'),
+	resetNotice:__('Advanced settings are reset to defaults', 'zu-translate'),
+};
 const panels = {
 	gutenberg: {
 		value: true,
@@ -151,9 +164,9 @@ const panels = {
 		// this allows the panel to be excluded when the option is false
 		depends: 'gutenberg',
 	},
-	switcher: {
+	advanced: {
 		value: false,
-		label: 	__('Language Switcher', 'zu-translate'),
+		label: 	__('Advanced Settings', 'zu-translate'),
 	},
 };
 
@@ -163,5 +176,6 @@ export const zutranslate = {
 	switcher,
 	gutenberg,
 	convert,
+	advanced,
 	inacive: pluginInacive ? simpleMarkdown(inacive, { br: true, links: qtxUrl }) : false,
 }
