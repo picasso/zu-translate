@@ -1,3 +1,8 @@
+#### 1.3.4 / 2022-03-06
+* implemented `Advanced Settings` panel
+* added `list_exclude` option for CPT that will be ignored for __"posts/pages"__ switcher
+* fix for `WooCommerce` coupons
+
 #### 1.3.3 / 2022-03-05
 * improved shortcode conversion for `Classic Blocks`
 * first support for `WooCommerce` is implemented
