@@ -46,6 +46,7 @@ class zu_Translate extends zukit_Plugin  {
 				'appearance'		=> false,
 				'large'				=> false,
 				'list'				=> false,
+				'list_exclude'		=> 'shop_order,shop_coupon',
 				'yseo'				=> false,
 				'media_details'		=> false,
 				'gutenberg'			=> true,
@@ -141,11 +142,13 @@ class zu_Translate extends zukit_Plugin  {
 
 	public function update_qtx_config($admin_config) {
 		// avoid some 'post_type' for 'list' option
-		$list_avoid_types = ['shop_order', 'shop_coupon'];
+		$exclude = $this->get_option('list_exclude');
+		$list_avoid_types = wp_parse_list($exclude);
 		parse_str($_SERVER['QUERY_STRING'] ?? '', $query_vars);
 		$current_post_type = $query_vars['post_type'] ?? '';
+		$ignore_type = $exclude === true || in_array($current_post_type, $list_avoid_types);
 
-		if($this->is_option('list') && !in_array($current_post_type, $list_avoid_types)) {
+		if($this->is_option('list') && !$ignore_type) {
 			$admin_config['edit'] = [
 				'pages'		=> ['edit.php' => ''],
 				// there is no way to indicate that 'qTranslate-XT' plugin do not need to create a language wrap by an anchor
