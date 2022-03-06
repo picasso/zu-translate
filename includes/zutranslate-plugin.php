@@ -141,7 +141,7 @@ class zu_Translate extends zukit_Plugin  {
 
 	public function update_qtx_config($admin_config) {
 		// avoid some 'post_type' for 'list' option
-		$list_avoid_types = ['shop_order'];
+		$list_avoid_types = ['shop_order', 'shop_coupon'];
 		parse_str($_SERVER['QUERY_STRING'] ?? '', $query_vars);
 		$current_post_type = $query_vars['post_type'] ?? '';
 
