@@ -1,4 +1,5 @@
-#### 1.3.4 / 2022-03-06
+#### 1.3.5 / 2022-03-07
+* more specific regex for `edit.php` pages
 * implemented `Advanced Settings` panel
 * added `list_exclude` option for CPT that will be ignored for __"posts/pages"__ switcher
 * fix for `WooCommerce` coupons
