@@ -150,7 +150,7 @@ class zu_Translate extends zukit_Plugin  {
 
 		if($this->is_option('list') && !$ignore_type) {
 			$admin_config['edit'] = [
-				'pages'		=> ['edit.php' => ''],
+				'pages'		=> ['^edit.php' => ''],
 				// there is no way to indicate that 'qTranslate-XT' plugin do not need to create a language wrap by an anchor
 				// so we use an existing 'id' (#the-list) and a non-existing 'where' modifier ('none')
 			    'anchors'	=> ['the-list' => ['where' => 'none']],
